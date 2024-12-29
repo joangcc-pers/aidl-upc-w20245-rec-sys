@@ -26,6 +26,12 @@ This project aims to explore and apply advanced concepts of artificial intellige
 The repository is organized as follows:
 - **tentative_name**: Work in progress...
 
+## Workflow
+
+- Branch from develop when testing a new feature.
+- After new feature has been added, merge to develop, NOT to main.
+- Test everything in develop in the cloud, and when it is working, merge to main.
+- Do **NOT** merge to main directly, so that we are sure that before marging to main, the test works in develop first.
 
 ## Requirements
 
