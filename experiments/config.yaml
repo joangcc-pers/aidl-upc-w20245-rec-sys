@@ -60,9 +60,12 @@ experiments:
   experiment_4:
     model_name: "kmeans_base_model"
     model_params:
-      n_clusters: 5
+      n_clusters_min: 2
+      n_clusters_max: 10
     preprocessing:
       validation_split: 0.2
     data_params:
       raw_input_file: "data/raw/temporal_data.csv"
       output_processed_data_path: "data/processed/experiment_4/"
+    train_params:
+      distance: "euclidean"
