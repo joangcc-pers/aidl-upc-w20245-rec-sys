@@ -26,7 +26,19 @@ The implementaiton of these architectures will use pytorch, and visualize result
 ## Contents
 
 The repository is organized as follows:
-- **tentative_name**: Work in progress...
+- **data**: Contains the data used in the project.
+    - **raw**: Stores the original, unprocessed dataset downloaded from Kaggle.
+    - **processed**: Stores the data after preprocessing and feature engineering. This data is ready to be used for training and evaluation.
+- **experiments**: Contains configuration files and results for different experiments. Each experiment has its own subfolder, where the results of the experiment will be stored.
+    **config.yaml**: Contains the configuration for preprocessing and executing each experiment.
+- **models**: Stores model_registry.py, which has the correspondence of each model class to each model called in config.yaml (within experiments). It also stores each individual model code, with the corresponding amethods to train, evaluate and construct the visualization artifacts.
+- **notebooks**: where to store all notebooks.
+- **results** Placeholder for resulting artifacts. We may delete it and use expriments folder instead.
+- **scripts**: Code called by the run_experiments (main) function, that is reponsible for calling the corresponding methods of architectures' class.
+- **test**: unit and integrity test we might need.
+- **utils**: auxiliary utils we might need.
+**run_experiment.py**: the "main" function we will call to train a model and store and visualize its results.
+
 
 ## Workflow
 
