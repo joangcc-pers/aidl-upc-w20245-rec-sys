@@ -46,11 +46,9 @@ pip install -r requirements.txt
 
 ## Execution
 
-<!-- 1. Step 1:
-
-2. Step 2: -->
-
+```bash
 python run_experiment.py --config experiments/config.yaml --experiment experiment_1 --task clean train evaluate visualize
+```
 
 - Tasks must be in correct order: clean, train, evaluate, and visualize. If orders are ntot placed in the correct order, process will fail and raise an error.
 - Tasks can be omitted if performed before.
