@@ -1,9 +1,9 @@
 import argparse
 from utils.data_cleaner import clean_data
 from models.model_registry import get_model
-from scripts.train import train_model
-from scripts.evaluate import evaluate_model
-from scripts.visualize import visualize_results
+# from scripts.train import train_model
+# from scripts.evaluate import evaluate_model
+# from scripts.visualize import visualize_results
 from utils.config_parser import parse_config
 
 def main():
@@ -29,7 +29,7 @@ def main():
             )
     
     # Load configuration
-    config = parse_config(args.config)
+    config, _, _ = parse_config(config_path=args.config)
     experiment_config = config["experiments"].get(args.experiment)
     if not experiment_config:
         raise ValueError(f"Experiment '{args.experiment}' not found in config file.")
@@ -39,19 +39,27 @@ def main():
 
     # Process tasks in order
     for task in provided_order:
+        #TODO: delete after creating train, evaluate and visualize
         if task == "clean":
-            clean_data(
-                input_path=experiment_config["data_params"]["dataset_path"],
-                output_path=experiment_config["data_params"]["cleaned_path"],
-                cleaning_params=experiment_config["data_cleaning"],
-                model_name=experiment_config["model_name"]
-            )
+            print(f"Cleaning data for '{experiment_config['model_name']}'...")
+            pass
+            preprocessing_config = experiment_config.get("preprocessing", {})
+            # clean_data(
+            #     raw_input_file=experiment_config["data_params"]["raw_input_file"],
+            #     output_path=experiment_config["data_params"]["output_processed_data_path"],
+            #     preprocessing_params=preprocessing_config,  # Pass preprocessing params
+            #     model_name=experiment_config["model_name"],
+            # )
+
         elif task == "train":
             print(f"Training model '{experiment_config['model_name']}'...")
-            train_model(model, experiment_config)
+            # train_model(model, experiment_config)
         elif task == "evaluate":
             print(f"Evaluating model '{experiment_config['model_name']}'...")
-            evaluate_model(model, experiment_config)
+            # evaluate_model(model, experiment_config)
         elif task == "visualize":
             print(f"Visualizing results for '{experiment_config['model_name']}'...")
-            visualize_results(experiment_config)
+            # visualize_results(experiment_config)
+
+if __name__ == "__main__":
+    main()
