@@ -12,7 +12,7 @@ experiments:
       optimizer: "adam"
     data_params:
       raw_input_file: "data/raw/raw_data.csv"
-      output_processed_data_path: "data/processed/experiment_1/processed_data.csv"
+      output_processed_data_path: "data/processed/experiment_1/"
     preprocessing:
       scaling: "minmax" 
       normalization: True
