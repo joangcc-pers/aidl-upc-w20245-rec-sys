@@ -44,6 +44,9 @@ def main():
             print(f"Cleaning data for '{experiment_config['model_name']}'...")
             pass
             preprocessing_config = experiment_config.get("preprocessing", {})
+            print("Preprocessing config:")
+            for key, value in preprocessing_config.items():
+                print(f"  {key}: {value}")
             # clean_data(
             #     raw_input_file=experiment_config["data_params"]["raw_input_file"],
             #     output_path=experiment_config["data_params"]["output_processed_data_path"],
@@ -54,6 +57,13 @@ def main():
         elif task == "train":
             print(f"Training model '{experiment_config['model_name']}'...")
             # train_model(model, experiment_config)
+            print("Model parameters:")
+            for key, value in experiment_config["model_params"].items():
+                print(f"  {key}: {value}")
+
+            print("Training parameters:")
+            for key, value in experiment_config["train_params"].items():
+                print(f"  {key}: {value}")
         elif task == "evaluate":
             print(f"Evaluating model '{experiment_config['model_name']}'...")
             # evaluate_model(model, experiment_config)
