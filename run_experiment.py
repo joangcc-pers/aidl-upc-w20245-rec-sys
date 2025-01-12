@@ -1,5 +1,5 @@
 import argparse
-from utils.data_cleaner import clean_data
+from scripts.preprocess import preprocess_data
 from models.model_registry import get_model
 # from scripts.train import train_model
 # from scripts.evaluate import evaluate_model
@@ -47,7 +47,7 @@ def main():
             print("Preprocessing config:")
             for key, value in preprocessing_config.items():
                 print(f"  {key}: {value}")
-            # clean_data(
+            # preprocess_data(
             #     raw_input_file=experiment_config["data_params"]["raw_input_file"],
             #     output_path=experiment_config["data_params"]["output_processed_data_path"],
             #     preprocessing_params=preprocessing_config,  # Pass preprocessing params
