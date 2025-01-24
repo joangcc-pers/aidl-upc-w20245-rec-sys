@@ -1,0 +1,1 @@
+In order to run the experiment, go to the project folder and execute `python experiments/sr_gnn/sr_gnn_main.py`
