@@ -11,7 +11,8 @@ from utils.csv_files_enum import CsvFilesEnum
 from scripts.node_embedding import NodeEmbedding
 
 class SessionGraphEmbeddingsDataset(Dataset):
-    def __init__(self, folder_path,
+    def __init__(self,
+                 folder_path,
                  start_month,
                  end_month,
                  transform=None,
@@ -24,7 +25,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
             start_month (str): Start month in 'YYYY-MM' format.
             end_month (str): End month in 'YYYY-MM' format.
             transform (callable, optional): Transform function for data augmentation.
-            test_sessions_first_n (int, optional): Limit the dataset to the first n sessions for testing.
+            test_sessions_first_n (int, optional): Limit the dataset to the first n sessions for testing/debugging purposes.
             embedding_dim (int, optional): Dimensionality of the embeddings.
         """
 
@@ -44,7 +45,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
         start_key = start_csv.replace(".csv", "")
         end_key = end_csv.replace(".csv", "")
 
-        print(os.listdir(folder_path))
+        # print(os.listdir(folder_path))
 
         print("[INFO] Loading CSV files from folder:", folder_path)
         csv_files = []
