@@ -34,15 +34,12 @@ experiments:
       raw_input_path: "data/raw/raw_data.csv"
       output_processed_data_path: "data/processed/experiment_2/"
     preprocessing:
-      scaling: "standard"
-      normalization: False
-      categorical_encoding: "label"
-      validation_split: 0.1
+      shuffle: False
+      start_month: '2019-10'
+      end_month: '2019-10'
+      test_sessions_first_n: 10000
       embedding_dim: 64
-      num_categories: 100
-      num_sub_categories: 50
-      num_elements: 200
-      num_event_types: 10
+      batch_size: 32
 
 
 
