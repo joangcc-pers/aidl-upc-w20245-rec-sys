@@ -1,0 +1,22 @@
+experiments:
+
+  experiment_1:
+    model_name: "graph_nn_with_embeddings"
+    model_params:
+      num_layers: 5
+      hidden_units: 256
+      dropout_rate: 0.3
+    train_params:
+      learning_rate: 0.0005
+      epochs: 15
+      optimizer: "sgd"
+    data_params:
+      raw_input_path: "data/raw/raw_data.csv"
+      output_processed_data_path: "data/processed/experiment_1/"
+    preprocessing:
+      shuffle: False
+      start_month: '2019-10'
+      end_month: '2019-10'
+      test_sessions_first_n: 10000
+      embedding_dim: 64
+      batch_size: 32
