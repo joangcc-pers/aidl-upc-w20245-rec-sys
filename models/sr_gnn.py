@@ -18,8 +18,8 @@ class SR_GNN(nn.Module):
         # We may need to adapt this layer depending on the final implementation choice on how to represent the different attributes of a product
         self.item_embedding = nn.Embedding(num_items, embedding_dim) 
         
-        self.hidden_dim=hidden_dim
-        self.num_iterations=num_iterations
+        self.hidden_dim=hidden_dim 
+        self.num_iterations=num_iterations 
         
         # GGNN Layer
         self.gnn_layer = GRUGraphLayer(embedding_dim, hidden_dim, num_iterations)
@@ -34,13 +34,13 @@ class SR_GNN(nn.Module):
         data # python geometry object containting data.x (item indices) and data.edge_index (edges)
         ):
         
-        node_embeddings = self.item_embedding(data.x)
+        item_embeddings = self.item_embedding(data.x) # Shape: (num_items, embedding_dim)
         
-        # Pass node embeddings through the ggnn
-        node_embeddings = self.gnn_layer(node_embeddings, data.edge_index)
+        # Pass item embeddings through the ggnn
+        item_embeddings = self.gnn_layer(item_embeddings, data.edge_index) # Shape: (num_items, hidden_dim)
         
         # TODO replace with attention mechanism
-        graph_embeddings = global_mean_pool(node_embeddings, data.batch)  # Shape: (batch_size, hidden_dim)
+        graph_embeddings = global_mean_pool(item_embeddings, data.batch)  # Shape: (batch_size, hidden_dim)
         
         scores = self.fc(graph_embeddings) # Shape (num_items,)
         
@@ -48,7 +48,7 @@ class SR_GNN(nn.Module):
     
 class GRUGraphLayer(MessagePassing):
     def __init__(self, input_dim, hidden_dim, num_iterations=1):
-        super(GRUGraphLayer, self).__init__(aggr="add")  # "Add" aggregation for message passing
+        super(GRUGraphLayer, self).__init__(aggr="mean")  # Adapted to mean aggregation to be more aligned with the original paper
         self.gru = nn.GRUCell(hidden_dim, hidden_dim)
         self.num_iterations = num_iterations
 

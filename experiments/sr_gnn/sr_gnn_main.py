@@ -37,11 +37,9 @@ for epoch in range(epochs):
     total_loss = 0
 
     for batch in dataloader:
-        # Forward pass
         optimizer.zero_grad()
-        out = model(batch)  # Predictions for all items
+        out = model(batch)  
 
-        # Compute loss
         loss = criterion(out, batch.y)
         loss.backward()
         optimizer.step()
