@@ -16,5 +16,5 @@ def preprocess_graph_with_embeddings(input_folder_path, preprocessing_params):
                                             test_sessions_first_n=preprocessing_params.get("test_sessions_first_n"), 
                                             embedding_dim=64
                                             )
-    dataloader = DataLoader(dataset, batch_size=32, shuffle=preprocessing_params.get("shuffle"), collate_fn=collate_fn)
+    dataloader = DataLoader(dataset, batch_size=preprocessing_params.get("batch_size"), shuffle=preprocessing_params.get("shuffle"), collate_fn=collate_fn)
     return dataloader
