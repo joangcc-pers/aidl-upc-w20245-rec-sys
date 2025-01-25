@@ -4,6 +4,11 @@ from scripts.node_embedding import NodeEmbedding
 from scripts.session_graph_embeddings_dataset import SessionGraphEmbeddingsDataset
 from scripts.collate_fn import collate_fn
 
+#########################################################################################
+#### SCRIPT FOR DEBUGGING ONLY: DATASET INSTANTIATION WITH EMBEDDINGS AND DATALOADER ####
+#########################################################################################
+
+
 # Configuration
 # EMBEDDING_DIM = 64
 # NUM_CATEGORIES = 100
