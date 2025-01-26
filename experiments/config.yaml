@@ -1,71 +1,22 @@
 experiments:
-  experiment_1:
-    model_name: "hierarchical_rnn"
-    model_params:
-      num_layers: 3
-      hidden_units: 128
-      dropout_rate: 0.2
-    train_params:
-      batch_size: 64
-      learning_rate: 0.001
-      epochs: 10
-      optimizer: "adam"
-    data_params:
-      raw_input_file: "data/raw/raw_data.csv"
-      output_processed_data_path: "data/processed/experiment_1/"
-    preprocessing:
-      scaling: "minmax" 
-      normalization: True
-      categorical_encoding: "onehot"
-      validation_split: 0.2
 
-  experiment_2:
-    model_name: "graph_nn"
+  experiment_1:
+    model_name: "graph_with_embeddings"
     model_params:
       num_layers: 5
       hidden_units: 256
       dropout_rate: 0.3
     train_params:
-      batch_size: 32
       learning_rate: 0.0005
       epochs: 15
       optimizer: "sgd"
     data_params:
-      raw_input_file: "data/raw/raw_data.csv"
+      input_folder_path: "data/raw/"
       output_processed_data_path: "data/processed/experiment_1/"
     preprocessing:
-      scaling: "standard"
-      normalization: False
-      categorical_encoding: "label"
-      validation_split: 0.1
-
-  experiment_3:
-    model_name: "temporal_transformer"
-    model_params:
-      num_heads: 4
-      num_layers: 2
-      hidden_units: 512
-      dropout_rate: 0.1
-    train_params:
-      batch_size: 16
-      learning_rate: 0.0001
-      epochs: 20
-      optimizer: "adamw"
-    data_params:
-      raw_input_file: "data/raw/temporal_data.csv"
-      output_processed_data_path: "data/processed/experiment_3/"
-    preprocessing:
-      validation_split: 0.15
-
-  experiment_4:
-    model_name: "kmeans_base_model"
-    model_params:
-      n_clusters_min: 2
-      n_clusters_max: 10
-    preprocessing:
-      validation_split: 0.2
-    data_params:
-      raw_input_file: "data/raw/temporal_data.csv"
-      output_processed_data_path: "data/processed/experiment_4/"
-    train_params:
-      distance: "euclidean"
+      shuffle: False
+      start_month: '2019-10'
+      end_month: '2019-10'
+      test_sessions_first_n: 10000
+      embedding_dim: 64
+      batch_size: 32
