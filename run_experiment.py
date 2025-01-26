@@ -1,6 +1,6 @@
 import argparse
 from scripts.preprocess import preprocess_data
-from models.model_registry import get_model
+# from models.model_registry import get_model
 # from scripts.train import train_model
 # from scripts.evaluate import evaluate_model
 # from scripts.visualize import visualize_results
@@ -33,26 +33,26 @@ def main():
     experiment_config = config["experiments"].get(args.experiment)
     if not experiment_config:
         raise ValueError(f"Experiment '{args.experiment}' not found in config file.")
-    
-    model_class = get_model(experiment_config["model_name"])
-    model = model_class(experiment_config["model_params"])
+
+    # TODO: temporary deactivation of get_model, until we have any model built. Then, activate again.    
+    # model_class = get_model(experiment_config["model_name"])
+    # model = model_class(experiment_config["model_params"])
 
     # Process tasks in order
     for task in provided_order:
         #TODO: delete after creating train, evaluate and visualize
         if task == "clean":
             print(f"Cleaning data for '{experiment_config['model_name']}'...")
-            pass
             preprocessing_config = experiment_config.get("preprocessing", {})
             print("Preprocessing config:")
             for key, value in preprocessing_config.items():
                 print(f"  {key}: {value}")
-            # preprocess_data(
-            #     raw_input_file=experiment_config["data_params"]["raw_input_file"],
-            #     output_path=experiment_config["data_params"]["output_processed_data_path"],
-            #     preprocessing_params=preprocessing_config,  # Pass preprocessing params
-            #     model_name=experiment_config["model_name"],
-            # )
+            preprocess_data(
+                input_folder_path=experiment_config["data_params"]["input_folder_path"],
+                output_path=experiment_config["data_params"]["output_processed_data_path"],
+                preprocessing_params=preprocessing_config,  # Pass preprocessing params
+                model_name=experiment_config["model_name"],
+            )
 
         elif task == "train":
             print(f"Training model '{experiment_config['model_name']}'...")

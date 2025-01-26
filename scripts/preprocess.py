@@ -19,5 +19,5 @@ def preprocess_data(model_name, input_folder_path, output_path, preprocessing_pa
         raise ValueError(f"Unsupported model name: {model_name}")
 
     # Save cleaned and preprocessed data
-    data.to_csv(output_path, index=False)
-    print(f"Data saved to {output_path}")
+    # data.to_csv(output_path, index=False)
+    # print(f"Data saved to {output_path}")
