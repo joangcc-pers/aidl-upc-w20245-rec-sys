@@ -1,7 +1,7 @@
 experiments:
 
   experiment_1:
-    model_name: "graph_nn_with_embeddings"
+    model_name: "graph_with_embeddings"
     model_params:
       num_layers: 5
       hidden_units: 256
@@ -11,7 +11,7 @@ experiments:
       epochs: 15
       optimizer: "sgd"
     data_params:
-      raw_input_path: "data/raw/raw_data.csv"
+      input_folder_path: "data/raw/"
       output_processed_data_path: "data/processed/experiment_1/"
     preprocessing:
       shuffle: False
