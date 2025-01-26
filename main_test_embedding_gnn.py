@@ -7,7 +7,9 @@ from scripts.collate_fn import collate_fn
 #########################################################################################
 #### SCRIPT FOR DEBUGGING ONLY: DATASET INSTANTIATION WITH EMBEDDINGS AND DATALOADER ####
 #########################################################################################
-
+###################################################################
+#### CODE FOR DEVELOPMENT AND DEBUGGING ONLY: WORK IN PROGRESS ####
+###################################################################
 
 # Configuration
 # EMBEDDING_DIM = 64
