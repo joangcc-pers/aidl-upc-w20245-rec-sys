@@ -7,14 +7,14 @@ class SessionDataset(Dataset):
         self.sessions = sessions
         self.num_items = num_items
 
-    def len(self):
+    def __len__(self):
         return len(self.sessions)
 
-    def get(self, idx):
+    def __getitem__(self, idx):
         session = self.sessions[idx]
         num_nodes = len(session) - 1
         
-        edge_index = self.compute_edges(num_nodes)
+        edge_index = self._compute_edges(num_nodes)
 
         # Features (all item indices except the last one)
         x = torch.tensor(session[:-1], dtype=torch.long)
@@ -24,7 +24,7 @@ class SessionDataset(Dataset):
 
         return Data(x=x, edge_index=edge_index, y=y)
     
-    def compute_edges(self, num_nodes):
+    def _compute_edges(self, num_nodes):
         edge_index = torch.tensor([
             [i, i + 1] for i in range(num_nodes - 1) # forward
         ] + [
