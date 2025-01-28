@@ -1,5 +1,5 @@
-from scripts.preprocess_graph_with_embeddings import preprocess_graph_with_embeddings
-from scripts.preprocess_sr_gnn import preprocess_sr_gnn
+from scripts.preprocessing_scripts.preprocess_graph_with_embeddings import preprocess_graph_with_embeddings
+from scripts.preprocessing_scripts.preprocess_sr_gnn import preprocess_sr_gnn
 
 def preprocess_data(model_name, input_folder_path, output_path, preprocessing_params):
     

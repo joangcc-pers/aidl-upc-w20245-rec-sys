@@ -3,7 +3,7 @@ import torch.optim as optim
 import torch.nn as nn
 import json
 
-from scripts.sr_gnn_dataset_test import SessionDataset
+from scripts.preprocessing_scripts.sr_gnn_dataset_test import SessionDataset
 from torch_geometric.loader import DataLoader
 
 def preprocess_sr_gnn(input_folder_path, preprocessing_params):

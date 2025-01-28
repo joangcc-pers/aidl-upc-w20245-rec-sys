@@ -1,5 +1,5 @@
 
-from scripts.train_sr_gnn import train_sr_gnn
+from scripts.train_scripts.train_sr_gnn import train_sr_gnn
 
 def train_model(model_name, dataloader, training_params):
     # This function calls all needed methods of the corresponding architecture Class, and can do it differently depending on the architecture.

@@ -8,7 +8,7 @@ from sklearn.preprocessing import LabelEncoder
 
 from utils.csv_files_enum import CsvFilesEnum
 
-from scripts.node_embedding import NodeEmbedding
+from scripts.preprocessing_scripts.node_embedding import NodeEmbedding
 
 class SessionGraphEmbeddingsDataset(Dataset):
     def __init__(self,
