@@ -17,7 +17,10 @@ class SessionGraphEmbeddingsDataset(Dataset):
                  end_month,
                  transform=None,
                  test_sessions_first_n=None, 
-                 embedding_dim=64):
+                 embedding_dim=64,
+                 limit_to_view_event=False,
+                 drop_listwise_nulls=False
+                 ):
         """
         Dataset for session-based recommendation using Graph Neural Networks.
         Args:
@@ -27,6 +30,8 @@ class SessionGraphEmbeddingsDataset(Dataset):
             transform (callable, optional): Transform function for data augmentation.
             test_sessions_first_n (int, optional): Limit the dataset to the first n sessions for testing/debugging purposes.
             embedding_dim (int, optional): Dimensionality of the embeddings.
+            limit_to_view_event (bool, optional): Limit the dataset to 'view' events only.
+            drop_listwise_nulls (bool, optional): Drop rows with nulls in 'brand', 'category_code' or 'price'
         """
 
 
@@ -67,7 +72,18 @@ class SessionGraphEmbeddingsDataset(Dataset):
         self.data = pd.concat([pd.read_csv(f) for f in csv_files], ignore_index=True)
         print(f"[INFO] Loaded {len(self.data)} rows of data from {len(csv_files)} CSV files.")
 
-        # Step 2 [Debugging]: Limit `self.data` to only the first k unique sessions
+        # Step 2: Limit to event_type = view
+        if limit_to_view_event == True:
+            self.data = self.data[self.data['event_type'] == 'view'].reset_index(drop=True)
+            print(f"[INFO] Data limited to {len(self.data)} rows with event_type = 'view'.")
+
+
+        # Step 3: Limit to no nulls in brand, category_code and price
+        if drop_listwise_nulls == True:
+            self.data = self.data.dropna(subset=['brand', 'category_code', 'price']).reset_index(drop=True)
+            print(f"[INFO] Data limited to {len(self.data)} rows with no nulls in 'brand', 'category_code' and 'price'.")
+
+        # Step 4 [Debugging]: Limit `self.data` to only the first k unique sessions
 
         if test_sessions_first_n:
             print(f"[INFO:TEST_MODE] Limiting data to the first {str(test_sessions_first_n)} sessions...")
@@ -76,7 +92,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
             print(f"[INFO:TEST_MODE] Data limited to {len(self.data)} rows from the first {str(test_sessions_first_n)} sessions.")
 
 
-        # Step 3: Parse `category_code` into hierarchical features
+        # Step 5: Parse `category_code` into hierarchical features
         print("[INFO] Parsing category hierarchy...")
 
         # Create a mask for rows where `category_code` is NaN
@@ -103,16 +119,16 @@ class SessionGraphEmbeddingsDataset(Dataset):
         print(self.data['element'].unique())
 
 
-        # Step 4: Sort by session and timestamp for sequential modeling
+        # Step 6: Sort by session and timestamp for sequential modeling
         print("[INFO] Sorting data by 'user_session' and 'event_time'...")
         self.data.sort_values(by=['user_session', 'event_time'], inplace=True)
         print("[INFO] Data sorted.")
 
-        # Step 5: Calculate number of unique occurrences for each column
+        # Step 7: Calculate number of unique occurrences for each column
         num_categories = self.data['category'].nunique()
         num_sub_categories = self.data['sub_category'].nunique()
         num_elements = self.data['element'].nunique()
-        num_event_types = self.data['event_type'].nunique()
+        num_brands = self.data['brand'].nunique()
 
         # Debugging information
         print(f"[DEBUG] Unique categories count: {num_categories}")
@@ -121,11 +137,11 @@ class SessionGraphEmbeddingsDataset(Dataset):
         print(f"[DEBUG] Unique sub-categories: {self.data['sub_category'].unique()}")
         print(f"[DEBUG] Unique elements count: {num_elements}")
         print(f"[DEBUG] Unique elements: {self.data['element'].unique()}")
-        print(f"[DEBUG] Unique event types count: {num_event_types}")
-        print(f"[DEBUG] Unique event types: {self.data['event_type'].unique()}")
+        print(f"[DEBUG] Unique brands count: {num_brands}")
+        print(f"[DEBUG] Unique brand names: {self.data['brand'].unique()}")
 
 
-        # Step 6: Encode categorical columns
+        # Step 8: Encode categorical columns
         print("[INFO] Encoding categorical columns...")
         le = LabelEncoder()
 
@@ -133,15 +149,15 @@ class SessionGraphEmbeddingsDataset(Dataset):
         self.data['category'] = le.fit_transform(self.data['category'])
         self.data['sub_category'] = le.fit_transform(self.data['sub_category'])
         self.data['element'] = le.fit_transform(self.data['element'])
-        self.data['event_type'] = le.fit_transform(self.data['event_type'])
+        self.data['brand'] = le.fit_transform(self.data['brand'])
         print("[INFO] Categorical columns encoded.")
 
-        # Step 7: Extract unique sessions
+        # Step 9: Extract unique sessions
         print("[INFO] Extracting unique sessions...")
         self.sessions = self.data['user_session'].unique()
         print(f"[INFO] Found {len(self.sessions)} unique sessions.")
 
-        # Step 8: Declare embeddings model
+        # Step 10: Declare embeddings model
         print("[INFO] Declaring embeddings for categorical features...")
         # Here we create a pre-trained embedding model for categorical features.
 
@@ -149,7 +165,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
             num_categories,
             num_sub_categories,
             num_elements,
-            num_event_types,
+            num_brands,
             embedding_dim)
         print("[INFO] Declared embeddings.")
 
@@ -176,7 +192,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
             torch.tensor(session_data['category'].values, dtype=torch.long),
             torch.tensor(session_data['sub_category'].values, dtype=torch.long),
             torch.tensor(session_data['element'].values, dtype=torch.long),
-            torch.tensor(session_data['event_type'].values, dtype=torch.long),
+            torch.tensor(session_data['brand'].values, dtype=torch.long),
         )
         # Directly pass the embeddings to the graph creation function
         return self._get_graph(session_data, session_id, category_embeddings)
