@@ -16,12 +16,12 @@ from scripts.collate_fn import collate_fn
 # NUM_CATEGORIES = 100
 # NUM_SUB_CATEGORIES = 50
 # NUM_ELEMENTS = 200
-# NUM_EVENT_TYPES = 10
+# NUM_BRANDS = 10
 FOLDER_PATH = "data/raw/"
 
 if __name__ == "__main__":
     # Initialize NodeEmbedding model
-    # embedding_model = NodeEmbedding(NUM_CATEGORIES, NUM_SUB_CATEGORIES, NUM_ELEMENTS, NUM_EVENT_TYPES, EMBEDDING_DIM)
+    # embedding_model = NodeEmbedding(NUM_CATEGORIES, NUM_SUB_CATEGORIES, NUM_ELEMENTS, num_brands, EMBEDDING_DIM)
 
     # Initialize dataset and dataloader
     dataset = SessionGraphEmbeddingsDataset(folder_path=FOLDER_PATH,
