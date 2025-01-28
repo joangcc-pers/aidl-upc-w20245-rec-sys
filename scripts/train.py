@@ -6,7 +6,7 @@ def train_model(model_name, dataloader, training_params):
     print(f"Training {model_name}...")
 
     # Define preprocessing pipeline for each architecture
-    if model_name in {"sr_gnn","sr_gnn_test_mockup"}:
+    if model_name in {"sr_gnn","sr_gnn_test_mockup","graph_with_embeddings"}:
         train_sr_gnn(dataloader=dataloader, training_params=training_params)
     else:
         raise ValueError(f"Unsupported model name: {model_name}")

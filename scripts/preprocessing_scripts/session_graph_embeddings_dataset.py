@@ -189,7 +189,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
             session_id: The ID of the session being processed.
             category_embeddings: Precomputed embeddings for the session data.
         """
-        print(f"[DEBUG] Building graph for session: {session_id}")
+        # print(f"[DEBUG] Building graph for session: {session_id}")
 
         # Map product IDs to node indices
         product_ids = session_data['product_id'].astype('category')
@@ -221,11 +221,15 @@ class SessionGraphEmbeddingsDataset(Dataset):
         # Concatenate embeddings and price
         x = torch.cat([category_embeddings, price_tensor], dim=1)
 
+        # Target (the last product ID to predict)
+        target_product_id = session_data.iloc[-1]['product_id']
+        y = torch.tensor(node_map[target_product_id], dtype=torch.long)
+
         # PyG graph object
-        graph = Data(x=x, edge_index=edge_index, session_id=session_id)
+        graph = Data(x=x, edge_index=edge_index, y=y, session_id=session_id)
 
         if self.transform:
             graph = self.transform(graph)
 
-        print(f"[DEBUG] Graph for session {session_id} created with {x.size(0)} nodes and {edge_index.size(1)} edges.")
+        # print(f"[DEBUG] Graph for session {session_id} created with {x.size(0)} nodes and {edge_index.size(1)} edges.")
         return graph
