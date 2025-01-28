@@ -11,6 +11,9 @@ class SR_GNN(nn.Module):
         ):
         super(SR_GNN, self).__init__()
         
+        #TODO: Iniciar la classe node_embedding y pasarle los parámetros necesarios
+
+
         self.hidden_dim=hidden_dim
         self.num_items = num_items
         self.num_iterations=num_iterations 
@@ -30,6 +33,12 @@ class SR_GNN(nn.Module):
         data # python geometry object containting data.x (item indices) and data.edge_index (edges)
         ):
         
+        #TODO passar-li els 4 elements i assegurar-nos que funcioni
+        embedding = self.node_embedding(data.categories, data.sub_categories, data.elements, data.brands) 
+
+
+
+        #TODO definir item_embeddings com a concatenació de price i embedding
         item_embeddings = data.x  # (num_items, embedding_dim) # Shape: (num_items, embedding_dim)
         
         # Pass item embeddings through the ggnn
