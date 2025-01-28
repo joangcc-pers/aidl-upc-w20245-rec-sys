@@ -9,7 +9,7 @@ class NodeEmbedding(torch.nn.Module):
         self.element_embedding = torch.nn.Embedding(num_elements, embedding_dim)
         self.brand_embedding = torch.nn.Embedding(num_brands, embedding_dim)
 
-    def generate_embeddings(self, categories, sub_categories, elements, brands):
+    def forward(self, categories, sub_categories, elements, brands):
         # It is the "forward". Generate embeddings for the inputs
         category_emb = self.category_embedding(categories)
         sub_category_emb = self.sub_category_embedding(sub_categories)

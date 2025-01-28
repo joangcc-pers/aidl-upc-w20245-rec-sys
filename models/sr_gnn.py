@@ -1,18 +1,26 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import MessagePassing, global_mean_pool
+from scripts.preprocessing_scripts.node_embedding import NodeEmbedding
 
 class SR_GNN(nn.Module):
     def __init__(
         self,
         hidden_dim=100,
         num_iterations=1,  # number of 'hops', defaults to 1 as indicated in the official implementation https://github.com/CRIPAC-DIG/SR-GNN/blob/master/pytorch_code/main.py
-        num_items=None
+        num_items=None,
+        num_categories=None,
+        num_sub_categories=None,
+        num_elements=None,
+        num_brands=None,
+        embedding_dim=None
         ):
         super(SR_GNN, self).__init__()
         
-        #TODO: Iniciar la classe node_embedding y pasarle los parámetros necesarios
+        #TODO: Iniciar la classe node_embedding i passar-li els paràmetres necessaris
 
+        self.node_embedding = NodeEmbedding(num_categories, num_sub_categories, num_elements, num_brands, embedding_dim)
 
         self.hidden_dim=hidden_dim
         self.num_items = num_items
@@ -34,18 +42,17 @@ class SR_GNN(nn.Module):
         ):
         
         #TODO passar-li els 4 elements i assegurar-nos que funcioni
-        embedding = self.node_embedding(data.categories, data.sub_categories, data.elements, data.brands) 
+        embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand) 
 
+        #TODO: concatenar els embeddings amb les dades
 
-
-        #TODO definir item_embeddings com a concatenació de price i embedding
-        item_embeddings = data.x  # (num_items, embedding_dim) # Shape: (num_items, embedding_dim)
+        item_embeddings = torch.cat([data.price_tensor, data.product_id_global_tensor, embedding], dim=1) # Shape: (num_items, embedding_dim)
         
-        # Pass item embeddings through the ggnn
-        item_embeddings = self.gnn_layer(item_embeddings, data.edge_index) # Shape: (num_items, hidden_dim)
+        # Pass item embeddings through the gnn
+        item_embeddings_gnn = self.gnn_layer(item_embeddings, data.edge_index) # Shape: (num_items, hidden_dim)
         
         # TODO replace with attention mechanism
-        graph_embeddings = global_mean_pool(item_embeddings, data.batch)  # Shape: (batch_size, hidden_dim)
+        graph_embeddings = global_mean_pool(item_embeddings_gnn, data.batch)  # Shape: (batch_size, hidden_dim)
         
         scores = self.fc(graph_embeddings) # Shape (batch_size, num_items)
         
