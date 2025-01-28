@@ -18,7 +18,8 @@ def preprocess_sr_gnn(input_folder_path, preprocessing_params):
     print(f"Loaded {len(sessions)} sessions.")
 
     num_items = 100  # Total number of unique items in the catalog
+    embedding_dim = preprocessing_params.get("embedding_dim",100)
 
-    dataset = SessionDataset(sessions, num_items)
+    dataset = SessionDataset(sessions, num_items, embedding_dim=embedding_dim)
     dataloader = DataLoader(dataset, batch_size=100, shuffle=preprocessing_params["shuffle"])
     return dataloader
