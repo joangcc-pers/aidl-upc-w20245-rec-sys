@@ -36,3 +36,24 @@ experiments:
       output_processed_data_path: "data/processed/experiment_2/"
     preprocessing:
       shuffle: False
+
+  experiment_3:
+    model_name: "graph_with_embeddings"
+    training_params:
+      lr: 0.01
+      epochs: 15
+      optimizer: "Adam"
+      num_items: 100
+      embedding_dim: 100
+      hidden_dim: 100
+      num_iterations: 1
+    data_params:
+      input_folder_path: "data/raw/"
+      output_processed_data_path: "data/processed/experiment_3/"
+    preprocessing:
+      shuffle: False
+      start_month: '2019-10'
+      end_month: '2019-10'
+      test_sessions_first_n: 10000
+      embedding_dim: 64
+      batch_size: 32
