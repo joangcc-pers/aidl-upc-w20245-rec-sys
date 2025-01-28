@@ -43,9 +43,6 @@ experiments:
       lr: 0.01
       epochs: 15
       optimizer: "Adam"
-      num_items: 100
-      embedding_dim: 100
-      hidden_dim: 100
       num_iterations: 1
     data_params:
       input_folder_path: "data/raw/"
