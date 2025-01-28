@@ -1,7 +1,6 @@
 import argparse
 from scripts.preprocess import preprocess_data
-# from models.model_registry import get_model
-# from scripts.train import train_model
+from scripts.train import train_model
 # from scripts.evaluate import evaluate_model
 # from scripts.visualize import visualize_results
 from utils.config_parser import parse_config
@@ -47,7 +46,7 @@ def main():
             print("Preprocessing config:")
             for key, value in preprocessing_config.items():
                 print(f"  {key}: {value}")
-            preprocess_data(
+            dataloader = preprocess_data(
                 input_folder_path=experiment_config["data_params"]["input_folder_path"],
                 output_path=experiment_config["data_params"]["output_processed_data_path"],
                 preprocessing_params=preprocessing_config,  # Pass preprocessing params
@@ -56,17 +55,19 @@ def main():
 
         elif task == "train":
             print(f"Training model '{experiment_config['model_name']}'...")
-            # train_model(model, experiment_config)
-            print("Model parameters:")
-            for key, value in experiment_config["model_params"].items():
-                print(f"  {key}: {value}")
-
+            #TODO: retrieve dataloader object when script hasn't run "clean" but it has been previously saved
             print("Training parameters:")
-            for key, value in experiment_config["train_params"].items():
+            for key, value in experiment_config["training_params"].items():
                 print(f"  {key}: {value}")
+            train_model(
+                model_name=experiment_config["model_name"],
+                dataloader=dataloader,
+                training_params=experiment_config.get("training_params", {}))
+
         elif task == "evaluate":
             print(f"Evaluating model '{experiment_config['model_name']}'...")
             # evaluate_model(model, experiment_config)
+
         elif task == "visualize":
             print(f"Visualizing results for '{experiment_config['model_name']}'...")
             # visualize_results(experiment_config)

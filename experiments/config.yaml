@@ -2,14 +2,13 @@ experiments:
 
   experiment_1:
     model_name: "graph_with_embeddings"
-    model_params:
+    training_params:
+      lr: 0.0005
+      epochs: 15
+      optimizer: "sgd"
       num_layers: 5
       hidden_units: 256
       dropout_rate: 0.3
-    train_params:
-      learning_rate: 0.0005
-      epochs: 15
-      optimizer: "sgd"
     data_params:
       input_folder_path: "data/raw/"
       output_processed_data_path: "data/processed/experiment_1/"
@@ -20,3 +19,20 @@ experiments:
       test_sessions_first_n: 10000
       embedding_dim: 64
       batch_size: 32
+
+  experiment_2:
+    model_name: "sr_gnn_test_mockup"
+    training_params:
+      lr: 0.01
+      epochs: 15
+      optimizer: "Adam"
+      num_items: 100
+      embedding_dim: 100
+      hidden_dim: 100
+      num_iterations: 1
+
+    data_params:
+      input_folder_path: "data/raw/"
+      output_processed_data_path: "data/processed/experiment_2/"
+    preprocessing:
+      shuffle: False
