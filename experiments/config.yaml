@@ -63,6 +63,7 @@ experiments:
       optimizer: "Adam"
       num_iterations: 1
       embedding_dim: 64
+      hidden_dim: 100
     data_params:
       input_folder_path: "data/raw/"
       output_folder_artifacts: "data/processed/experiment_4/"

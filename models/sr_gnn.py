@@ -20,14 +20,15 @@ class SR_GNN(nn.Module):
         
         #TODO: Iniciar la classe node_embedding i passar-li els paràmetres necessaris
 
-        self.node_embedding = NodeEmbedding(num_categories, num_sub_categories, num_elements, num_brands, embedding_dim)
+        self.node_embedding = NodeEmbedding(num_categories, num_sub_categories, num_elements, num_brands, num_items, embedding_dim)
 
         self.hidden_dim=hidden_dim
         self.num_items = num_items
         self.num_iterations=num_iterations 
         
         # GGNN Layer
-        self.gnn_layer = GRUGraphLayer(hidden_dim, hidden_dim, num_iterations)
+        #NOTA: 5 ja que passem 5 embeddings (category, sub_category, elements, brand i product_id). S'ha canviat a 5 ja que passarem el product id a embedding i no el passarem com a tensor, de 2 a 1 perque nomes passarem preu com a tensor, i no preu I product_id
+        self.gnn_layer = GRUGraphLayer(5 * embedding_dim + 1, hidden_dim, num_iterations)
         
         # TODO Add Attention layer
         
@@ -41,23 +42,22 @@ class SR_GNN(nn.Module):
         data # python geometry object containting data.x (item indices) and data.edge_index (edges)
         ):
         
-        #TODO passar-li els 4 elements i assegurar-nos que funcioni
-        embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand)
-        
-        # Filtrar los productos de la sesión usando los índices de producto de la sesión
-        session_product_embeddings = embedding[data.product_id_global_tensor]  # Usamos los índices para seleccionar solo los productos de la sesión, ya que el embedding se inicializa con todos los productos
+        embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand, data.product_id_remapped)
 
-        #TODO: concatenar els embeddings amb les dades
-        print(f"price_tensor shape: {data.price_tensor.shape}")  
-        print(f"product_id_global_tensor shape: {data.product_id_global_tensor.shape}")  
-        print(f"embedding shape: {embedding.shape}")  
-        item_embeddings = torch.cat([data.price_tensor, data.product_id_global_tensor, session_product_embeddings], dim=1) # Shape: (num_items, embedding_dim)
+        # Print shapes for debugging
+        print(f"price_tensor shape: {data.price_tensor.shape}")
+        print(f"embedding shape: {embedding.shape}")
+        
+        # Concatenate item embeddings with price tensor
+        item_embeddings = torch.cat([data.price_tensor,
+                                    embedding
+                                     ], dim=1) # Shape: (num_items, embedding_dim)
         
         # Pass item embeddings through the gnn
         item_embeddings_gnn = self.gnn_layer(item_embeddings, data.edge_index) # Shape: (num_items, hidden_dim)
         
         # TODO replace with attention mechanism
-        graph_embeddings = global_mean_pool(item_embeddings_gnn, data.batch)  # Shape: (batch_size, hidden_dim)
+        graph_embeddings = global_mean_pool(item_embeddings_gnn, data.batch)  # Shape: (batch_size, hidden_dim) # El data.batch passa quin node pertany a quina sessió
         
         scores = self.fc(graph_embeddings) # Shape (batch_size, num_items)
         
@@ -66,6 +66,7 @@ class SR_GNN(nn.Module):
 class GRUGraphLayer(MessagePassing):
     def __init__(self, input_dim, hidden_dim, num_iterations=1):
         super(GRUGraphLayer, self).__init__(aggr="mean")  # Adapted to mean aggregation to be more aligned with the original paper
+        #TODO: consultar amb l'oscar si hidden_dim té sentit que sigui embedding dim * nombre embeddings + els 2 tensors (preu i producte)
         self.gru = nn.GRUCell(hidden_dim, hidden_dim)
         self.num_iterations = num_iterations
 
