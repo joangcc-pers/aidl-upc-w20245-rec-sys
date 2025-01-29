@@ -132,6 +132,14 @@ class SessionGraphEmbeddingsDataset(Dataset):
         print(self.data['sub_category'].unique())
         print(self.data['element'].unique())
 
+        # Step 6: do a linear transformation of the feature product_id to a new feature product_id_remapped
+
+        # Create a new column with the remapped product_id
+        self.data['product_id_remapped'] = self.data['product_id'].astype('category')
+        self.data['product_id_remapped'] = self.data['product_id_remapped'].cat.codes
+
+
+
 
         # Step 6: Sort by session and timestamp for sequential modeling
         print("[INFO] Sorting data by 'user_session' and 'event_time'...")
@@ -143,7 +151,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
         num_sub_categories = self.data['sub_category'].nunique()
         num_elements = self.data['element'].nunique()
         num_brands = self.data['brand'].nunique()
-        num_items = self.data['product_id'].nunique()
+        num_items = self.data['product_id_remapped'].nunique()
 
         # Guardem en un JSON els valors únics de cada columna per a passar-los al NodeEmbedding
         num_values_for_node_embedding = {
@@ -233,18 +241,16 @@ class SessionGraphEmbeddingsDataset(Dataset):
         #TODO: passar els product_ids dels productes.
 
         #TODO: Preguntar a l'oscar si és suficient amb passar els product_ids originals.
-        product_id_global = session_data['product_id']
+        product_id_global = session_data['product_id_remapped']
 
-        node_ids = product_id_global.astype('category')
-        unique_products = node_ids.cat.categories
-
-        node_map = {pid: i for i, pid in enumerate(unique_products)}
+        node_ids = session_data['product_id_remapped'].unique()
+        node_map = {pid: i for i, pid in enumerate(node_ids)}
 
         # Building edge list (temporal order + bidirectional edges)
         edges = []
         for i in range(len(session_data) - 1):
-            src = node_map[session_data.iloc[i]['product_id']]
-            dst = node_map[session_data.iloc[i + 1]['product_id']]
+            src = node_map[session_data.iloc[i]['product_id_remapped']]
+            dst = node_map[session_data.iloc[i + 1]['product_id_remapped']]
             edges.append([src, dst])
             edges.append([dst, src])
 
@@ -261,7 +267,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
         # ).unsqueeze(1)
         # Quitar el último evento de la sesión de `product_id_global`
         product_id_global_tensor = torch.tensor(
-            product_id_global[:-1].values, dtype=torch.long
+            session_data['product_id_remapped'][:-1].values, dtype=torch.long
         ).unsqueeze(1)
 
 
@@ -276,7 +282,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
         ).unsqueeze(1)
 
         # Target (the last product ID to predict)
-        target_product_id_global = session_data.iloc[-1]['product_id']
+        target_product_id_global = session_data.iloc[-1]['product_id_remapped']
         y = torch.tensor(node_map[target_product_id_global], dtype=torch.long)
 
         # PyG graph object
@@ -289,7 +295,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
                      sub_category=encoded_labels_dict['sub_category'],
                      element=encoded_labels_dict['element'],
                      brand=encoded_labels_dict['brand'],
-                     num_nodes=len(unique_products)
+                     num_nodes=len(node_ids)
                      )
 
         if self.transform:
