@@ -15,12 +15,12 @@ def train_sr_gnn(
     if dataloader is None:
         raise ValueError("dataloader cannot be None")
     
-    # Get a single batch to infer the feature dimension
-    first_batch = next(iter(dataloader))
-    if hasattr(first_batch, 'price_tensor'):
-        hidden_dim = first_batch.price_tensor.size(1)  # Extract the feature dimension from the first batch
-    else:
-        raise ValueError("Batch object does not have attribute 'price_tensor'. Ensure it contains such input feature.")
+    # # Get a single batch to infer the feature dimension
+    # first_batch = next(iter(dataloader))
+    # if hasattr(first_batch, 'price_tensor'):
+    #     hidden_dim = first_batch.price_tensor.size(1)  # Extract the feature dimension from the first batch
+    # else:
+    #     raise ValueError("Batch object does not have attribute 'price_tensor'. Ensure it contains such input feature.")
 
     # Read JSON file with training parameters at data/processed/sr_gnn_mockup/training_params.json
     # Combine the directory and the file name
@@ -32,7 +32,7 @@ def train_sr_gnn(
 
     # Initialize the model, optimizer and loss function
 
-    model = SR_GNN(hidden_dim=hidden_dim,
+    model = SR_GNN(hidden_dim=training_params["hidden_dim"],
                    num_iterations=training_params["num_iterations"],
                    num_items=num_values_for_node_embedding["num_items"],
                    embedding_dim=training_params["embedding_dim"],
