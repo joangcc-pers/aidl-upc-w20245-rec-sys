@@ -42,11 +42,16 @@ class SR_GNN(nn.Module):
         ):
         
         #TODO passar-li els 4 elements i assegurar-nos que funcioni
-        embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand) 
+        embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand)
+        
+        # Filtrar los productos de la sesión usando los índices de producto de la sesión
+        session_product_embeddings = embedding[data.product_id_global_tensor]  # Usamos los índices para seleccionar solo los productos de la sesión, ya que el embedding se inicializa con todos los productos
 
         #TODO: concatenar els embeddings amb les dades
-
-        item_embeddings = torch.cat([data.price_tensor, data.product_id_global_tensor, embedding], dim=1) # Shape: (num_items, embedding_dim)
+        print(f"price_tensor shape: {data.price_tensor.shape}")  
+        print(f"product_id_global_tensor shape: {data.product_id_global_tensor.shape}")  
+        print(f"embedding shape: {embedding.shape}")  
+        item_embeddings = torch.cat([data.price_tensor, data.product_id_global_tensor, session_product_embeddings], dim=1) # Shape: (num_items, embedding_dim)
         
         # Pass item embeddings through the gnn
         item_embeddings_gnn = self.gnn_layer(item_embeddings, data.edge_index) # Shape: (num_items, hidden_dim)

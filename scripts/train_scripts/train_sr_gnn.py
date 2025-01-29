@@ -34,7 +34,7 @@ def train_sr_gnn(
 
     model = SR_GNN(hidden_dim=hidden_dim,
                    num_iterations=training_params["num_iterations"],
-                   num_items=num_values_for_node_embedding["num_items"], #Com informem el valor de num_items?
+                   num_items=num_values_for_node_embedding["num_items"],
                    embedding_dim=training_params["embedding_dim"],
                    num_categories=num_values_for_node_embedding["num_categories"],
                    num_sub_categories=num_values_for_node_embedding["num_sub_categories"],

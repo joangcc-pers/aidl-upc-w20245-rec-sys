@@ -256,14 +256,23 @@ class SessionGraphEmbeddingsDataset(Dataset):
         # TODO: passar els product_ids dels productes.
         # Features (product_id_global)
         #TODO: preguntar a Oscar si es així com s'han de passar, o s'ha de fer alguna transformació adicional al product_id_global.
+        # product_id_global_tensor = torch.tensor(
+        #     product_id_global[:-1].values, dtype=torch.long
+        # ).unsqueeze(1)
+        # Quitar el último evento de la sesión de `product_id_global`
         product_id_global_tensor = torch.tensor(
             product_id_global[:-1].values, dtype=torch.long
         ).unsqueeze(1)
 
 
+
         # Features (price)
+        # price_tensor = torch.tensor(
+        #     session_data[:-1].groupby('product_id')['price'].first().values, dtype=torch.float
+        # ).unsqueeze(1)
+        # Quitar el último evento de la sesión de `price`
         price_tensor = torch.tensor(
-            session_data[:-1].groupby('product_id')['price'].first().values, dtype=torch.float
+            session_data['price'][:-1].values, dtype=torch.float
         ).unsqueeze(1)
 
         # Target (the last product ID to predict)
