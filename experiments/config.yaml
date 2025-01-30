@@ -76,3 +76,4 @@ experiments:
       limit_to_view_event: True
       drop_listwise_nulls: True
       min_products_per_session: 3
+      normalization_method: 'zscore'
