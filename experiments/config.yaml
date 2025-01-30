@@ -72,7 +72,7 @@ experiments:
       start_month: '2019-10'
       end_month: '2019-10'
       test_sessions_first_n: 10000
-      batch_size: 32
+      batch_size: 50
       limit_to_view_event: True
       drop_listwise_nulls: True
-
+      min_products_per_session: 3

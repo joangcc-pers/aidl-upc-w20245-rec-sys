@@ -19,10 +19,10 @@ class SessionGraphEmbeddingsDataset(Dataset):
                  start_month,
                  end_month,
                  transform=None,
-                 test_sessions_first_n=None, 
-                #  embedding_dim=64,
+                 test_sessions_first_n=None,
                  limit_to_view_event=False,
-                 drop_listwise_nulls=False
+                 drop_listwise_nulls=False,
+                 min_products_per_session=3
                  ):
         """
         Dataset for session-based recommendation using Graph Neural Networks.
@@ -33,7 +33,6 @@ class SessionGraphEmbeddingsDataset(Dataset):
             end_month (str): End month in 'YYYY-MM' format.
             transform (callable, optional): Transform function for data augmentation.
             test_sessions_first_n (int, optional): Limit the dataset to the first n sessions for testing/debugging purposes.
-            embedding_dim (int, optional): Dimensionality of the embeddings.
             limit_to_view_event (bool, optional): Limit the dataset to 'view' events only.
             drop_listwise_nulls (bool, optional): Drop rows with nulls in 'brand', 'category_code' or 'price'
         """
@@ -77,6 +76,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
         print(f"[INFO] Loaded {len(self.data)} rows of data from {len(csv_files)} CSV files.")
 
 
+
         # TODO: in the preprocessing part fer min-max o z-score normalization dels preus.
 
 
@@ -92,15 +92,16 @@ class SessionGraphEmbeddingsDataset(Dataset):
             self.data = self.data.dropna(subset=['brand', 'category_code', 'price']).reset_index(drop=True)
             print(f"[INFO] Data limited to {len(self.data)} rows with no nulls in 'brand', 'category_code' and 'price'.")
 
-        # TODO: quedarnos amb sessions que hi hagin 2 o més visualitzacions.
-        # self.data = self.data.groupby('user_session').filter(lambda x: len(x) > 1)
-        # Precompute the group sizes
-        group_sizes = self.data['user_session'].value_counts()
+        # Group by 'user_session' and count the number of unique 'product_id' values for each session
+        product_counts_per_session = self.data.groupby('user_session')['product_id'].nunique()
 
-        # Filter rows based on the group size
-        self.data = self.data[self.data['user_session'].isin(group_sizes[group_sizes > 1].index)]
-        self.data.reset_index(drop=True, inplace=True)
-        print(f"[INFO] Data limited to {len(self.data)} rows with 2 or more views in the session.")
+        # Filter sessions where there are two or more unique products
+        valid_sessions = product_counts_per_session[product_counts_per_session >= min_products_per_session].index
+
+        # Keep only the rows where the 'user_session' is in the valid sessions
+        self.data = self.data[self.data['user_session'].isin(valid_sessions)].reset_index(drop=True)
+
+        print(f"[INFO] Data limited to {len(self.data)} rows with {min_products_per_session} or more unique products per session.")
 
         # Step 4 [Debugging]: Limit `self.data` to only the first k unique sessions of the concatenated CSVs
 
@@ -109,6 +110,15 @@ class SessionGraphEmbeddingsDataset(Dataset):
             first_n_sessions = self.data['user_session'].unique()[:test_sessions_first_n]
             self.data = self.data[self.data['user_session'].isin(first_n_sessions)].reset_index(drop=True)
             print(f"[INFO:TEST_MODE] Data limited to {len(self.data)} rows from the first {str(test_sessions_first_n)} sessions.")
+
+
+        # Agrupar por user_session y contar el número de productos únicos en cada sesión con al menos 3 eventos "view"
+        
+        product_counts_per_session = self.data.groupby('user_session')['product_id'].nunique()
+
+        #Raise an error if product_counts_per_session is equal to 1 in any instance
+        if (product_counts_per_session == 1).any():
+            raise ValueError("There are sessions with only 1 unique product. Please filter them out.")
 
 
         # Step 5: Parse `category_code` into hierarchical features
