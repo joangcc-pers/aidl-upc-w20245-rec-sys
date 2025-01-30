@@ -4,6 +4,8 @@ import torch
 
 import json
 
+import numpy as np
+
 from torch.utils.data import Dataset
 from torch_geometric.data import Data
 from sklearn.preprocessing import LabelEncoder
@@ -22,7 +24,8 @@ class SessionGraphEmbeddingsDataset(Dataset):
                  test_sessions_first_n=None,
                  limit_to_view_event=False,
                  drop_listwise_nulls=False,
-                 min_products_per_session=3
+                 min_products_per_session=3,
+                 normalization_method="min_max"
                  ):
         """
         Dataset for session-based recommendation using Graph Neural Networks.
@@ -35,6 +38,8 @@ class SessionGraphEmbeddingsDataset(Dataset):
             test_sessions_first_n (int, optional): Limit the dataset to the first n sessions for testing/debugging purposes.
             limit_to_view_event (bool, optional): Limit the dataset to 'view' events only.
             drop_listwise_nulls (bool, optional): Drop rows with nulls in 'brand', 'category_code' or 'price'
+            min_products_per_session (int, optional): Minimum number of unique products per session.
+            normalization_method (str, optional): Method for normalizing the price column. Options: 'min_max', 'z_score'.
         """
 
 
@@ -53,8 +58,6 @@ class SessionGraphEmbeddingsDataset(Dataset):
         start_key = start_csv.replace(".csv", "")
         end_key = end_csv.replace(".csv", "")
 
-        # print(os.listdir(folder_path))
-
         print("[INFO] Loading CSV files from folder:", folder_path)
         csv_files = []
         for f in os.listdir(folder_path):
@@ -71,23 +74,38 @@ class SessionGraphEmbeddingsDataset(Dataset):
                 f"Expected filenames: {start_csv} to {end_csv}."
             )
 
-
+        # Load CSV files into a single DataFrame
         self.data = pd.concat([pd.read_csv(f) for f in csv_files], ignore_index=True)
         print(f"[INFO] Loaded {len(self.data)} rows of data from {len(csv_files)} CSV files.")
 
+        # Step 2: Normalize the price column
+        # Extract the price column as a NumPy array for faster computations
+        print(f"[INFO] Normalizing price column using {normalization_method}...")
+        price = self.data["price"].values  
 
+        if normalization_method == "min_max":
+            min_val = np.min(price)
+            max_val = np.max(price)
+            range_val = max_val - min_val
+            if range_val != 0:  # Avoid division by zero
+                self.data["price"] = (price - min_val) / range_val
+            else:
+                self.data["price"] = 0  # If all values are the same, set to 0
+        elif normalization_method == "z_score":
+            mean_val = np.mean(price)
+            std_val = np.std(price)
+            if std_val != 0:  # Avoid division by zero
+                self.data["price"] = (price - mean_val) / std_val
+            else:
+                self.data["price"] = 0  # If all values are the same, set to 0
 
-        # TODO: in the preprocessing part fer min-max o z-score normalization dels preus.
-
-
-
-        # Step 2: Limit to event_type = view
+        # Step 3: Limit to event_type = view
         if limit_to_view_event == True:
             self.data = self.data[self.data['event_type'] == 'view'].reset_index(drop=True)
             print(f"[INFO] Data limited to {len(self.data)} rows with event_type = 'view'.")
 
 
-        # Step 3: Limit to no nulls in brand, category_code and price
+        # Step 4: Limit to no nulls in brand, category_code and price
         if drop_listwise_nulls == True:
             self.data = self.data.dropna(subset=['brand', 'category_code', 'price']).reset_index(drop=True)
             print(f"[INFO] Data limited to {len(self.data)} rows with no nulls in 'brand', 'category_code' and 'price'.")
@@ -103,7 +121,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
 
         print(f"[INFO] Data limited to {len(self.data)} rows with {min_products_per_session} or more unique products per session.")
 
-        # Step 4 [Debugging]: Limit `self.data` to only the first k unique sessions of the concatenated CSVs
+        # Step 5 [Debugging]: Limit `self.data` to only the first k unique sessions of the concatenated CSVs
 
         if test_sessions_first_n:
             print(f"[INFO:TEST_MODE] Limiting data to the first {str(test_sessions_first_n)} sessions...")
@@ -154,21 +172,19 @@ class SessionGraphEmbeddingsDataset(Dataset):
         self.data['product_id_remapped'] = self.data['product_id_remapped'].cat.codes
 
 
-
-
-        # Step 6: Sort by session and timestamp for sequential modeling
+        # Step 7: Sort by session and timestamp for sequential modeling
         print("[INFO] Sorting data by 'user_session' and 'event_time'...")
         self.data.sort_values(by=['user_session', 'event_time'], inplace=True)
         print("[INFO] Data sorted.")
 
-        # Step 7: Calculate number of unique occurrences for each column
+        # Step 8: Calculate number of unique occurrences for each column
         num_categories = self.data['category'].nunique()
         num_sub_categories = self.data['sub_category'].nunique()
         num_elements = self.data['element'].nunique()
         num_brands = self.data['brand'].nunique()
         num_items = self.data['product_id_remapped'].nunique()
 
-        # Guardem en un JSON els valors únics de cada columna per a passar-los al NodeEmbedding
+        # Save the unique values of each column in a JSON file to pass them to NodeEmbedding
         num_values_for_node_embedding = {
             'num_categories': num_categories,
             'num_sub_categories': num_sub_categories,
@@ -187,13 +203,13 @@ class SessionGraphEmbeddingsDataset(Dataset):
 
         # Debugging information
         print(f"[DEBUG] Unique categories count: {num_categories}")
-        print(f"[DEBUG] Unique categories: {self.data['category'].unique()}")
+        # print(f"[DEBUG] Unique categories: {self.data['category'].unique()}")
         print(f"[DEBUG] Unique sub-categories count: {num_sub_categories}")
-        print(f"[DEBUG] Unique sub-categories: {self.data['sub_category'].unique()}")
+        # print(f"[DEBUG] Unique sub-categories: {self.data['sub_category'].unique()}")
         print(f"[DEBUG] Unique elements count: {num_elements}")
-        print(f"[DEBUG] Unique elements: {self.data['element'].unique()}")
+        # print(f"[DEBUG] Unique elements: {self.data['element'].unique()}")
         print(f"[DEBUG] Unique brands count: {num_brands}")
-        print(f"[DEBUG] Unique brand names: {self.data['brand'].unique()}")
+        # print(f"[DEBUG] Unique brand names: {self.data['brand'].unique()}")
 
 
         # Step 8: Encode categorical columns
@@ -251,16 +267,9 @@ class SessionGraphEmbeddingsDataset(Dataset):
         # print(f"[DEBUG] Building graph for session: {session_id}")
 
         # Map product IDs to node indices
-        #TODO: NO AFEGIR el últim product_id_global de la sessio al graph.
-        # Do not add the last product_id of the session to the graph.
-        #TODO: passar els product_ids dels productes.
-
-        #TODO: Preguntar a l'oscar si és suficient amb passar els product_ids originals.
-        # product_id_global = session_data['product_id_remapped']
         session_data_without_last = session_data.iloc[:-1]
         node_ids = session_data_without_last['product_id_remapped'].unique()
         node_map = {pid: i for i, pid in enumerate(node_ids)}
-        
 
 
         # Building edge list (temporal order + bidirectional edges)
@@ -276,23 +285,6 @@ class SessionGraphEmbeddingsDataset(Dataset):
 
         edge_index = torch.tensor(edges, dtype=torch.long).t().contiguous()
 
-        # TODO: passar els product_ids dels productes.
-        # Features (product_id_global)
-        #TODO: preguntar a Oscar si es així com s'han de passar, o s'ha de fer alguna transformació adicional al product_id_global.
-        # product_id_global_tensor = torch.tensor(
-        #     product_id_global[:-1].values, dtype=torch.long
-        # ).unsqueeze(1)
-        # Quitar el último evento de la sesión de `product_id_global`
-        # product_id_global_tensor = torch.tensor(
-        #     session_data['product_id_remapped'][:-1].values, dtype=torch.long
-        # ).unsqueeze(1)
-
-
-
-        # Features (price)
-        # price_tensor = torch.tensor(
-        #     session_data[:-1].groupby('product_id')['price'].first().values, dtype=torch.float
-        # ).unsqueeze(1)
         # Quitar el último evento de la sesión de `price`
         price_tensor = torch.tensor(
             session_data['price'][:-1].values, dtype=torch.float
