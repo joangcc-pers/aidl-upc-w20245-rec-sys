@@ -45,32 +45,32 @@ class SR_GNN(nn.Module):
         embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand, data.product_id_remapped)
 
         # Print shapes for debugging
-        print(f"price_tensor shape: {data.price_tensor.shape}")
-        print(f"embedding shape: {embedding.shape}")
+        # print(f"price_tensor shape: {data.price_tensor.shape}")
+        # print(f"embedding shape: {embedding.shape}")
         
         # Concatenate item embeddings with price tensor
         item_embeddings = torch.cat([data.price_tensor,
                                     embedding
                                      ], dim=1) # Shape: (num_items, embedding_dim)
-        print(f"item_embeddings shape: {item_embeddings.shape}")
+        # print(f"item_embeddings shape: {item_embeddings.shape}")
         # Pass item embeddings through the gnn
         item_embeddings_gnn = self.gnn_layer(item_embeddings, data.edge_index) # Shape: (num_items, hidden_dim)
-        print(f"item_embeddings_gnn shape: {item_embeddings_gnn.shape}")
+        # print(f"item_embeddings_gnn shape: {item_embeddings_gnn.shape}")
 
-        print(f"item_embeddings_gnn.shape: {item_embeddings_gnn.shape}")  # Esperado: (N, hidden_dim)
-        print(f"data.batch.shape: {data.batch.shape}")  # Esperado: (N,)
-        print(f"data.batch unique values: {data.batch.unique()}")  # Debería ser el número de sesiones
-        print(f"Edge index shape: {data.edge_index.shape}")  # Ver si hay nodos desconectados
+        # print(f"item_embeddings_gnn.shape: {item_embeddings_gnn.shape}")  # Esperado: (N, hidden_dim)
+        # print(f"data.batch.shape: {data.batch.shape}")  # Esperado: (N,)
+        # print(f"data.batch unique values: {data.batch.unique()}")  # Debería ser el número de sesiones
+        # print(f"Edge index shape: {data.edge_index.shape}")  # Ver si hay nodos desconectados
 
-        connected_nodes = torch.unique(data.edge_index)  # Nodos que aparecen en los edges
-        all_nodes = torch.arange(item_embeddings_gnn.shape[0], device=item_embeddings_gnn.device)
-        isolated_nodes = torch.tensor([n for n in all_nodes if n not in connected_nodes])
+        # connected_nodes = torch.unique(data.edge_index)  # Nodos que aparecen en los edges
+        # all_nodes = torch.arange(item_embeddings_gnn.shape[0], device=item_embeddings_gnn.device)
+        # isolated_nodes = torch.tensor([n for n in all_nodes if n not in connected_nodes])
 
-        print(f"Nodos aislados: {isolated_nodes}")
-        print(f"Cantidad de nodos aislados: {len(isolated_nodes)}")
+        # print(f"Nodos aislados: {isolated_nodes}")
+        # print(f"Cantidad de nodos aislados: {len(isolated_nodes)}")
 
-        session_counts = torch.bincount(data.batch)
-        print("Distribución de nodos por sesión:", session_counts.unique(return_counts=True))
+        # session_counts = torch.bincount(data.batch)
+        # print("Distribución de nodos por sesión:", session_counts.unique(return_counts=True))
 
         # TODO replace with attention mechanism
         graph_embeddings = global_mean_pool(item_embeddings_gnn, data.batch)  # Shape: (batch_size, hidden_dim) # El data.batch passa quin node pertany a quina sessió
