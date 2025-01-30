@@ -11,7 +11,7 @@ experiments:
       dropout_rate: 0.3
     data_params:
       input_folder_path: "data/raw/"
-      output_processed_data_path: "data/processed/experiment_1/"
+      output_folder_artifacts: "data/processed/experiment_1/"
     preprocessing:
       shuffle: False
       start_month: '2019-10'
@@ -33,7 +33,7 @@ experiments:
 
     data_params:
       input_folder_path: "data/raw/"
-      output_processed_data_path: "data/processed/experiment_2/"
+      output_folder_artifacts: "data/processed/experiment_2/"
     preprocessing:
       shuffle: False
 
@@ -46,7 +46,7 @@ experiments:
       num_iterations: 1
     data_params:
       input_folder_path: "data/raw/"
-      output_processed_data_path: "data/processed/experiment_3/"
+      output_folder_artifacts: "data/processed/experiment_3/"
     preprocessing:
       shuffle: False
       start_month: '2019-10'
@@ -54,3 +54,26 @@ experiments:
       test_sessions_first_n: 10000
       embedding_dim: 64
       batch_size: 32
+
+  experiment_4:
+    model_name: "graph_with_embeddings"
+    training_params:
+      lr: 0.01
+      epochs: 15
+      optimizer: "Adam"
+      num_iterations: 1
+      embedding_dim: 64
+      hidden_dim: 100
+    data_params:
+      input_folder_path: "data/raw/"
+      output_folder_artifacts: "data/processed/experiment_4/"
+    preprocessing:
+      shuffle: False
+      start_month: '2019-10'
+      end_month: '2019-10'
+      test_sessions_first_n: 10000
+      batch_size: 50
+      limit_to_view_event: True
+      drop_listwise_nulls: True
+      min_products_per_session: 3
+      normalization_method: 'zscore'

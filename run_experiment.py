@@ -48,7 +48,7 @@ def main():
                 print(f"  {key}: {value}")
             dataloader = preprocess_data(
                 input_folder_path=experiment_config["data_params"]["input_folder_path"],
-                output_path=experiment_config["data_params"]["output_processed_data_path"],
+                output_folder_artifacts=experiment_config["data_params"]["output_folder_artifacts"],
                 preprocessing_params=preprocessing_config,  # Pass preprocessing params
                 model_name=experiment_config["model_name"],
             )
@@ -62,7 +62,9 @@ def main():
             train_model(
                 model_name=experiment_config["model_name"],
                 dataloader=dataloader,
-                training_params=experiment_config.get("training_params", {}))
+                training_params=experiment_config.get("training_params", {}),
+                output_folder_artifacts=experiment_config["data_params"]["output_folder_artifacts"],
+                )
 
         elif task == "evaluate":
             print(f"Evaluating model '{experiment_config['model_name']}'...")
