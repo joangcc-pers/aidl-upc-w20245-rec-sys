@@ -90,8 +90,8 @@ class SR_GNN(nn.Module):
         batch_size = target_embedding.shape[0]
         
         # Apply linear transformation to items and target embeddings
-        item_embeddings_transformed = self.attention_fc(item_embeddings) # (num_nodes, hidden_dim)
-        target_embedding_transformed = self.attention_fc(target_embedding) # (batch_size, hidden dim)
+        item_embeddings_transformed = self.attention_fc(item_embeddings) # shape (num_nodes, hidden_dim)
+        target_embedding_transformed = self.attention_fc(target_embedding) # shape (batch_size, hidden dim)
         
         # Creates a map of target embeddings so each node in the batch is mapped to its target embedding
         target_embedding_expanded = target_embedding_transformed[batch] # shape (num_nodes, hidden_dim)
