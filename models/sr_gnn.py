@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import MessagePassing, global_mean_pool
+from torch_scatter import scatter_softmax, scatter_sum
 from scripts.preprocessing_scripts.node_embedding import NodeEmbedding
 
 class SR_GNN(nn.Module):
@@ -21,6 +22,9 @@ class SR_GNN(nn.Module):
         #TODO: Iniciar la classe node_embedding i passar-li els paràmetres necessaris
 
         self.node_embedding = NodeEmbedding(num_categories, num_sub_categories, num_elements, num_brands, num_items, embedding_dim)
+        
+        #Contains the overall product embeddings - needed for attention
+        self.global_product_embeddings = nn.Embedding(num_items, hidden_dim)
 
         self.hidden_dim=hidden_dim
         self.num_items = num_items
@@ -29,8 +33,10 @@ class SR_GNN(nn.Module):
         # GGNN Layer
         #NOTA: 5 ja que passem 5 embeddings (category, sub_category, elements, brand i product_id). S'ha canviat a 5 ja que passarem el product id a embedding i no el passarem com a tensor, de 2 a 1 perque nomes passarem preu com a tensor, i no preu I product_id
         self.gnn_layer = GRUGraphLayer(5 * embedding_dim + 1, hidden_dim, num_iterations)
-        
-        # TODO Add Attention layer
+
+        # Attention Layer
+        self.attention_fc = nn.Linear(hidden_dim, hidden_dim)
+        self.attention_score_fc = nn.Linear(hidden_dim, 1)
         
         # The linear layer maps each session embedding (final hidden state) to score for each product (num_items). We would do nn.Linear(hidden_dim, hidden_dim in case we want to use the embedding of the graph as an input to other steps, such as an attention mechanism or an explicit calculus of similuted with the items)
         # That is, doing nn.Linear(hidden_dim, hidden_dim) would allow us to calculate scores as similitudes (dot product) between the graph embedding and the item embeddings
@@ -72,12 +78,38 @@ class SR_GNN(nn.Module):
         # session_counts = torch.bincount(data.batch)
         # print("Distribución de nodos por sesión:", session_counts.unique(return_counts=True))
 
-        # TODO replace with attention mechanism
-        graph_embeddings = global_mean_pool(item_embeddings_gnn, data.batch)  # Shape: (batch_size, hidden_dim) # El data.batch passa quin node pertany a quina sessió
+        # Embedding representing the last clicked index for each session in the batch 
+        target_embedding = self.global_product_embeddings(data.y) # Shape (batch_size, hidden_dim)
+        graph_embeddings = self.attention_mechanism(item_embeddings_gnn, target_embedding, data.batch)
         
         scores = self.fc(graph_embeddings) # Shape (batch_size, num_items)
         
         return scores
+    
+    def attention_mechanism(self, item_embeddings, target_embedding, batch):
+        batch_size = target_embedding.shape[0]
+        
+        # Apply linear transformation to items and target embeddings
+        item_embeddings_transformed = self.attention_fc(item_embeddings) # (num_nodes, hidden_dim)
+        target_embedding_transformed = self.attention_fc(target_embedding) # (batch_size, hidden dim)
+        
+        # Creates a map of target embeddings so each node in the batch is mapped to its target embedding
+        target_embedding_expanded = target_embedding_transformed[batch] # shape (num_nodes, hidden_dim)
+
+        # Compute attention scores: element-wise multiplication between current node embedding and last session items embedding
+        attention_scores = self.attention_score_fc(item_embeddings_transformed * target_embedding_expanded)  # Shape: (num_nodes, 1)
+
+        # Apply softmax only taking into account the nodes within the same session
+        attention_weights = scatter_softmax(attention_scores, batch, dim=0)  # Shape: (num_nodes, 1)
+
+        # Apply the attention weights to the session item embeddings
+        weighted_session_embeddings = attention_weights * item_embeddings_transformed  # Shape: (num_nodes, hidden_dim)
+
+        # Sum over session to get final scoring for each item
+        session_representation = scatter_sum(weighted_session_embeddings, batch, dim=0, dim_size=batch_size)  # Shape: (batch_size, hidden_dim)
+
+        return session_representation
+        
     
 class GRUGraphLayer(MessagePassing):
     def __init__(self, input_dim, hidden_dim, num_iterations=1):
