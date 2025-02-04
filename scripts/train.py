@@ -9,7 +9,7 @@ def train_model(model_name, dataloader, training_params, output_folder_artifacts
     # Define preprocessing pipeline for each architecture
     if model_name in {"sr_gnn","sr_gnn_test_mockup","graph_with_embeddings"}:
         train_sr_gnn(dataloader=dataloader, training_params=training_params, output_folder_artifacts=output_folder_artifacts)
-    if model_name in {"sr_gnn","sr_gnn_test_mockup","graph_with_embeddings_and_attention"}:
+    if model_name in {"graph_with_embeddings_and_attention"}:
         train_sr_gnn_attn(dataloader=dataloader, training_params=training_params, output_folder_artifacts=output_folder_artifacts)
     else:
         raise ValueError(f"Unsupported model name: {model_name}")
