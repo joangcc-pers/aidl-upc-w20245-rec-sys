@@ -77,3 +77,26 @@ experiments:
       drop_listwise_nulls: True
       min_products_per_session: 3
       normalization_method: 'zscore'
+
+  experiment_5:
+    model_name: "graph_with_embeddings_and_attention"
+    training_params:
+      lr: 0.001
+      epochs: 15
+      optimizer: "Adam"
+      num_iterations: 1
+      embedding_dim: 64
+      hidden_dim: 100
+    data_params:
+      input_folder_path: "data/raw/"
+      output_folder_artifacts: "data/processed/experiment_5/"
+    preprocessing:
+      shuffle: False
+      start_month: '2019-10'
+      end_month: '2019-10'
+      test_sessions_first_n: 10000
+      batch_size: 50
+      limit_to_view_event: True
+      drop_listwise_nulls: True
+      min_products_per_session: 3
+      normalization_method: 'zscore'
