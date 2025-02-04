@@ -8,6 +8,8 @@ def preprocess_data(model_name, input_folder_path, output_folder_artifacts, prep
     # Define preprocessing pipeline for each architecture
     if model_name == "graph_with_embeddings":
         dataloader = preprocess_graph_with_embeddings(input_folder_path, output_folder_artifacts, preprocessing_params)
+    elif model_name == "graph_with_embeddings_and_attention":
+        dataloader = preprocess_graph_with_embeddings(input_folder_path, output_folder_artifacts, preprocessing_params)
     elif model_name in {"sr_gnn", "sr_gnn_test_mockup"}:
         dataloader = preprocess_sr_gnn(input_folder_path, preprocessing_params)
     else:
