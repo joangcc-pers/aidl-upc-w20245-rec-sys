@@ -49,7 +49,7 @@ def train_sr_gnn_att_agg(
 
     criterion = nn.CrossEntropyLoss()
 
-    epochs = 15
+    epochs = training_params["epochs"]
 
     for epoch in range(epochs):
         model.train()
