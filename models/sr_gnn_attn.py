@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import MessagePassing, global_mean_pool
-from torch_scatter import scatter_softmax, scatter_sum
+from torch_scatter import scatter_softmax, scatter_sum, scatter_max
 from scripts.preprocessing_scripts.node_embedding import NodeEmbedding
 
 class SR_GNN_attn(nn.Module):
@@ -35,8 +35,6 @@ class SR_GNN_attn(nn.Module):
         # Attention layers
         self.attention_fc = nn.Linear(hidden_dim, hidden_dim)
         self.attention_score_fc = nn.Linear(hidden_dim, 1)
-        # Overall product embeddings
-        self.global_product_embeddings = nn.Embedding(num_items, hidden_dim)
         
         # The linear layer maps each session embedding (final hidden state) to score for each product (num_items). 
         self.fc = nn.Linear(hidden_dim, num_items)
@@ -78,26 +76,27 @@ class SR_GNN_attn(nn.Module):
 
         # Embedding representing the last clicked index for each session in the batch 
         # target_embedding = self.global_product_embeddings(data.y) # Shape (batch_size, hidden_dim)
-        graph_embeddings = self.attention_mechanism(item_embeddings_gnn, data.y, data.batch)
+        graph_embeddings = self.attention_mechanism(item_embeddings_gnn, data.batch)
         
         scores = self.fc(graph_embeddings) # Shape (batch_size, num_items)
         
         return scores
     
-    def attention_mechanism(self, item_embeddings, target, batch):
-        target_embedding = self.global_product_embeddings(target)
+    def attention_mechanism(self, item_embeddings, batch):
+        # target_embedding = self.global_product_embeddings(target)
+        last_visited_product_embeddings = item_embeddings[scatter_max(torch.arange(batch.size(0)), batch)[0]] # batch_size, hidden_dim
         
-        batch_size = target_embedding.shape[0]
+        batch_size = last_visited_product_embeddings.shape[0]
         
         # Linear layers for the attention mechanism, similar approach to in transformers
         item_embeddings_lt = self.attention_fc(item_embeddings) # shape (num_nodes, hidden_dim)
-        target_embedding_lt = self.attention_fc(target_embedding) # shape (batch_size, hidden dim)
+        last_visited_product_embeddings_lt = self.attention_fc(last_visited_product_embeddings) # shape (batch_size, hidden dim)
         
         # Expands the target embeddings, so it maps batch representation. Each batch position has the correspoding target embedding
-        target_embedding_expanded = target_embedding_lt[batch] # shape (num_nodes, hidden_dim)
+        last_visited_product_embeddings_expanded = last_visited_product_embeddings_lt[batch] # shape (num_nodes, hidden_dim)
 
         # Compute attention scores: Adding node embeddings and last session items embeddings. Applying sigmoid as in the original sr-gnn implementation
-        attention_scores = self.attention_score_fc(torch.sigmoid(item_embeddings_lt + target_embedding_expanded))  # Shape: (num_nodes, 1)
+        attention_scores = self.attention_score_fc(torch.sigmoid(item_embeddings_lt + last_visited_product_embeddings_expanded))  # Shape: (num_nodes, 1)
         #attention_scores = self.attention_score_fc(item_embeddings_lt * target_embedding_expanded)  # Shape: (num_nodes, 1)
 
         # Apply softmax to the weights per session
@@ -135,3 +134,10 @@ class GRUGraphLayer(MessagePassing):
         return x_j
         
         
+        
+# DATA
+# Training                              Loss
+# Session 1-2-3-4       last click 4    data.y = target 5
+
+# Inference
+# Session 1-2-3-4-5     last click 5    target <predicted item>
