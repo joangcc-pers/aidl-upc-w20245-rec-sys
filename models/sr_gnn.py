@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch_geometric.nn import MessagePassing, global_mean_pool
+from torch_geometric.nn import MessagePassing, global_mean_pool, AttentionalAggregation
 from scripts.preprocessing_scripts.node_embedding import NodeEmbedding
 
 class SR_GNN(nn.Module):
@@ -30,12 +30,11 @@ class SR_GNN(nn.Module):
         #NOTA: 5 ja que passem 5 embeddings (category, sub_category, elements, brand i product_id). S'ha canviat a 5 ja que passarem el product id a embedding i no el passarem com a tensor, de 2 a 1 perque nomes passarem preu com a tensor, i no preu I product_id
         self.gnn_layer = GRUGraphLayer(5 * embedding_dim + 1, hidden_dim, num_iterations)
         
-        # TODO Add Attention layer
+        self.attentionalAggregation = AttentionalAggregation(
+            nn.Linear(num_items, 1)
+        )
         
-        # The linear layer maps each session embedding (final hidden state) to score for each product (num_items). We would do nn.Linear(hidden_dim, hidden_dim in case we want to use the embedding of the graph as an input to other steps, such as an attention mechanism or an explicit calculus of similuted with the items)
-        # That is, doing nn.Linear(hidden_dim, hidden_dim) would allow us to calculate scores as similitudes (dot product) between the graph embedding and the item embeddings
-        # We opt for nn.Linear(hidden_dim, num_items) as we "just" need to produce scores for each item, an our num_items quantity is fixed and want to predict explictly the probability of each item.
-        self.fc = nn.Linear(hidden_dim, num_items)
+        # self.fc = nn.Linear(hidden_dim, num_items)
         
     def forward(
         self, 
@@ -73,9 +72,15 @@ class SR_GNN(nn.Module):
         # print("Distribución de nodos por sesión:", session_counts.unique(return_counts=True))
 
         # TODO replace with attention mechanism
-        graph_embeddings = global_mean_pool(item_embeddings_gnn, data.batch)  # Shape: (batch_size, hidden_dim) # El data.batch passa quin node pertany a quina sessió
+        # graph_embeddings = global_mean_pool(item_embeddings_gnn, data.batch)  # Shape: (batch_size, hidden_dim) # El data.batch passa quin node pertany a quina sessió
         
-        scores = self.fc(graph_embeddings) # Shape (batch_size, num_items)
+        # (num_items, hidden_dim) ==> (batch_size, hidden_dim) without opt nn
+        # (num_items, hidden_dim) ==> (batch_size, num_items) with opt nn
+        
+        # scores = self.fc(graph_embeddings) # Shape (batch_size, num_items)
+        scores = self.attentionalAggregation(item_embeddings_gnn)
+        print(f"Scores post aggregation shape: {scores.shape}")
+        scores = self.fc(scores)
         
         return scores
     
