@@ -11,7 +11,7 @@ experiments:
       dropout_rate: 0.3
     data_params:
       input_folder_path: "data/raw/"
-      output_folder_artifacts: "data/processed/experiment_1/"
+      output_folder_artifacts: "experiments/experiment_1/"
     preprocessing:
       shuffle: False
       start_month: '2019-10'
@@ -33,7 +33,7 @@ experiments:
 
     data_params:
       input_folder_path: "data/raw/"
-      output_folder_artifacts: "data/processed/experiment_2/"
+      output_folder_artifacts: "experiments/experiment_2/"
     preprocessing:
       shuffle: False
 
@@ -46,7 +46,7 @@ experiments:
       num_iterations: 1
     data_params:
       input_folder_path: "data/raw/"
-      output_folder_artifacts: "data/processed/experiment_3/"
+      output_folder_artifacts: "experiments/experiment_3/"
     preprocessing:
       shuffle: False
       start_month: '2019-10'
@@ -68,7 +68,7 @@ experiments:
       batch_size: 50
     data_params:
       input_folder_path: "data/raw/"
-      output_folder_artifacts: "data/processed/experiment_4/"
+      output_folder_artifacts: "experiments/experiment_4/"
     preprocessing:
       start_month: '2019-10'
       end_month: '2019-10'
@@ -96,7 +96,7 @@ experiments:
       batch_size: 50
     data_params:
       input_folder_path: "data/raw/"
-      output_folder_artifacts: "data/processed/experiment_5/"
+      output_folder_artifacts: "experiments/experiment_5/"
     preprocessing:
       start_month: '2019-10'
       end_month: '2019-10'
@@ -123,7 +123,7 @@ experiments:
       shuffle: False
     data_params:
       input_folder_path: "data/raw/"
-      output_folder_artifacts: "data/processed/experiment_6/"
+      output_folder_artifacts: "experiments/experiment_6/"
     preprocessing:
       start_month: '2019-10'
       end_month: '2019-10'
