@@ -306,7 +306,6 @@ class SessionGraphEmbeddingsDataset(Dataset):
                      brand=encoded_labels_dict['brand'][:-1],
                      product_id_remapped=torch.tensor(session_data['product_id_remapped'][:-1].values, dtype=torch.long),
                      num_nodes = len(session_data_without_last),
-                     time = session_data['event_time'].min()
                      )
 
         if self.transform:
