@@ -4,27 +4,27 @@ import torch.nn as nn
 import torch
 import json
 import os
+from scripts.collate_fn import collate_fn
+from torch.utils.data import DataLoader
 
 def train_sr_gnn_attn(
-        training_params,
-        dataloader,
+        model_params,
+        train_dataset,
         output_folder_artifacts=None
 ):
-    if training_params is None:
-        raise ValueError("training_params cannot be None")
-    if dataloader is None:
-        raise ValueError("dataloader cannot be None")
-    
-    # # Get a single batch to infer the feature dimension
-    # first_batch = next(iter(dataloader))
-    # if hasattr(first_batch, 'price_tensor'):
-    #     hidden_dim = first_batch.price_tensor.size(1)  # Extract the feature dimension from the first batch
-    # else:
-    #     raise ValueError("Batch object does not have attribute 'price_tensor'. Ensure it contains such input feature.")
+    if model_params is None:
+        raise ValueError("model_params cannot be None")
+    if train_dataset is None:
+        raise ValueError("Train dataset cannot be None")
 
-    # Read JSON file with training parameters at data/processed/sr_gnn_mockup/training_params.json
+    # Read JSON file with training parameters at data/processed/sr_gnn_mockup/model_params.json
     # Combine the directory and the file name
     file_path = os.path.join(output_folder_artifacts, "num_values_for_node_embedding.json")
+    dataloader = DataLoader(dataset=train_dataset,
+                            batch_size=model_params.get("batch_size"),
+                            shuffle=model_params.get("shuffle"),
+                            collate_fn=collate_fn
+                            )
 
     # Open and load the JSON file
     with open(file_path, "r") as f:
@@ -32,24 +32,24 @@ def train_sr_gnn_attn(
 
     # Initialize the model, optimizer and loss function
 
-    model = SR_GNN_attn(hidden_dim=training_params["hidden_dim"],
-                   num_iterations=training_params["num_iterations"],
+    model = SR_GNN_attn(hidden_dim=model_params["hidden_dim"],
+                   num_iterations=model_params["num_iterations"],
                    num_items=num_values_for_node_embedding["num_items"],
-                   embedding_dim=training_params["embedding_dim"],
+                   embedding_dim=model_params["embedding_dim"],
                    num_categories=num_values_for_node_embedding["num_categories"],
                    num_sub_categories=num_values_for_node_embedding["num_sub_categories"],
                    num_elements=num_values_for_node_embedding["num_elements"],
                    num_brands=num_values_for_node_embedding["num_brands"]
                    )
 
-    if training_params["optimizer"] == "Adam":
-        optimizer = optim.Adam(model.parameters(), lr=training_params["lr"])
+    if model_params["optimizer"] == "Adam":
+        optimizer = optim.Adam(model.parameters(), lr=model_params["lr"])
     else:
-        raise ValueError(f"Unsupported optimizer: {training_params['optimizer']}")
+        raise ValueError(f"Unsupported optimizer: {model_params['optimizer']}")
 
     criterion = nn.CrossEntropyLoss()
 
-    epochs = training_params["epochs"]
+    epochs = model_params["epochs"]
 
     for epoch in range(epochs):
         model.train()
@@ -66,9 +66,7 @@ def train_sr_gnn_attn(
             total_loss += loss.item()
 
         print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss:.4f}")
-    # Defining the path to save the model
-    model_path = output_folder_artifacts
 
     # Save the model state_dict
-    torch.save(model.state_dict(), model_path)
+    torch.save(model.state_dict(), output_folder_artifacts+"trained_model.pth")
     return model
