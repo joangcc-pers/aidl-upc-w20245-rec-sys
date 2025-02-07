@@ -66,3 +66,9 @@ def train_sr_gnn_attn(
             total_loss += loss.item()
 
         print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss:.4f}")
+    # Defining the path to save the model
+    model_path = output_folder_artifacts
+
+    # Save the model state_dict
+    torch.save(model.state_dict(), model_path)
+    return model
