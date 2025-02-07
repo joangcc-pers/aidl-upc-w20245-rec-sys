@@ -17,7 +17,7 @@ def train_sr_gnn_attn(
     if train_dataset is None:
         raise ValueError("Train dataset cannot be None")
 
-    # Read JSON file with training parameters at data/processed/sr_gnn_mockup/model_params.json
+    # Read JSON file with training parameters at experiments/sr_gnn_mockup/model_params.json
     # Combine the directory and the file name
     file_path = os.path.join(output_folder_artifacts, "num_values_for_node_embedding.json")
     dataloader = DataLoader(dataset=train_dataset,
