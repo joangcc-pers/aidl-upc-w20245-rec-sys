@@ -2,19 +2,28 @@ import torch
 import torch.nn as nn
 from sklearn.metrics import precision_score, recall_score
 import numpy as np
+from scripts.collate_fn import collate_fn
+from torch.utils.data import DataLoader
+import os
 
-def evaluate_sr_gnn(model, test_loader, top_k_values=[5, 10]):
+
+def evaluate_sr_gnn(model, split_loader, top_k_values=[5, 10]):
     """
     Evaluate the model with different hyperparameters on the validation set using different values of K (e.g., 5, 10) and print the results.
 
     Args:
         model: The trained model.
-        test_loader: The DataLoader for the test dataset.
+        split_loader: The DataLoader to evaluate.
         top_k_values: List of top-K values to evaluate (e.g., [5, 10]).
     """
+    if model is None:
+        raise ValueError("model cannot be None")
+    if split_loader is None:
+        raise ValueError("split_loader cannot be None")
+
     for top_k in top_k_values:
         print(f"\nEvaluating with Top-{top_k} Recommendations...")
-        mrr_at_k, recall_at_k, precision_at_k = evaluate_model(model, test_loader, top_k=top_k)
+        mrr_at_k, recall_at_k, precision_at_k = evaluate_model(model, split_loader, top_k=top_k)
 
         # Print results for this top-k evaluation
         print(f"\n--- Results for Top-{top_k} ---")
