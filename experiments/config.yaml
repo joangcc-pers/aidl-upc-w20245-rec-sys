@@ -59,7 +59,7 @@ experiments:
     model_name: "graph_with_embeddings"
     model_params:
       lr: 0.01
-      epochs: 15
+      epochs: 5
       optimizer: "Adam"
       num_iterations: 1
       embedding_dim: 64
@@ -80,7 +80,7 @@ experiments:
       train_split: 0.8
       val_split: 0.1
       test_split: 0.1
-      split_method: 'random'
+      split_method: 'temporal'
 
 
   experiment_5:
