@@ -49,7 +49,7 @@ def preprocess_graph_with_embeddings(input_folder_path, output_folder_artifacts,
     train_split = preprocessing_params["train_split"]
     val_split = preprocessing_params["val_split"]
     test_split = preprocessing_params["test_split"]
-    split_method=preprocessing_params["split_method"]
+    split_method = preprocessing_params["split_method"]
 
     total_size = len(dataset)
     train_size = int(train_split * total_size)
@@ -61,17 +61,23 @@ def preprocess_graph_with_embeddings(input_folder_path, output_folder_artifacts,
         train_dataset, val_dataset, test_dataset = random_split(dataset, [train_size, val_size, test_size])
 
     elif split_method == "temporal":
-        if dataset.timestamps is None:
-            raise ValueError("Temporal splitting requires timestamps in the dataset.")
+        # Requires dataset to have been already presorted. Do not use shuffle afterwards.
 
-        # Sort dataset based on timestamps
-        sorted_indices = sorted(range(len(dataset.timestamps)), key=lambda i: dataset.timestamps[i])
-        sorted_data = [dataset.data[i] for i in sorted_indices]
+        # Compute split sizes
+        total_size = len(dataset)
+        train_size = int(preprocessing_params["train_split"] * total_size)
+        val_size = int(preprocessing_params["val_split"] * total_size)
+        test_size = total_size - train_size - val_size  # Ensure consistency
+        indices = list(range(len(dataset)))
 
-        # Perform sequential splitting
-        train_dataset = Subset(sorted_data[:train_size])
-        val_dataset = Subset(sorted_data[train_size:train_size + val_size])
-        test_dataset = Subset(sorted_data[train_size + val_size:])
+        # Split dataset
+        train_indices = indices[:train_size]
+        val_indices = indices[train_size:train_size + val_size]
+        test_indices = indices[train_size + val_size:]
+
+        train_dataset = Subset(dataset, train_indices)
+        val_dataset = Subset(dataset, val_indices)
+        test_dataset = Subset(dataset, test_indices)
     
     else:
         raise ValueError(f"Unsupported split method: {split_method}")
