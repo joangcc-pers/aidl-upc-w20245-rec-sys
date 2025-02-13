@@ -54,12 +54,13 @@ def evaluate_model(model, test_loader, top_k=10):
             # Get the predicted scores
             out = model(batch)  # [batch_size, num_items]
 
-            # Get the ground truth (target)
-            y_true = batch.y.cpu().numpy()  # The true label (target item)
+            # Get the ground truth (target) and reshape it to match the shape of predictions
+            y_true = batch.y.cpu().numpy().reshape(-1, 1)  # The true label (target item)
+
             _, top_k_preds = torch.topk(out, top_k, dim=1, largest=True, sorted=True)
 
             # Get the target items index
-            target_index = np.where(top_k_preds.cpu().numpy() == y_true[:, None])[1]
+            target_index = np.where(top_k_preds.cpu().numpy() == y_true)[1]
 
             # Calculate MRR@K 
             mrr_at_k = np.mean(1 / (target_index + 1))  # +1 for 1-based indexing
