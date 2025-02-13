@@ -66,6 +66,8 @@ def train_sr_gnn_attn(
             total_loss += loss.item()
 
         print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss:.4f}")
+        # Save the model state_dict for the epoch
+        torch.save(model.state_dict(), output_folder_artifacts + f"trained_model_{str(epoch+1).zfill(4)}.pth")
 
     # Save the model state_dict
     torch.save(model.state_dict(), output_folder_artifacts+"trained_model.pth")
