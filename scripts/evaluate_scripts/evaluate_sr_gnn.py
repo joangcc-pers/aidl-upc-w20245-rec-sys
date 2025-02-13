@@ -44,10 +44,9 @@ def evaluate_model(model, test_loader, top_k=10):
         mrr_at_k, recall_at_k, precision_at_k
     """
     model.eval()
-    mrr_at_k_total = 0
-    recall_at_k_total = 0
-    precision_at_k_total = 0
-    total_samples = 0
+    samples_reciprocal_ranks = []
+    samples_recalls = []
+    samples_precisions = []
 
     with torch.no_grad():
         for batch in test_loader:
@@ -58,28 +57,29 @@ def evaluate_model(model, test_loader, top_k=10):
             y_true = batch.y.cpu().numpy().reshape(-1, 1)  # The true label (target item)
 
             _, top_k_preds = torch.topk(out, top_k, dim=1, largest=True, sorted=True)
+            top_k_preds = top_k_preds.cpu().numpy()
+            
+            # Per-sample metric computation, as MRR requires computing the reciprocal rank per sample
+            for i in range(len(y_true)):
+                target = y_true[i][0]
+                predictions = top_k_preds[i]
+                
+                # Get the indexes where target appears in the model predictions
+                target_rank = np.where(predictions == target)[0]
+                if len(target_rank) > 0:
+                    reciprocal_rank = 1.0 / (target_rank[0] + 1)
+                    samples_reciprocal_ranks.append(reciprocal_rank)
+                else: # No prediction matching target
+                    samples_reciprocal_ranks.append(0.0)
+                
+                hit = int(target in predictions)
+                samples_recalls.append(hit)  # Target is in the top-k
+                samples_precisions.append(hit / top_k)
 
-            # Get the target items index
-            target_index = np.where(top_k_preds.cpu().numpy() == y_true)[1]
-
-            # Calculate MRR@K 
-            mrr_at_k = np.mean(1 / (target_index + 1))  # +1 for 1-based indexing
-            mrr_at_k_total += mrr_at_k
-
-            # Calculate Recall@K 
-            recall_at_k = np.mean(np.isin(target_index, range(top_k)))  # 1 if target item is in top K
-            recall_at_k_total += recall_at_k
-
-            # Calculate Precision@K 
-            precision_at_k = np.mean(np.isin(target_index, range(top_k)))  # Precision is same for Recall in this case
-            precision_at_k_total += precision_at_k
-
-            total_samples += 1
-
-    # Averaging over all batches
-    mrr_at_k_avg = mrr_at_k_total / total_samples
-    recall_at_k_avg = recall_at_k_total / total_samples
-    precision_at_k_avg = precision_at_k_total / total_samples
+    # Calculate final metrics
+    mrr_at_k_avg = np.mean(samples_reciprocal_ranks)
+    recall_at_k_avg = np.mean(samples_recalls)
+    precision_at_k_avg = np.mean(samples_precisions)
 
     print(f"Test Results at Top-{top_k}:")
     print(f"Mean Reciprocal Rank (MRR@{top_k}): {mrr_at_k_avg:.4f}")
