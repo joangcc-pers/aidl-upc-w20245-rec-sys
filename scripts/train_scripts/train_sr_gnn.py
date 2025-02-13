@@ -5,24 +5,34 @@ import json
 import os
 from scripts.collate_fn import collate_fn
 from torch.utils.data import DataLoader
+from scripts.evaluate_scripts.evaluate_sr_gnn import evaluate_sr_gnn
 import torch
 
 def train_sr_gnn(
         model_params,
         train_dataset,
+        eval_dataset,
         output_folder_artifacts=None,
 ):
     if model_params is None:
         raise ValueError("model_params cannot be None")
     if train_dataset is None:
         raise ValueError("Train dataset cannot be None")
+    if eval_dataset is None: 
+        raise ValueError("Eval dataset cannot be None")
 
     # Read JSON file with training parameters at experiments/sr_gnn_mockup/model_params.json
     # Combine the directory and the file name
     file_path = os.path.join(output_folder_artifacts, "num_values_for_node_embedding.json")
-    dataloader = DataLoader(dataset=train_dataset,
+    train_dataloader = DataLoader(dataset=train_dataset,
                             batch_size=model_params.get("batch_size"),
                             shuffle=model_params.get("shuffle"),
+                            collate_fn=collate_fn
+                            )
+    
+    eval_dataloader = DataLoader(dataset=eval_dataset,
+                            batch_size=model_params.get("batch_size"),
+                            shuffle=False,
                             collate_fn=collate_fn
                             )
 
@@ -52,18 +62,25 @@ def train_sr_gnn(
     epochs = model_params["epochs"]
 
     for epoch in range(epochs):
-        model.train()
-        total_loss = 0
-
-        for batch in dataloader:
-            optimizer.zero_grad()
-            out = model(batch)  
-
-            loss = criterion(out, batch.y)
-            loss.backward()
-            optimizer.step()
-
-            total_loss += loss.item()
-
-        print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss:.4f}")
+        train_epoch(train_dataloader, model, optimizer, criterion, epochs, epoch)
+        eval_epoch(eval_dataloader, model, optimizer, criterion)
     torch.save(model.state_dict(), output_folder_artifacts+"trained_model.pth")
+
+def train_epoch(dataloader, model, optimizer, criterion, epochs, epoch):
+    model.train()
+    total_loss = 0
+
+    for batch in dataloader:
+        optimizer.zero_grad()
+        out = model(batch)  
+
+        loss = criterion(out, batch.y)
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item()
+
+    print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss:.4f}")
+
+def eval_epoch(model, eval_dataloader, top_k=[1,5,10,20]):
+    evaluate_sr_gnn(model, eval_dataloader, top_k)
