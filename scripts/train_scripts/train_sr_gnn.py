@@ -6,6 +6,7 @@ import os
 from scripts.collate_fn import collate_fn
 from torch.utils.data import DataLoader
 from scripts.evaluate_scripts.evaluate_sr_gnn import evaluate_sr_gnn
+from utils.metrics_utils import compute_metrics, print_metrics
 import torch
 
 def train_sr_gnn(
@@ -61,14 +62,28 @@ def train_sr_gnn(
 
     epochs = model_params["epochs"]
 
-    for epoch in range(epochs):
-        train_epoch(train_dataloader, model, optimizer, criterion, epochs, epoch)
-        eval_epoch(eval_dataloader, model, optimizer, criterion)
-    torch.save(model.state_dict(), output_folder_artifacts+"trained_model.pth")
+    top_k = [5,10,20]
 
-def train_epoch(dataloader, model, optimizer, criterion, epochs, epoch):
+    for epoch in range(epochs):
+        print("----------------------------------")
+        
+        train_epoch(model, train_dataloader, optimizer, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k)
+        eval_epoch(model, eval_dataloader, criterion, total_epochs=epochs, current_epoch=epoch, top_k= top_k)
+        
+        # Save the model state_dict for the epoch
+        intermediate_model_path = f"trained_model_{str(epoch+1).zfill(4)}.pth"
+        torch.save(model.state_dict(), output_folder_artifacts + f"trained_model_{str(epoch+1).zfill(4)}.pth")
+        print(f"Model for epoch {epoch+1} saved at {intermediate_model_path}")
+    
+    #Save the final model implementation
+    torch.save(model.state_dict(), output_folder_artifacts+"trained_model.pth")
+    print(f"Trained model saved at {output_folder_artifacts+'trained_model.pth'}")
+
+def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20]):
     model.train()
     total_loss = 0
+    all_predictions = []
+    all_targets = []
 
     for batch in dataloader:
         optimizer.zero_grad()
@@ -80,7 +95,18 @@ def train_epoch(dataloader, model, optimizer, criterion, epochs, epoch):
 
         total_loss += loss.item()
 
-    print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss:.4f}")
+        # Store predictions and targets for metric computation
+        predictions = out.detach()
+        all_predictions.append(predictions)
+        all_targets.append(batch.y)
+    
+    metrics = compute_metrics(torch.cat(all_predictions), torch.cat(all_targets), top_k)
+    
+    print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Training")
 
-def eval_epoch(model, eval_dataloader, top_k=[1,5,10,20]):
-    evaluate_sr_gnn(model, eval_dataloader, top_k)
+def eval_epoch(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20]):
+    all_predictions, all_targets, total_loss = evaluate_sr_gnn(model, eval_dataloader, criterion, top_k)
+
+    metrics = compute_metrics(all_predictions, all_targets, top_k)
+    
+    print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Validate")
