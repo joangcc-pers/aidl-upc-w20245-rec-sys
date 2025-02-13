@@ -8,11 +8,12 @@ def train_model(model_name, model_params, output_folder_artifacts):
     print("Loading dataset...")
     train_dataset = torch.load(output_folder_artifacts+"train_dataset.pth", weights_only=False)
     print("Train dataset loaded.")
+    eval_dataset = torch.load(output_folder_artifacts+"val_dataset.pth", weights_only=False)
 
     print(f"Training {model_name}...")
     # Define preprocessing pipeline for each architecture
     if model_name in {"sr_gnn","sr_gnn_test_mockup","graph_with_embeddings"}:
-        train_sr_gnn(train_dataset=train_dataset, model_params=model_params, output_folder_artifacts=output_folder_artifacts)
+        train_sr_gnn(train_dataset=train_dataset, eval_dataset=eval_dataset, model_params=model_params, output_folder_artifacts=output_folder_artifacts)
     elif model_name in {"graph_with_embeddings_and_attention"}:
         train_sr_gnn_attn(train_dataset=train_dataset, model_params=model_params, output_folder_artifacts=output_folder_artifacts)
     else:
