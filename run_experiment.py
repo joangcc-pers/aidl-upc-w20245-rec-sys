@@ -1,7 +1,7 @@
 import argparse
 from scripts.preprocess import preprocess_data
 from scripts.train import train_model
-from scripts.validation import evaluate
+from scripts.validation import evaluate_model
 # from scripts.visualize import visualize_results
 from utils.config_parser import parse_config
 
@@ -16,9 +16,10 @@ def main():
         required=True, 
         help="Tasks to perform in the correct order (e.g., preprocess train evaluate visualize)"
     )
+    
     args = parser.parse_args()
 
-# Ensure tasks are in the correct order
+    # Ensure tasks are in the correct order
     valid_order = ["preprocess", "train", "validation", "test", "visualize"]
     provided_order = args.task
 
@@ -70,13 +71,17 @@ def main():
 
         elif task == "validation":
             print(f"Evaluating model '{experiment_config['model_name']}'...")
-            evaluate(model_name=experiment_config["model_name"],
+            evaluate_model(model_name=experiment_config["model_name"],
                      output_folder_artifacts=experiment_config["data_params"]["output_folder_artifacts"],
-                     model_params=experiment_config.get("model_params", {}))
-
+                     model_params=experiment_config.get("model_params", {}),
+                     task=task)
+            
         elif task == "test":
             print(f"Testing model '{experiment_config['model_name']}'...")
-            # evaluate_model(model, experiment_config)
+            evaluate_model(model_name=experiment_config["model_name"],
+                     output_folder_artifacts=experiment_config["data_params"]["output_folder_artifacts"],
+                     model_params=experiment_config.get("model_params", {}),
+                     task=task)
 
         elif task == "visualize":
             print(f"Visualizing results for '{experiment_config['model_name']}'...")
