@@ -6,9 +6,12 @@ import json
 import torch
 
 
-def evaluate(model_name, output_folder_artifacts, model_params):
+def evaluate_model(model_name, output_folder_artifacts, model_params, task):
     print(f"Evaluating {model_name} in validation split...")
 
+    if task not in ("test", "validation"):
+        raise ValueError(f"Invalid task {task}. Should be either `test` or `validation`")
+        
     if model_name in ["graph_with_embeddings","graph_with_embeddings_and_attention"]:
     # Combine the directory and the file name
         file_path = os.path.join(output_folder_artifacts, "num_values_for_node_embedding.json")
@@ -42,7 +45,8 @@ def evaluate(model_name, output_folder_artifacts, model_params):
 
         # Load the saved weights
         model.load_state_dict(torch.load(output_folder_artifacts+"trained_model.pth", weights_only=False))
-        split_loader = torch.load(output_folder_artifacts+"val_dataset.pth", weights_only=False)
+        dataset_file = "test_dataset.pth" if task == "test" else "val_dataset.pth"
+        split_loader = torch.load(output_folder_artifacts+dataset_file, weights_only=False)
 
         evaluate_sr_gnn(model, split_loader, top_k_values=[5, 10])
     else:
