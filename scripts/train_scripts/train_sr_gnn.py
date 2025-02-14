@@ -5,8 +5,9 @@ import json
 import os
 from scripts.collate_fn import collate_fn
 from torch.utils.data import DataLoader
-from scripts.evaluate_scripts.evaluate_sr_gnn import evaluate_sr_gnn
+from scripts.evaluate_scripts.evaluate_model_utils import evaluate_model_epoch
 from utils.metrics_utils import compute_metrics, print_metrics
+from scripts.train_scripts.train_model_utils import train_model_epoch
 import torch
 
 def train_sr_gnn(
@@ -79,32 +80,14 @@ def train_sr_gnn(
     print(f"Trained model saved at {output_folder_artifacts+'trained_model.pth'}")
 
 def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20]):
-    model.train()
-    total_loss = 0
-    all_predictions = []
-    all_targets = []
-
-    for batch in dataloader:
-        optimizer.zero_grad()
-        out = model(batch)  
-
-        loss = criterion(out, batch.y)
-        loss.backward()
-        optimizer.step()
-
-        total_loss += loss.item()
-
-        # Store predictions and targets for metric computation
-        predictions = out.detach()
-        all_predictions.append(predictions)
-        all_targets.append(batch.y)
+    all_predictions, all_targets, total_loss = train_model_epoch(model, dataloader, optimizer, criterion)
     
-    metrics = compute_metrics(torch.cat(all_predictions), torch.cat(all_targets), top_k)
+    metrics = compute_metrics(all_predictions, all_targets, top_k)
     
     print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Training")
 
 def eval_epoch(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20]):
-    all_predictions, all_targets, total_loss = evaluate_sr_gnn(model, eval_dataloader, criterion, top_k)
+    all_predictions, all_targets, total_loss = evaluate_model_epoch(model, eval_dataloader, criterion, top_k)
 
     metrics = compute_metrics(all_predictions, all_targets, top_k)
     

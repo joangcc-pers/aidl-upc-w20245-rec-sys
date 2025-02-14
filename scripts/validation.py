@@ -1,4 +1,4 @@
-from scripts.evaluate_scripts.evaluate_sr_gnn import evaluate_sr_gnn
+from scripts.evaluate_scripts.evaluate_model_utils import evaluate_model_epoch
 from models.sr_gnn_attn import SR_GNN_attn
 from models.sr_gnn import SR_GNN
 from torch.utils.data import DataLoader
@@ -61,7 +61,7 @@ def evaluate_model(model_name, output_folder_artifacts, model_params, task, top_
 
         criterion = nn.CrossEntropyLoss()
 
-        all_predictions, all_targets, total_loss = evaluate_sr_gnn(model, dataloader, criterion, top_k_values=top_k)
+        all_predictions, all_targets, total_loss = evaluate_model_epoch(model, dataloader, criterion, top_k_values=top_k)
 
         metrics = compute_metrics(all_predictions, all_targets, top_k)
             
