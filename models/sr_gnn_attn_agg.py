@@ -1,10 +1,12 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch_geometric.nn import MessagePassing, global_mean_pool
+from torch_geometric.nn import MessagePassing, AttentionalAggregation
+from torch_scatter import scatter_softmax, scatter_sum, scatter_max
 from scripts.preprocessing_scripts.node_embedding import NodeEmbedding
 
-class SR_GNN(nn.Module):
+
+class SR_GNN_att_agg(nn.Module):
     def __init__(
         self,
         hidden_dim=100,
@@ -16,7 +18,7 @@ class SR_GNN(nn.Module):
         num_brands=None,
         embedding_dim=None
         ):
-        super(SR_GNN, self).__init__()
+        super(SR_GNN_att_agg, self).__init__()
         
         #TODO: Iniciar la classe node_embedding i passar-li els paràmetres necessaris
 
@@ -27,14 +29,20 @@ class SR_GNN(nn.Module):
         self.num_iterations=num_iterations 
         
         # GGNN Layer
-        #NOTA: 5 ja que passem 5 embeddings (category, sub_category, elements, brand i product_id). S'ha canviat a 5 ja que passarem el product id a embedding i no el passarem com a tensor, de 2 a 1 perque nomes passarem preu com a tensor, i no preu I product_id
         self.gnn_layer = GRUGraphLayer(5 * embedding_dim + 1, hidden_dim, num_iterations)
+
+        # Linear transformation for last visited embeddings
+        self.last_visited_transform = nn.Linear(5 * embedding_dim + 1, hidden_dim)
         
-        # TODO Add Attention layer
+        self.attentionalAggregation = AttentionalAggregation(
+            nn.Sequential(
+                nn.Dropout(),
+                nn.Linear(hidden_dim, hidden_dim),
+                nn.ReLU(),
+                nn.Linear(hidden_dim, 1)
+            )
+        )
         
-        # The linear layer maps each session embedding (final hidden state) to score for each product (num_items). We would do nn.Linear(hidden_dim, hidden_dim in case we want to use the embedding of the graph as an input to other steps, such as an attention mechanism or an explicit calculus of similuted with the items)
-        # That is, doing nn.Linear(hidden_dim, hidden_dim) would allow us to calculate scores as similitudes (dot product) between the graph embedding and the item embeddings
-        # We opt for nn.Linear(hidden_dim, num_items) as we "just" need to produce scores for each item, an our num_items quantity is fixed and want to predict explictly the probability of each item.
         self.fc = nn.Linear(hidden_dim, num_items)
         
     def forward(
@@ -44,38 +52,24 @@ class SR_GNN(nn.Module):
         
         embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand, data.product_id_remapped)
 
-        # Print shapes for debugging
-        # print(f"price_tensor shape: {data.price_tensor.shape}")
-        # print(f"embedding shape: {embedding.shape}")
-        
         # Concatenate item embeddings with price tensor
         item_embeddings = torch.cat([data.price_tensor,
                                     embedding
                                      ], dim=1) # Shape: (num_items, embedding_dim)
-        # print(f"item_embeddings shape: {item_embeddings.shape}")
+        
         # Pass item embeddings through the gnn
         item_embeddings_gnn = self.gnn_layer(item_embeddings, data.edge_index) # Shape: (num_items, hidden_dim)
-        # print(f"item_embeddings_gnn shape: {item_embeddings_gnn.shape}")
 
-        # print(f"item_embeddings_gnn.shape: {item_embeddings_gnn.shape}")  # Esperado: (N, hidden_dim)
-        # print(f"data.batch.shape: {data.batch.shape}")  # Esperado: (N,)
-        # print(f"data.batch unique values: {data.batch.unique()}")  # Debería ser el número de sesiones
-        # print(f"Edge index shape: {data.edge_index.shape}")  # Ver si hay nodos desconectados
-
-        # connected_nodes = torch.unique(data.edge_index)  # Nodos que aparecen en los edges
-        # all_nodes = torch.arange(item_embeddings_gnn.shape[0], device=item_embeddings_gnn.device)
-        # isolated_nodes = torch.tensor([n for n in all_nodes if n not in connected_nodes])
-
-        # print(f"Nodos aislados: {isolated_nodes}")
-        # print(f"Cantidad de nodos aislados: {len(isolated_nodes)}")
-
-        # session_counts = torch.bincount(data.batch)
-        # print("Distribución de nodos por sesión:", session_counts.unique(return_counts=True))
-
-        # TODO replace with attention mechanism
-        graph_embeddings = global_mean_pool(item_embeddings_gnn, data.batch)  # Shape: (batch_size, hidden_dim) # El data.batch passa quin node pertany a quina sessió
+        # Get last visited product embeddings per session and add them to implement attention mechanism
+        last_visited_product_indices = scatter_max(torch.arange(data.batch.size(0)), data.batch)[1]
+        last_visited_product_embeddings = item_embeddings[last_visited_product_indices]
+        last_visited_product_embeddings = self.last_visited_transform(last_visited_product_embeddings)
+        last_visited_product_embeddings_expanded = last_visited_product_embeddings[data.batch]
         
-        scores = self.fc(graph_embeddings) # Shape (batch_size, num_items)
+        item_embeddings_gnn = item_embeddings_gnn + last_visited_product_embeddings_expanded
+
+        scores = self.attentionalAggregation(item_embeddings_gnn, data.batch)
+        scores = self.fc(scores)
         
         return scores
     
