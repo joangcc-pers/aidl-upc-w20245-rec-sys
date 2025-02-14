@@ -10,7 +10,7 @@ import json
 import torch
 
 
-def evaluate_model(model_name, output_folder_artifacts, model_params, task):
+def evaluate_model(model_name, output_folder_artifacts, model_params, task, top_k=[20]):
     print(f"Evaluating {model_name} in validation split...")
 
     if task not in ("test", "validation"):
@@ -60,8 +60,6 @@ def evaluate_model(model_name, output_folder_artifacts, model_params, task):
         )
 
         criterion = nn.CrossEntropyLoss()
-
-        top_k=[5, 10]
 
         all_predictions, all_targets, total_loss = evaluate_sr_gnn(model, dataloader, criterion, top_k_values=top_k)
 

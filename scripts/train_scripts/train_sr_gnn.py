@@ -14,6 +14,7 @@ def train_sr_gnn(
         train_dataset,
         eval_dataset,
         output_folder_artifacts=None,
+        top_k=[20]
 ):
     if model_params is None:
         raise ValueError("model_params cannot be None")
@@ -61,8 +62,6 @@ def train_sr_gnn(
     criterion = nn.CrossEntropyLoss()
 
     epochs = model_params["epochs"]
-
-    top_k = [5,10,20]
 
     for epoch in range(epochs):
         print("----------------------------------")
