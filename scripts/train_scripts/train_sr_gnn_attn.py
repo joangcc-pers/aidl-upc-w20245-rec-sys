@@ -6,23 +6,34 @@ import json
 import os
 from scripts.collate_fn import collate_fn
 from torch.utils.data import DataLoader
+from utils.metrics_utils import compute_metrics, print_metrics
+from scripts.evaluate_scripts.evaluate_sr_gnn import evaluate_sr_gnn
 
 def train_sr_gnn_attn(
         model_params,
         train_dataset,
-        output_folder_artifacts=None
+        eval_dataset,
+        output_folder_artifacts=None,
+        top_k=[20]
 ):
     if model_params is None:
         raise ValueError("model_params cannot be None")
     if train_dataset is None:
         raise ValueError("Train dataset cannot be None")
+    if eval_dataset is None: 
+        raise ValueError("Eval dataset cannot be None")
 
     # Read JSON file with training parameters at experiments/sr_gnn_mockup/model_params.json
     # Combine the directory and the file name
     file_path = os.path.join(output_folder_artifacts, "num_values_for_node_embedding.json")
-    dataloader = DataLoader(dataset=train_dataset,
+    train_dataloader = DataLoader(dataset=train_dataset,
                             batch_size=model_params.get("batch_size"),
                             shuffle=model_params.get("shuffle"),
+                            collate_fn=collate_fn
+                            )
+    eval_dataloader = DataLoader(dataset=eval_dataset,
+                            batch_size=model_params.get("batch_size"),
+                            shuffle=False,
                             collate_fn=collate_fn
                             )
 
@@ -52,23 +63,48 @@ def train_sr_gnn_attn(
     epochs = model_params["epochs"]
 
     for epoch in range(epochs):
-        model.train()
-        total_loss = 0
-
-        for batch in dataloader:
-            optimizer.zero_grad()
-            out = model(batch)  
-
-            loss = criterion(out, batch.y)
-            loss.backward()
-            optimizer.step()
-
-            total_loss += loss.item()
-
-        print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss:.4f}")
+        print("----------------------------------")
+        
+        train_epoch(model, train_dataloader, optimizer, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k)
+        eval_epoch(model, eval_dataloader, criterion, total_epochs=epochs, current_epoch=epoch, top_k= top_k)
+        
         # Save the model state_dict for the epoch
+        intermediate_model_path = f"trained_model_{str(epoch+1).zfill(4)}.pth"
         torch.save(model.state_dict(), output_folder_artifacts + f"trained_model_{str(epoch+1).zfill(4)}.pth")
-
-    # Save the model state_dict
+        print(f"Model for epoch {epoch+1} saved at {intermediate_model_path}")
+    
+    #Save the final model implementation
     torch.save(model.state_dict(), output_folder_artifacts+"trained_model.pth")
-    return model
+    print(f"Trained model saved at {output_folder_artifacts+'trained_model.pth'}")
+
+def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20]):
+    model.train()
+    total_loss = 0
+    all_predictions = []
+    all_targets = []
+
+    for batch in dataloader:
+        optimizer.zero_grad()
+        out = model(batch)  
+
+        loss = criterion(out, batch.y)
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item()
+
+        # Store predictions and targets for metric computation
+        predictions = out.detach()
+        all_predictions.append(predictions)
+        all_targets.append(batch.y)
+    
+    metrics = compute_metrics(torch.cat(all_predictions), torch.cat(all_targets), top_k)
+    
+    print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Training")
+
+def eval_epoch(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20]):
+    all_predictions, all_targets, total_loss = evaluate_sr_gnn(model, eval_dataloader, criterion, top_k)
+
+    metrics = compute_metrics(all_predictions, all_targets, top_k)
+    
+    print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Validate")

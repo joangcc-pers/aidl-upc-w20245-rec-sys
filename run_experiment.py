@@ -67,21 +67,26 @@ def main():
                 model_name=experiment_config["model_name"],
                 model_params=experiment_config.get("model_params", {}),
                 output_folder_artifacts=experiment_config["data_params"]["output_folder_artifacts"],
+                top_k=experiment_config["evaluation"]["top_k"]
                 )
 
         elif task == "validation":
             print(f"Evaluating model '{experiment_config['model_name']}'...")
-            evaluate_model(model_name=experiment_config["model_name"],
-                     output_folder_artifacts=experiment_config["data_params"]["output_folder_artifacts"],
-                     model_params=experiment_config.get("model_params", {}),
-                     task=task)
+            evaluate_model(
+                model_name=experiment_config["model_name"],
+                output_folder_artifacts=experiment_config["data_params"]["output_folder_artifacts"],
+                model_params=experiment_config.get("model_params", {}),
+                task=task,
+                top_k=experiment_config["evaluation"]["top_k"])
             
         elif task == "test":
             print(f"Testing model '{experiment_config['model_name']}'...")
-            evaluate_model(model_name=experiment_config["model_name"],
-                     output_folder_artifacts=experiment_config["data_params"]["output_folder_artifacts"],
-                     model_params=experiment_config.get("model_params", {}),
-                     task=task)
+            evaluate_model(
+                model_name=experiment_config["model_name"],
+                output_folder_artifacts=experiment_config["data_params"]["output_folder_artifacts"],
+                model_params=experiment_config.get("model_params", {}),
+                task=task,
+                top_k=experiment_config["evaluation"]["top_k"])
 
         elif task == "visualize":
             print(f"Visualizing results for '{experiment_config['model_name']}'...")
