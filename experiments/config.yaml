@@ -115,7 +115,7 @@ experiments:
       top_k: [1, 5, 10, 20]
 
   experiment_6:
-    model_name: "graph_with_embeddings_and_attention"
+    model_name: "graph_with_embeddings_and_attentional_aggregation"
     model_params:
       lr: 0.001
       epochs: 30
