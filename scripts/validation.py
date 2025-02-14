@@ -1,12 +1,16 @@
 from scripts.evaluate_scripts.evaluate_sr_gnn import evaluate_sr_gnn
 from models.sr_gnn_attn import SR_GNN_attn
 from models.sr_gnn import SR_GNN
+from torch.utils.data import DataLoader
+from scripts.collate_fn import collate_fn
+from utils.metrics_utils import compute_metrics, print_metrics
+import torch.nn as nn
 import os
 import json
 import torch
 
 
-def evaluate_model(model_name, output_folder_artifacts, model_params, task):
+def evaluate_model(model_name, output_folder_artifacts, model_params, task, top_k=[20]):
     print(f"Evaluating {model_name} in validation split...")
 
     if task not in ("test", "validation"):
@@ -45,10 +49,24 @@ def evaluate_model(model_name, output_folder_artifacts, model_params, task):
 
         # Load the saved weights
         model.load_state_dict(torch.load(output_folder_artifacts+"trained_model.pth", weights_only=False))
+        
         dataset_file = "test_dataset.pth" if task == "test" else "val_dataset.pth"
         split_loader = torch.load(output_folder_artifacts+dataset_file, weights_only=False)
+        dataloader = DataLoader(
+            dataset=split_loader,
+            batch_size=model_params.get("batch_size"), 
+            shuffle=False,
+            collate_fn=collate_fn
+        )
 
-        evaluate_sr_gnn(model, split_loader, top_k_values=[5, 10])
+        criterion = nn.CrossEntropyLoss()
+
+        all_predictions, all_targets, total_loss = evaluate_sr_gnn(model, dataloader, criterion, top_k_values=top_k)
+
+        metrics = compute_metrics(all_predictions, all_targets, top_k)
+            
+        print_metrics(1, 0, top_k, total_loss, metrics, task=task)
+
     else:
         raise ValueError(f"Unsupported model name: {model_name}")
 
