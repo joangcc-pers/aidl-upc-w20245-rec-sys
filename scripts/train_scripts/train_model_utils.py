@@ -1,12 +1,14 @@
 import torch
 
-def train_model_epoch(model, dataloader, optimizer, criterion):
+def train_model_epoch(model, dataloader, optimizer, criterion, device):
     model.train()
     total_loss = 0
     all_predictions = []
     all_targets = []
 
     for batch in dataloader:
+        batch = batch.to(device)
+
         optimizer.zero_grad()
         out = model(batch)  
 
