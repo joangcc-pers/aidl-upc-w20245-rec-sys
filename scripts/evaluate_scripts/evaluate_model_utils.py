@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 import os
 
 
-def evaluate_model_epoch(model, split_loader, criterion, top_k_values=[5, 10]):
+def evaluate_model_epoch(model, split_loader, criterion, device, top_k_values=[5, 10]):
     """
     Evaluate the model with different hyperparameters on the validation set using different values of K (e.g., 5, 10) and print the results.
 
@@ -24,6 +24,7 @@ def evaluate_model_epoch(model, split_loader, criterion, top_k_values=[5, 10]):
 
     with torch.no_grad():
         for batch in split_loader:
+            batch = batch.to(device)
             # Get the predicted scores
             out = model(batch)  # [batch_size, num_items]
 
