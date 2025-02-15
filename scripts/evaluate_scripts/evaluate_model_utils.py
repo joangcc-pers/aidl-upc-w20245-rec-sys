@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 import os
 
 
-def evaluate_sr_gnn(model, split_loader, criterion, top_k_values=[5, 10]):
+def evaluate_model_epoch(model, split_loader, criterion, top_k_values=[5, 10]):
     """
     Evaluate the model with different hyperparameters on the validation set using different values of K (e.g., 5, 10) and print the results.
 
