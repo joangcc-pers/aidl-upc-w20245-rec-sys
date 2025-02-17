@@ -102,6 +102,7 @@ class SR_GNN_att_agg_with_onehot(nn.Module):
         hidden_dim=100,
         num_iterations=1,  # number of 'hops', defaults to 1 as indicated in the official implementation https://github.com/CRIPAC-DIG/SR-GNN/blob/master/pytorch_code/main.py
         num_items=None,
+        initial_dimension_dim=128,
         num_categories=None,
         num_sub_categories=None,
         num_elements=None,
@@ -112,17 +113,21 @@ class SR_GNN_att_agg_with_onehot(nn.Module):
         
         #TODO: Iniciar la classe node_embedding i passar-li els paràmetres necessaris
 
-        self.node_embedding = NodeEmbedding(num_categories, num_sub_categories, num_elements, num_brands, num_items, embedding_dim)
+        self.input_dim = num_categories + num_sub_categories + num_elements + num_brands + 1
 
         self.hidden_dim=hidden_dim
         self.num_items = num_items
-        self.num_iterations=num_iterations 
+        self.num_iterations=num_iterations
+        
+        self.initial_linear=nn.Linear(self.input_dim, initial_dimension_dim)
+
         
         # GGNN Layer
-        self.gnn_layer = GRUGraphLayer(5 * embedding_dim + 1, hidden_dim, num_iterations)
+        self.gnn_layer = GRUGraphLayer(initial_dimension_dim, hidden_dim, num_iterations)
 
         # Linear transformation for last visited embeddings
-        self.last_visited_transform = nn.Linear(5 * embedding_dim + 1, hidden_dim)
+        self.last_visited_transform = nn.Linear(self.input_dim, hidden_dim)
+
         
         self.attentionalAggregation = AttentionalAggregation(
             nn.Sequential(
@@ -140,19 +145,24 @@ class SR_GNN_att_agg_with_onehot(nn.Module):
         data # python geometry object containting data.x (item indices) and data.edge_index (edges)
         ):
         
-        embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand, data.product_id_remapped)
+        # embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand, data.product_id_remapped)
 
+        item_features = torch.cat([
+            data.category,           # One-hot encoded categories
+            data.sub_category,       # One-hot encoded subcategories
+            data.element,           # One-hot encoded elements
+            data.brand,             # One-hot encoded brands
+            data.price_tensor       # Price tensor
+        ], dim=1)        
         # Concatenate item embeddings with price tensor
-        item_embeddings = torch.cat([data.price_tensor,
-                                    embedding
-                                     ], dim=1) # Shape: (num_items, embedding_dim)
-        
-        # Pass item embeddings through the gnn
-        item_embeddings_gnn = self.gnn_layer(item_embeddings, data.edge_index) # Shape: (num_items, hidden_dim)
+        projected_features = self.initial_linear(item_features)
+        item_onehot_gnn = self.gnn_layer(projected_features, data.edge_index)
 
+        
+        
         # Get last visited product embeddings per session and add them to implement attention mechanism
         last_visited_product_indices = scatter_max(torch.arange(data.batch.size(0)), data.batch)[1]
-        last_visited_product_embeddings = item_embeddings[last_visited_product_indices]
+        last_visited_product_embeddings = item_features[last_visited_product_indices]
         last_visited_product_embeddings = self.last_visited_transform(last_visited_product_embeddings)
         last_visited_product_embeddings_expanded = last_visited_product_embeddings[data.batch]
         
