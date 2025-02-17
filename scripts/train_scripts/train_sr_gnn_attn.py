@@ -23,6 +23,9 @@ def train_sr_gnn_attn(
         raise ValueError("Train dataset cannot be None")
     if eval_dataset is None: 
         raise ValueError("Eval dataset cannot be None")
+    
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device. {device}")
 
     # Read JSON file with training parameters at experiments/sr_gnn_mockup/model_params.json
     # Combine the directory and the file name
@@ -53,6 +56,7 @@ def train_sr_gnn_attn(
                    num_elements=num_values_for_node_embedding["num_elements"],
                    num_brands=num_values_for_node_embedding["num_brands"]
                    )
+    model = model.to(device)
 
     if model_params["optimizer"] == "Adam":
         optimizer = optim.Adam(model.parameters(), lr=model_params["lr"])
@@ -66,8 +70,8 @@ def train_sr_gnn_attn(
     for epoch in range(epochs):
         print("----------------------------------")
         
-        train_epoch(model, train_dataloader, optimizer, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k)
-        eval_epoch(model, eval_dataloader, criterion, total_epochs=epochs, current_epoch=epoch, top_k= top_k)
+        train_epoch(model, train_dataloader, optimizer, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
+        eval_epoch(model, eval_dataloader, criterion, total_epochs=epochs, current_epoch=epoch, top_k= top_k, device=device)
         
         # Save the model state_dict for the epoch
         intermediate_model_path = f"trained_model_{str(epoch+1).zfill(4)}.pth"
@@ -78,15 +82,15 @@ def train_sr_gnn_attn(
     torch.save(model.state_dict(), output_folder_artifacts+"trained_model.pth")
     print(f"Trained model saved at {output_folder_artifacts+'trained_model.pth'}")
 
-def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20]):
-    all_predictions, all_targets, total_loss = train_model_epoch(model, dataloader, optimizer, criterion)
+def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20], device=None):
+    all_predictions, all_targets, total_loss = train_model_epoch(model, dataloader, optimizer, criterion, device)
     
     metrics = compute_metrics(all_predictions, all_targets, top_k)
     
     print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Training")
 
-def eval_epoch(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20]):
-    all_predictions, all_targets, total_loss = evaluate_model_epoch(model, eval_dataloader, criterion, top_k)
+def eval_epoch(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20], device=None):
+    all_predictions, all_targets, total_loss = evaluate_model_epoch(model, eval_dataloader, criterion, device, top_k)
 
     metrics = compute_metrics(all_predictions, all_targets, top_k)
     
