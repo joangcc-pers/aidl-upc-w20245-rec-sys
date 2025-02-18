@@ -11,14 +11,7 @@ class NodeEmbedding(torch.nn.Module):
         self.product_id_embedding = torch.nn.Embedding(num_items, embedding_dim)
 
 
-    def forward(self, categories, sub_categories, elements, brands, product_id_remapped, device=None):
-        if device is not None:
-            categories = categories.to(device)
-            sub_categories = sub_categories.to(device)
-            elements = elements.to(device)
-            brands = brands.to(device)
-            product_id_remapped = product_id_remapped.to(device)
-        
+    def forward(self, categories, sub_categories, elements, brands, product_id_remapped):
         # It is the "forward". Generate embeddings for the inputs
         category_emb = self.category_embedding(categories)
         sub_category_emb = self.sub_category_embedding(sub_categories)
