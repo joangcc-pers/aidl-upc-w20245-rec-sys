@@ -26,7 +26,7 @@ def train_sr_gnn_att_agg(
         raise ValueError("Eval dataset cannot be None")
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device. {device}")
+    print(f"Using device: {device}")
     
     # # Get a single batch to infer the feature dimension
     # first_batch = next(iter(dataloader))
