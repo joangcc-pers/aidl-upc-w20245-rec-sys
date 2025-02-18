@@ -37,11 +37,7 @@ class SR_GNN(nn.Module):
         # We opt for nn.Linear(hidden_dim, num_items) as we "just" need to produce scores for each item, an our num_items quantity is fixed and want to predict explictly the probability of each item.
         self.fc = nn.Linear(hidden_dim, num_items)
         
-    def forward(
-        self, 
-        data # python geometry object containting data.x (item indices) and data.edge_index (edges)
-        ):
-        
+    def forward(self, data, device):
         embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand, data.product_id_remapped)
 
         # Print shapes for debugging
