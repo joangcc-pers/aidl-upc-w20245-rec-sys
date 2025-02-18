@@ -107,7 +107,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
             if not isinstance(test_sessions_first_n, int):
                 raise TypeError("test_sessions_first_n must be an integer.")
             if test_sessions_first_n <= 0:
-                raise ValueError("test_sessions_first_n must be a positive integer value greater than 0.")
+                raise ValueError("test_sessions_first_n must be a positive integer value greater than 0. If you don't want to filter sessions, just commnet out such parameter from config.yaml or set it to None")
             
             print(f"[INFO:TEST_MODE] Limiting data to the first {test_sessions_first_n} sessions...")
             first_n_sessions = self.data['user_session'].unique()[:test_sessions_first_n]
