@@ -36,26 +36,23 @@ class SR_GNN_attn(nn.Module):
         # The linear layer maps each session embedding (final hidden state) to score for each product (num_items). 
         self.fc = nn.Linear(hidden_dim, num_items)
         
-    def forward(self, data):
-        embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand, data.product_id_remapped)
+    def forward(self, data, device):
+        embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand, data.product_id_remapped, device=device)
         
         # Concatenate item embeddings with price tensor
-        item_embeddings = torch.cat([data.price_tensor,
-                                    embedding
-                                     ], dim=1) # Shape: (num_items, embedding_dim)
+        item_embeddings = torch.cat([data.price_tensor, embedding], dim=1) # Shape: (num_items, embedding_dim)
         
         # Pass item embeddings through the gnn
         item_embeddings_gnn = self.gnn_layer(item_embeddings, data.edge_index) # Shape: (num_items, hidden_dim)
         
-        graph_embeddings = self.attention_mechanism(item_embeddings_gnn, data.batch)
+        graph_embeddings = self.attention_mechanism(item_embeddings_gnn, data.batch, device)
         
         scores = self.fc(graph_embeddings) # Shape (batch_size, num_items)
         
         return scores
     
-    def attention_mechanism(self, item_embeddings, batch):
-        # target_embedding = self.global_product_embeddings(target)
-        last_visited_product_embeddings = item_embeddings[scatter_max(torch.arange(batch.size(0)), batch)[0]] # batch_size, hidden_dim
+    def attention_mechanism(self, item_embeddings, batch, device):
+        last_visited_product_embeddings = item_embeddings[scatter_max(torch.arange(batch.size(0), device=device), batch)[0]] # batch_size, hidden_dim
         
         batch_size = last_visited_product_embeddings.shape[0]
         
