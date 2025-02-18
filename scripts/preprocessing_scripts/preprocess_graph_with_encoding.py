@@ -1,5 +1,5 @@
 from torch.utils.data import DataLoader
-from scripts.session_graph_onehot_dataset import SessionGraphOneHotDataset
+from scripts.session_graph_encoding_dataset import SessionGraphOneHotDataset
 from scripts.collate_fn import collate_fn
 from torch.utils.data import Subset, random_split
 
