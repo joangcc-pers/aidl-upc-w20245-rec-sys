@@ -103,12 +103,19 @@ class SessionGraphEmbeddingsDataset(Dataset):
         print(f"[INFO] Data limited to {len(self.data)} rows with {min_products_per_session} or more unique products per session.")
 
         # Step 7 [Testing]: Limit `self.data` to only the first k unique sessions of the concatenated CSVs
-
-        if test_sessions_first_n:
-            print(f"[INFO:TEST_MODE] Limiting data to the first {str(test_sessions_first_n)} sessions...")
+        if test_sessions_first_n is not None:
+            if not isinstance(test_sessions_first_n, int):
+                raise TypeError("test_sessions_first_n must be an integer.")
+            if test_sessions_first_n <= 0:
+                raise ValueError("test_sessions_first_n must be a positive integer value greater than 0. If you don't want to filter sessions, just delete that parameter from your experiment at config.yaml or set it to None")
+            
+            print(f"[INFO:TEST_MODE] Limiting data to the first {test_sessions_first_n} sessions...")
             first_n_sessions = self.data['user_session'].unique()[:test_sessions_first_n]
             self.data = self.data[self.data['user_session'].isin(first_n_sessions)].reset_index(drop=True)
-            print(f"[INFO:TEST_MODE] Data limited to {len(self.data)} rows and {self.data['user_session'].nunique()} sessions from the first {str(test_sessions_first_n)} sessions.")
+            print(f"[INFO:TEST_MODE] Data limited to {len(self.data)} rows and {self.data['user_session'].nunique()} sessions from the first {test_sessions_first_n} sessions.")
+        else:
+            print("Using full dataset")
+
 
         # Step 8: Normalize the price column
         # Extract the price column as a NumPy array for faster computations
