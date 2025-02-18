@@ -54,7 +54,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
         except ValueError as e:
             raise ValueError(f"Error in date conversion: {e}")
 
-        # Convert CSV filenames back to 'YYYY-MMM' format for comparison
+        # Step 2: Convert CSV filenames back to 'YYYY-MMM' format for comparison
         start_key = start_csv.replace(".csv", "")
         end_key = end_csv.replace(".csv", "")
 
@@ -74,11 +74,43 @@ class SessionGraphEmbeddingsDataset(Dataset):
                 f"Expected filenames: {start_csv} to {end_csv}."
             )
 
-        # Load CSV files into a single DataFrame
+        # Step 3: Load CSV files into a single DataFrame
         self.data = pd.concat([pd.read_csv(f) for f in csv_files], ignore_index=True)
         print(f"[INFO] Loaded {len(self.data)} rows of data from {len(csv_files)} CSV files.")
 
-        # Step 2: Normalize the price column
+        # Step 4: Limit to event_type = view
+        if limit_to_view_event == True:
+            self.data = self.data[self.data['event_type'] == 'view'].reset_index(drop=True)
+            print(f"[INFO] Data limited to {len(self.data)} rows with event_type = 'view'.")
+
+
+        # Step 5: Limit to no nulls in brand, category_code and price
+        if drop_listwise_nulls == True:
+            self.data = self.data.dropna(subset=['brand', 'category_code', 'price']).reset_index(drop=True)
+            print(f"[INFO] Data limited to {len(self.data)} rows with no nulls in 'brand', 'category_code' and 'price'.")
+
+        
+        # Step 6: Filter sessions where there are two or more unique products
+        
+        # Group by 'user_session' and count the number of unique 'product_id' values for each session
+        product_counts_per_session = self.data.groupby('user_session')['product_id'].nunique()
+        
+        valid_sessions = product_counts_per_session[product_counts_per_session >= min_products_per_session].index
+
+        # Keep only the rows where the 'user_session' is in valid_sessions
+        self.data = self.data[self.data['user_session'].isin(valid_sessions)].reset_index(drop=True)
+
+        print(f"[INFO] Data limited to {len(self.data)} rows with {min_products_per_session} or more unique products per session.")
+
+        # Step 7 [Testing]: Limit `self.data` to only the first k unique sessions of the concatenated CSVs
+
+        if test_sessions_first_n:
+            print(f"[INFO:TEST_MODE] Limiting data to the first {str(test_sessions_first_n)} sessions...")
+            first_n_sessions = self.data['user_session'].unique()[:test_sessions_first_n]
+            self.data = self.data[self.data['user_session'].isin(first_n_sessions)].reset_index(drop=True)
+            print(f"[INFO:TEST_MODE] Data limited to {len(self.data)} rows and {self.data['user_session'].nunique()} sessions from the first {str(test_sessions_first_n)} sessions.")
+
+        # Step 8: Normalize the price column
         # Extract the price column as a NumPy array for faster computations
         print(f"[INFO] Normalizing price column using {normalization_method}...")
         price = self.data["price"].values  
@@ -99,38 +131,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
             else:
                 self.data["price"] = 0  # If all values are the same, set to 0
 
-        # Step 3: Limit to event_type = view
-        if limit_to_view_event == True:
-            self.data = self.data[self.data['event_type'] == 'view'].reset_index(drop=True)
-            print(f"[INFO] Data limited to {len(self.data)} rows with event_type = 'view'.")
-
-
-        # Step 4: Limit to no nulls in brand, category_code and price
-        if drop_listwise_nulls == True:
-            self.data = self.data.dropna(subset=['brand', 'category_code', 'price']).reset_index(drop=True)
-            print(f"[INFO] Data limited to {len(self.data)} rows with no nulls in 'brand', 'category_code' and 'price'.")
-
-        # Group by 'user_session' and count the number of unique 'product_id' values for each session
-        product_counts_per_session = self.data.groupby('user_session')['product_id'].nunique()
-
-        # Filter sessions where there are two or more unique products
-        valid_sessions = product_counts_per_session[product_counts_per_session >= min_products_per_session].index
-
-        # Keep only the rows where the 'user_session' is in the valid sessions
-        self.data = self.data[self.data['user_session'].isin(valid_sessions)].reset_index(drop=True)
-
-        print(f"[INFO] Data limited to {len(self.data)} rows with {min_products_per_session} or more unique products per session.")
-
-        # Step 5 [Debugging]: Limit `self.data` to only the first k unique sessions of the concatenated CSVs
-
-        if test_sessions_first_n:
-            print(f"[INFO:TEST_MODE] Limiting data to the first {str(test_sessions_first_n)} sessions...")
-            first_n_sessions = self.data['user_session'].unique()[:test_sessions_first_n]
-            self.data = self.data[self.data['user_session'].isin(first_n_sessions)].reset_index(drop=True)
-            print(f"[INFO:TEST_MODE] Data limited to {len(self.data)} rows from the first {str(test_sessions_first_n)} sessions.")
-
-
-        # Agrupar por user_session y contar el número de productos únicos en cada sesión con al menos 3 eventos "view"
+        # [DEBUGGING] Group by user_session and count the number of unique products in each session with at least 3 voew events
         
         product_counts_per_session = self.data.groupby('user_session')['product_id'].nunique()
 
@@ -139,7 +140,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
             raise ValueError("There are sessions with only 1 unique product. Please filter them out.")
 
 
-        # Step 5: Parse `category_code` into hierarchical features
+        # Step 9: Parse `category_code` into hierarchical features
         print("[INFO] Parsing category hierarchy...")
 
         # Create a mask for rows where `category_code` is NaN
@@ -165,26 +166,26 @@ class SessionGraphEmbeddingsDataset(Dataset):
         print(self.data['sub_category'].unique())
         print(self.data['element'].unique())
 
-        # Step 6: do a linear transformation of the feature product_id to a new feature product_id_remapped
+        # Step 10: do a linear transformation of the feature product_id to a new feature product_id_remapped
 
         # Create a new column with the remapped product_id
         self.data['product_id_remapped'] = self.data['product_id'].astype('category')
         self.data['product_id_remapped'] = self.data['product_id_remapped'].cat.codes
 
 
-        # Step 7: Sort by session and timestamp for sequential modeling
+        # Step 11: Sort by session and timestamp for sequential modeling
         print("[INFO] Sorting data by 'user_session' and 'event_time'...")
         self.data.sort_values(by=['user_session', 'event_time'], inplace=True)
         print("[INFO] Data sorted.")
 
-        # Step 8: Calculate number of unique occurrences for each column
+        # Step 12: Calculate number of unique occurrences for each column
         num_categories = self.data['category'].nunique()
         num_sub_categories = self.data['sub_category'].nunique()
         num_elements = self.data['element'].nunique()
         num_brands = self.data['brand'].nunique()
         num_items = self.data['product_id_remapped'].nunique()
 
-        # Save the unique values of each column in a JSON file to pass them to NodeEmbedding
+        # Step 13: Save the unique values of each column in a JSON file to pass them to NodeEmbedding
         num_values_for_node_embedding = {
             'num_categories': num_categories,
             'num_sub_categories': num_sub_categories,
@@ -193,13 +194,11 @@ class SessionGraphEmbeddingsDataset(Dataset):
             'num_items': num_items
         }
 
-        #Create a new json file with the unique values of each column
+        # Create a new json file with the unique values of each column
         os.makedirs(output_folder_artifacts, exist_ok=True)
         export_json_path = os.path.join(output_folder_artifacts, 'num_values_for_node_embedding.json')
         with open(export_json_path, 'w') as f:
             json.dump(num_values_for_node_embedding, f)
-
-        #TODO: retornar els valors únics de cada columna per a passar-els al NodeEmbedding
 
         # Debugging information
         print(f"[DEBUG] Unique categories count: {num_categories}")
@@ -212,7 +211,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
         # print(f"[DEBUG] Unique brand names: {self.data['brand'].unique()}")
 
 
-        # Step 8: Encode categorical columns
+        # Step 14: Encode categorical columns
         print("[INFO] Encoding categorical columns...")
         le = LabelEncoder()
 
@@ -223,7 +222,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
         self.data['brand'] = le.fit_transform(self.data['brand'])
         print("[INFO] Categorical columns encoded.")
 
-        # Step 9: Extract unique sessions
+        # Step 15: Extract unique sessions
         print("[INFO] Extracting unique sessions...")
         self.sessions = self.data['user_session'].unique()
         print(f"[INFO] Found {len(self.sessions)} unique sessions.")
@@ -285,12 +284,12 @@ class SessionGraphEmbeddingsDataset(Dataset):
 
         edge_index = torch.tensor(edges, dtype=torch.long).t().contiguous()
 
-        # Quitar el último evento de la sesión de `price`
+        # Remove last event of the session from price
         price_tensor = torch.tensor(
             session_data['price'][:-1].values, dtype=torch.float
         ).unsqueeze(1)
 
-        # Target (the last product ID to predict)
+        # Set Target (Y) as the last product ID to predict
         target_product_id_global = session_data.iloc[-1]['product_id_remapped']
         y = torch.tensor(target_product_id_global, dtype=torch.long)
 
