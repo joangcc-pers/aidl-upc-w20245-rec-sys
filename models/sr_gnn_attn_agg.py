@@ -45,23 +45,17 @@ class SR_GNN_att_agg(nn.Module):
         
         self.fc = nn.Linear(hidden_dim, num_items)
         
-    def forward(
-        self, 
-        data # python geometry object containting data.x (item indices) and data.edge_index (edges)
-        ):
-        
+    def forward(self, data, device):
         embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand, data.product_id_remapped)
 
         # Concatenate item embeddings with price tensor
-        item_embeddings = torch.cat([data.price_tensor,
-                                    embedding
-                                     ], dim=1) # Shape: (num_items, embedding_dim)
+        item_embeddings = torch.cat([data.price_tensor,embedding], dim=1) # Shape: (num_items, embedding_dim)
         
         # Pass item embeddings through the gnn
         item_embeddings_gnn = self.gnn_layer(item_embeddings, data.edge_index) # Shape: (num_items, hidden_dim)
 
         # Get last visited product embeddings per session and add them to implement attention mechanism
-        last_visited_product_indices = scatter_max(torch.arange(data.batch.size(0)), data.batch)[1]
+        last_visited_product_indices = scatter_max(torch.arange(data.batch.size(0), device=device), data.batch)[1]
         last_visited_product_embeddings = item_embeddings[last_visited_product_indices]
         last_visited_product_embeddings = self.last_visited_transform(last_visited_product_embeddings)
         last_visited_product_embeddings_expanded = last_visited_product_embeddings[data.batch]

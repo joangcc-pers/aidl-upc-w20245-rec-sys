@@ -25,7 +25,7 @@ def train_sr_gnn_attn(
         raise ValueError("Eval dataset cannot be None")
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device. {device}")
+    print(f"Using device: {device}")
 
     # Read JSON file with training parameters at experiments/sr_gnn_mockup/model_params.json
     # Combine the directory and the file name
