@@ -107,9 +107,9 @@ class SR_GNN_att_agg_with_onehot(nn.Module):
         num_sub_categories=None,
         num_elements=None,
         num_brands=None,
-        embedding_dim=None
+        # embedding_dim=None
         ):
-        super(SR_GNN_att_agg, self).__init__()
+        super(SR_GNN_att_agg_with_onehot, self).__init__()
         
         #TODO: Iniciar la classe node_embedding i passar-li els paràmetres necessaris
 
@@ -162,13 +162,13 @@ class SR_GNN_att_agg_with_onehot(nn.Module):
         
         # Get last visited product embeddings per session and add them to implement attention mechanism
         last_visited_product_indices = scatter_max(torch.arange(data.batch.size(0)), data.batch)[1]
-        last_visited_product_embeddings = item_features[last_visited_product_indices]
-        last_visited_product_embeddings = self.last_visited_transform(last_visited_product_embeddings)
-        last_visited_product_embeddings_expanded = last_visited_product_embeddings[data.batch]
+        last_visited_product_onehot = item_features[last_visited_product_indices]
+        last_visited_product_onehot = self.last_visited_transform(last_visited_product_onehot)
+        last_visited_product_onehot_expanded = last_visited_product_onehot[data.batch]
         
-        item_embeddings_gnn = item_embeddings_gnn + last_visited_product_embeddings_expanded
+        item_onehot_gnn = item_onehot_gnn + last_visited_product_onehot_expanded
 
-        scores = self.attentionalAggregation(item_embeddings_gnn, data.batch)
+        scores = self.attentionalAggregation(item_onehot_gnn, data.batch)
         scores = self.fc(scores)
         
         return scores
@@ -184,13 +184,13 @@ class GRUGraphLayer(MessagePassing):
         self.message_linear = nn.Linear(input_dim, hidden_dim)
 
     def forward(self, x, edge_index):
-        node_embeddings = self.message_linear(x)  # Transform input features to hidden_dim
+        node_onehot = self.message_linear(x)  # Transform input features to hidden_dim
 
         for _ in range(self.num_iterations):
-            messages = self.propagate(edge_index, x=node_embeddings)  # Shape: (num_nodes, hidden_dim)
-            node_embeddings = self.gru(messages, node_embeddings)
+            messages = self.propagate(edge_index, x=node_onehot)  # Shape: (num_nodes, hidden_dim)
+            node_onehot = self.gru(messages, node_onehot)
 
-        return node_embeddings
+        return node_onehot
 
     def message(self, x_j):
         return x_j
