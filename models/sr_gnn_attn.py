@@ -37,7 +37,7 @@ class SR_GNN_attn(nn.Module):
         self.fc = nn.Linear(hidden_dim, num_items)
         
     def forward(self, data, device):
-        embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand, data.product_id_remapped, device=device)
+        embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand, data.product_id_remapped)
         
         # Concatenate item embeddings with price tensor
         item_embeddings = torch.cat([data.price_tensor, embedding], dim=1) # Shape: (num_items, embedding_dim)
