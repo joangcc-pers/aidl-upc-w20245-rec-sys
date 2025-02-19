@@ -9,6 +9,7 @@ from scripts.evaluate_scripts.evaluate_model_utils import evaluate_model_epoch
 from utils.metrics_utils import compute_metrics, print_metrics
 from scripts.train_scripts.train_model_utils import train_model_epoch
 import torch
+from torch.utils.tensorboard import SummaryWriter
 
 def train_sr_gnn(
         model_params,
@@ -26,7 +27,12 @@ def train_sr_gnn(
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
-
+    # Crear carpeta de logs para TensorBoard
+    log_dir = os.path.join(output_folder_artifacts, "logs") #GUARDAR LOS DATOS PARA  TENSOR AQUÍ: output_folder_artifacts/logs/
+    #log_dir es la carpeta donde se guardarán los archivos de log
+    os.makedirs(log_dir, exist_ok=True)
+    writer = SummaryWriter(log_dir)  # Inicializar TensorBoard (guarda los valores de pérdida y métricas en archivos de log. Luego, TensorBoard lee estos archivos y genera las gráficas automáticamente)
+    
     # Read JSON file with training parameters at experiments/sr_gnn_mockup/model_params.json
     # Combine the directory and the file name
     file_path = os.path.join(output_folder_artifacts, "num_values_for_node_embedding.json")
@@ -70,18 +76,32 @@ def train_sr_gnn(
 
     for epoch in range(epochs):
         print("----------------------------------")
-        
-        train_epoch(model, train_dataloader, optimizer, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
-        eval_epoch(model, eval_dataloader, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
-        
+
+        train_loss, train_metrics = train_epoch(model, train_dataloader, optimizer, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
+        eval_loss, eval_metrics = eval_epoch(model, eval_dataloader, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
+
+        # Registrar pérdidas y métricas en TensorBoard
+        writer.add_scalar("Loss/Train", train_loss, epoch)
+        writer.add_scalar("Loss/Validation", eval_loss, epoch)
+
+        for k, v in train_metrics.items():
+            writer.add_scalar(f"Train/{k}", v, epoch)
+
+        for k, v in eval_metrics.items():
+            writer.add_scalar(f"Validation/{k}", v, epoch)
+
         # Save the model state_dict for the epoch
         intermediate_model_path = f"trained_model_{str(epoch+1).zfill(4)}.pth"
         torch.save(model.state_dict(), output_folder_artifacts + f"trained_model_{str(epoch+1).zfill(4)}.pth")
         print(f"Model for epoch {epoch+1} saved at {intermediate_model_path}")
-    
+
+
+
+
     #Save the final model implementation
     torch.save(model.state_dict(), output_folder_artifacts+"trained_model.pth")
     print(f"Trained model saved at {output_folder_artifacts+'trained_model.pth'}")
+    writer.close()  # Cerrar TensorBoard correctamente
 
 def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20], device=None):
     all_predictions, all_targets, total_loss = train_model_epoch(model, dataloader, optimizer, criterion, device)
@@ -89,6 +109,7 @@ def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_e
     metrics = compute_metrics(all_predictions, all_targets, top_k)
     
     print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Training")
+    return total_loss, metrics  # Retornar pérdida y métricas
 
 def eval_epoch(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20], device=None):
     all_predictions, all_targets, total_loss = evaluate_model_epoch(model, eval_dataloader, criterion, device, top_k)
@@ -96,3 +117,9 @@ def eval_epoch(model, eval_dataloader, criterion, total_epochs, current_epoch, t
     metrics = compute_metrics(all_predictions, all_targets, top_k)
     
     print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Validate")
+    return total_loss, metrics  # Retornar pérdida y métricas
+
+#Para ver los resultados desde la teminal ir a la carpeta cd/experiments si volem fer la comparativa total, o cd/output_folder_artifacts path per un experiment en particular.
+# Si iniciar el comando con tensorboard da problemas, utiliza python3 -m tensorboard.main --logdir=experiments. Sitúate en la carpeta raíz (root) y establece logdir=experiments
+#ejecutar tensorboard command: tensorboard --logdir=logs
+# esto te abrirá un url -- ver loss/train and loss/val (gráficas de pérdidas) y las gráficas de métricas
