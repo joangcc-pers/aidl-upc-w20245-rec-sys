@@ -1,14 +1,7 @@
 import torch
-import torch.nn as nn
-from sklearn.metrics import precision_score, recall_score
-import numpy as np
-from scripts.collate_fn import collate_fn
-from torch.utils.data import DataLoader
-import time
+from tqdm import tqdm
 
-
-
-def evaluate_model_epoch(model, split_loader, criterion, device, top_k_values=[5, 10]):
+def evaluate_model_epoch(model, dataloader, criterion, device, top_k_values=[5, 10]):
     """
     Evaluate the model with different hyperparameters on the validation set using different values of K (e.g., 5, 10) and print the results.
 
@@ -23,10 +16,8 @@ def evaluate_model_epoch(model, split_loader, criterion, device, top_k_values=[5
     all_targets = []
     total_loss = 0
 
-    start_time = time.time()
-
     with torch.no_grad():
-        for batch in split_loader:
+        for batch in tqdm(dataloader, "Evaluation Epoch"):
             batch = batch.to(device)
             # Get the predicted scores
             out = model(batch, device)  # [batch_size, num_items]
@@ -42,10 +33,6 @@ def evaluate_model_epoch(model, split_loader, criterion, device, top_k_values=[5
             # Store predictions and targets (keeping them as tensors)
             all_predictions.append(top_k_preds)
             all_targets.append(batch.y)
-    
-    end_time = time.time()
-    execution_time = end_time - start_time
-    print(f"Execution time for evaluate_model_epoch: {execution_time:.4f} seconds")
 
     return torch.cat(all_predictions), torch.cat(all_targets), total_loss
 
