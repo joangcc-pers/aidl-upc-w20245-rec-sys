@@ -1,4 +1,3 @@
-from models.sr_gnn_attn import SR_GNN_attn_with_onehot
 from models.sr_gnn_attn import SR_GNN_attn
 import torch.optim as optim
 import torch.nn as nn
