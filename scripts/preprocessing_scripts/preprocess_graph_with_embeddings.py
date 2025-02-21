@@ -20,6 +20,8 @@ def preprocess_graph_with_embeddings(input_folder_path, output_folder_artifacts,
                                             min_products_per_session=preprocessing_params.get("min_products_per_session"),
                                             )
     
+    dataset.preprocess_and_save_graphs()
+    
     #DEBUGGING:
     # Check shape of one sample
     # Get first sample

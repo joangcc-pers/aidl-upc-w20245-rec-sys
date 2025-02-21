@@ -18,7 +18,13 @@ def main():
     )
     
     args = parser.parse_args()
-
+    '''
+    args = argparse.Namespace(
+        config="experiments/config.yaml",  # Set your specific config path
+        experiment="experiment_4",  # Set your specific experiment name
+        task=["train"]  # Set your specific tasks
+    )
+    '''
     # Ensure tasks are in the correct order
     valid_order = ["preprocess", "train", "validation", "test", "visualize"]
     provided_order = args.task
