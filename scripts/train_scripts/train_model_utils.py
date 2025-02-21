@@ -1,5 +1,6 @@
 import torch
 from tqdm import tqdm
+import gc
 
 def train_model_epoch(model, dataloader, optimizer, criterion, device):
     model.train()
@@ -19,6 +20,9 @@ def train_model_epoch(model, dataloader, optimizer, criterion, device):
         optimizer.step()
 
         total_loss += loss.item()
+
+        # Collect garbage after processing the batch
+        gc.collect()
 
         # Store predictions and targets for metric computation
         predictions = out.detach()

@@ -10,6 +10,7 @@ from utils.metrics_utils import compute_metrics, print_metrics
 from scripts.train_scripts.train_model_utils import train_model_epoch
 import torch
 from torch.utils.tensorboard import SummaryWriter
+import multiprocessing
 
 def train_sr_gnn(
         model_params,
@@ -25,6 +26,8 @@ def train_sr_gnn(
     if eval_dataset is None: 
         raise ValueError("Eval dataset cannot be None")
     
+    multiprocessing.set_start_method('spawn')
+    
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
     # Crear carpeta de logs para TensorBoard
@@ -36,10 +39,14 @@ def train_sr_gnn(
     # Read JSON file with training parameters at experiments/sr_gnn_mockup/model_params.json
     # Combine the directory and the file name
     file_path = os.path.join(output_folder_artifacts, "num_values_for_node_embedding.json")
+    
+    #train_dataset.build_cache()
+    
     train_dataloader = DataLoader(dataset=train_dataset,
                             batch_size=model_params.get("batch_size"),
                             shuffle=model_params.get("shuffle"),
-                            collate_fn=collate_fn
+                            collate_fn=collate_fn,
+                            pin_memory=(device.type=="cuda")
                             )
     
     eval_dataloader = DataLoader(dataset=eval_dataset,
