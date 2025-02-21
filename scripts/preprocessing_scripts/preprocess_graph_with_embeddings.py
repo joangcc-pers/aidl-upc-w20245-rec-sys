@@ -1,6 +1,8 @@
 from scripts.preprocessing_scripts.session_graph_embeddings_dataset import SessionGraphEmbeddingsDataset
 from scripts.collate_fn import collate_fn
 from torch.utils.data import Subset, random_split
+import lmdb
+import os
 
 import torch
 
@@ -8,19 +10,26 @@ def preprocess_graph_with_embeddings(input_folder_path, output_folder_artifacts,
     """Preprocessing pipeline for Graph NN."""
     print("Applying preprocessing for Graph NN with embeddings for categorical features...")
 
-    # Initialize dataset and dataloader
-    dataset = SessionGraphEmbeddingsDataset(folder_path=input_folder_path,
-                                            output_folder_artifacts=output_folder_artifacts,
-                                            start_month=preprocessing_params.get("start_month"),
-                                            end_month=preprocessing_params.get("end_month"),
-                                            transform=None,
-                                            test_sessions_first_n=preprocessing_params.get("test_sessions_first_n"),
-                                            limit_to_view_event=preprocessing_params.get("limit_to_view_event"),
-                                            drop_listwise_nulls=preprocessing_params.get("drop_listwise_nulls"),
-                                            min_products_per_session=preprocessing_params.get("min_products_per_session"),
-                                            )
+    # Create LMDB environment
+    lmdb_path = os.path.join(output_folder_artifacts,'graphsdb')
     
-    dataset.preprocess_and_save_graphs()
+    # Initialize dataset and dataloader
+    dataset = SessionGraphEmbeddingsDataset(
+        folder_path=input_folder_path,
+        output_folder_artifacts=output_folder_artifacts,
+        start_month=preprocessing_params.get("start_month"),
+        end_month=preprocessing_params.get("end_month"),
+        transform=None,
+        test_sessions_first_n=preprocessing_params.get("test_sessions_first_n"),
+        limit_to_view_event=preprocessing_params.get("limit_to_view_event"),
+        drop_listwise_nulls=preprocessing_params.get("drop_listwise_nulls"),
+        min_products_per_session=preprocessing_params.get("min_products_per_session"),
+        lmdb_path = lmdb_path
+    )
+    
+    # Creation of an lmdb database of 12gb (Oct+Nov sessions on embeddings take ~9gb)
+    lmdb_env = lmdb.open(lmdb_path, map_size=12*1024*1024*1024)
+    dataset.preprocess_and_save_graphs(lmdb_env)
     
     #DEBUGGING:
     # Check shape of one sample
