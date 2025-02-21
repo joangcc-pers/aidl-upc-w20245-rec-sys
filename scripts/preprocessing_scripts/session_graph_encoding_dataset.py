@@ -187,7 +187,7 @@ class SessionGraphOneHotDataset(Dataset):
         num_items = self.data['product_id_remapped'].nunique()
 
         # Save the unique values of each column in a JSON file to pass them to NodeEmbedding
-        num_values_for_node_embedding = {
+        num_values_for_node_encoding = {
             'num_categories': num_categories,
             'num_sub_categories': num_sub_categories,
             'num_elements': num_elements,
@@ -199,7 +199,7 @@ class SessionGraphOneHotDataset(Dataset):
         os.makedirs(output_folder_artifacts, exist_ok=True)
         export_json_path = os.path.join(output_folder_artifacts, 'num_values_for_node_embedding.json')
         with open(export_json_path, 'w') as f:
-            json.dump(num_values_for_node_embedding, f)
+            json.dump(num_values_for_node_encoding, f)
 
         #TODO: retornar els valors únics de cada columna per a passar-els al NodeEmbedding
 

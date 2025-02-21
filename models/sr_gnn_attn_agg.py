@@ -136,7 +136,8 @@ class SR_GNN_att_agg_with_onehot(nn.Module):
         
     def forward(
         self, 
-        data # python geometry object containting data.x (item indices) and data.edge_index (edges)
+        data,
+        device=None# python geometry object containting data.x (item indices) and data.edge_index (edges)
         ):
         
         # embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand, data.product_id_remapped)
@@ -155,7 +156,7 @@ class SR_GNN_att_agg_with_onehot(nn.Module):
         
         
         # Get last visited product embeddings per session and add them to implement attention mechanism
-        last_visited_product_indices = scatter_max(torch.arange(data.batch.size(0)), data.batch)[1]
+        last_visited_product_indices = scatter_max(torch.arange(data.batch.size(0), device=device), data.batch)[1]
         last_visited_product_onehot = item_features[last_visited_product_indices]
         last_visited_product_onehot = self.last_visited_transform(last_visited_product_onehot)
         last_visited_product_onehot_expanded = last_visited_product_onehot[data.batch]
