@@ -1,15 +1,17 @@
 from models.sr_gnn_attn import SR_GNN_attn
+from models.sr_gnn_attn_agg import SR_GNN_att_agg_with_onehot
 import torch.optim as optim
 import torch.nn as nn
-import torch
 import json
 import os
 from scripts.collate_fn import collate_fn
 from torch.utils.data import DataLoader
-from utils.metrics_utils import compute_metrics, print_metrics
 from scripts.evaluate_scripts.evaluate_model_utils import evaluate_model_epoch
+from utils.metrics_utils import print_metrics, aggregate_metrics, compute_metrics
 from scripts.train_scripts.train_model_utils import train_model_epoch
-from torch.utils.tensorboard import SummaryWriter  # Import TensorBoard
+import torch
+from torch.utils.tensorboard import SummaryWriter
+import multiprocessing
 
 def train_sr_gnn_attn(
         model_params,
@@ -25,6 +27,8 @@ def train_sr_gnn_attn(
     if eval_dataset is None: 
         raise ValueError("Eval dataset cannot be None")
     
+    #multiprocessing.set_start_method('spawn')
+    
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
@@ -39,7 +43,8 @@ def train_sr_gnn_attn(
     train_dataloader = DataLoader(dataset=train_dataset,
                             batch_size=model_params.get("batch_size"),
                             shuffle=model_params.get("shuffle"),
-                            collate_fn=collate_fn
+                            collate_fn=collate_fn,
+                            pin_memory=(device.type=="cuda")
                             )
     eval_dataloader = DataLoader(dataset=eval_dataset,
                             batch_size=model_params.get("batch_size"),
@@ -78,8 +83,8 @@ def train_sr_gnn_attn(
         
 
         # Entrenamiento y evaluación por época
-        train_loss, train_metrics = train_epoch(model, train_dataloader, optimizer, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
-        eval_loss, eval_metrics = eval_epoch(model, eval_dataloader, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
+        train_loss, train_metrics = train_epoch_new(model, train_dataloader, optimizer, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
+        eval_loss, eval_metrics = eval_epoch_new(model, eval_dataloader, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
 
         # Registrar pérdidas y métricas en TensorBoard
         writer.add_scalar("Loss/Train", train_loss, epoch)
@@ -102,6 +107,24 @@ def train_sr_gnn_attn(
     print(f"Trained model saved at {output_folder_artifacts+'trained_model.pth'}")
 
     writer.close()  # Cerrar TensorBoard correctamente
+
+def train_epoch_new(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20], device=None):
+    total_loss, avg_precision, avg_recall, avg_mrr = train_model_epoch(model, dataloader, optimizer, criterion, device, top_k=top_k)
+
+    metrics = aggregate_metrics(total_loss, avg_precision, avg_recall, avg_mrr)
+        
+    print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Training")
+    return total_loss, metrics  # Retornar pérdida y métricas
+
+def eval_epoch_new(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20], device=None):
+    total_loss, avg_precision, avg_recall, avg_mrr = evaluate_model_epoch(model, eval_dataloader, criterion, device, top_k)
+
+    metrics = aggregate_metrics(total_loss, avg_precision, avg_recall, avg_mrr)
+        
+    print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Evaluate")
+    return total_loss, metrics  # Retornar pérdida y métricas
+
+# ONEHOT IMPLEMENTATION BELOW
 
 def train_sr_gnn_attn_with_onehot(
         model_params,
@@ -145,7 +168,7 @@ def train_sr_gnn_attn_with_onehot(
 
     # Initialize the model, optimizer and loss function
 
-    model = SR_GNN_attn_with_onehot(hidden_dim=model_params["hidden_dim"],
+    model = SR_GNN_att_agg_with_onehot(hidden_dim=model_params["hidden_dim"],
                    # num_iterations=model_params["num_iterations"],
                    num_items=num_values_for_node_embedding["num_items"],
                    # embedding_dim=model_params["embedding_dim"],

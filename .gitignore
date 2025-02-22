@@ -3,3 +3,4 @@
 /experiments/*
 !/experiments/.config.yaml
 __pycache__
+.DS_Store
