@@ -6,11 +6,11 @@ import os
 from scripts.collate_fn import collate_fn
 from torch.utils.data import DataLoader
 from scripts.evaluate_scripts.evaluate_model_utils import evaluate_model_epoch
-from utils.metrics_utils import compute_metrics, print_metrics, aggregate_metrics
+from utils.metrics_utils import print_metrics, aggregate_metrics
 from scripts.train_scripts.train_model_utils import train_model_epoch
 import torch
 from torch.utils.tensorboard import SummaryWriter
-import multiprocessing
+#import multiprocessing
 
 def train_sr_gnn(
         model_params,
@@ -26,21 +26,19 @@ def train_sr_gnn(
     if eval_dataset is None: 
         raise ValueError("Eval dataset cannot be None")
     
-    multiprocessing.set_start_method('spawn')
+    #multiprocessing.set_start_method('spawn')
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
+    
     # Crear carpeta de logs para TensorBoard
     log_dir = os.path.join(output_folder_artifacts, "logs") #GUARDAR LOS DATOS PARA  TENSOR AQUÍ: output_folder_artifacts/logs/
-    #log_dir es la carpeta donde se guardarán los archivos de log
     os.makedirs(log_dir, exist_ok=True)
     writer = SummaryWriter(log_dir)  # Inicializar TensorBoard (guarda los valores de pérdida y métricas en archivos de log. Luego, TensorBoard lee estos archivos y genera las gráficas automáticamente)
     
     # Read JSON file with training parameters at experiments/sr_gnn_mockup/model_params.json
     # Combine the directory and the file name
     file_path = os.path.join(output_folder_artifacts, "num_values_for_node_embedding.json")
-    
-    #train_dataset.build_cache()
     
     train_dataloader = DataLoader(dataset=train_dataset,
                             batch_size=model_params.get("batch_size"),

@@ -101,24 +101,4 @@ def compute_mrr(predictions, targets, top_k=[10, 20]):
                 if len(target_rank) > 0:
                     mrr_k += 1.0 / (target_rank.item() + 1)
             mrr[k] = mrr_k / len(targets)
-        
-        '''
-        batch_size = targets.size(0)
-        mrr = {}
-        
-        for k in top_k:
-            _, pred = predictions.topk(k, dim=1, largest=True, sorted=True)
-            pred = pred.t()
-            ranks = []
-            for i in range(batch_size):
-                true_index = (pred[:, i] == targets[i]).nonzero(as_tuple=True)[0]
-                if true_index.numel() > 0:
-                    rank = true_index.item() + 1
-                    ranks.append(1.0 / rank)
-                else:
-                    ranks.append(0.0)  
-            
-            mrr[k] = sum(ranks) / batch_size
-
-        '''
         return mrr
