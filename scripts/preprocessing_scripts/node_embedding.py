@@ -13,7 +13,7 @@ class NodeEmbedding(torch.nn.Module):
 
     def forward(self, categories, sub_categories, elements, brands, product_id_remapped):
         # It is the "forward". Generate embeddings for the inputs
-        category_emb = self.category_embedding(categories)
+        category_emb = self.category_embedding(categories.long())
         sub_category_emb = self.sub_category_embedding(sub_categories)
         element_emb = self.element_embedding(elements)
         brand_emb = self.brand_embedding(brands)

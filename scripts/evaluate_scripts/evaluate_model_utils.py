@@ -1,9 +1,15 @@
 import torch
+import gc
 from tqdm import tqdm
+from utils.metrics_utils import compute_precision_and_recall, compute_mrr
 
+<<<<<<< HEAD
 
 def evaluate_model_epoch(model, split_loader, criterion, device=None, top_k_values=[5, 10]):
 
+=======
+def evaluate_model_epoch(model, dataloader, criterion, device, top_k=[5, 10]):
+>>>>>>> 750d61d3a12fe3c797bea9b4a2bc7339ff02b76f
     """
     Evaluate the model with different hyperparameters on the validation set using different values of K (e.g., 5, 10) and print the results.
 
@@ -14,9 +20,14 @@ def evaluate_model_epoch(model, split_loader, criterion, device=None, top_k_valu
         top_k_values: List of top-K values to evaluate (e.g., [5, 10]).
     """
     model.eval()
-    all_predictions = []
-    all_targets = []
     total_loss = 0
+
+    # Initialize accumulators
+    total_precision = {k: 0 for k in top_k}
+    total_recall = {k: 0 for k in top_k}
+    total_mrr = {k: 0 for k in top_k}
+    num_batches = len(dataloader)
+    
 
     with torch.no_grad():
         for batch in tqdm(split_loader, "Evaluation Epoch"):
@@ -29,12 +40,26 @@ def evaluate_model_epoch(model, split_loader, criterion, device=None, top_k_valu
             loss = criterion(out, target)
             total_loss += loss.item()
 
-            # Get top predictions
-            _, top_k_preds = torch.topk(out, max(top_k_values), dim=1, largest=True, sorted=True)
-            
-            # Store predictions and targets (keeping them as tensors)
-            all_predictions.append(top_k_preds)
-            all_targets.append(batch.y)
+            # Collect garbage after processing the batch
+            gc.collect()
 
-    return torch.cat(all_predictions), torch.cat(all_targets), total_loss
+            predictions = out.detach().cpu()
+            targets = target.cpu()
+
+            precision, recall = compute_precision_and_recall(predictions, targets, top_k)
+            mrr = compute_mrr(predictions, targets, top_k)
+
+            # Accumulate metrics
+            for k in top_k:
+                total_precision[k] += precision[k]
+                total_recall[k] += recall[k]
+                total_mrr[k] += mrr[k]
+
+    # Average the metrics over all batches
+    avg_precision = {k: total_precision[k] / num_batches for k in top_k}
+    avg_recall = {k: total_recall[k] / num_batches for k in top_k}
+    avg_mrr = {k: total_mrr[k] / num_batches for k in top_k}
+    avg_loss = total_loss / num_batches
+
+    return avg_loss, avg_precision, avg_recall, avg_mrr
 
