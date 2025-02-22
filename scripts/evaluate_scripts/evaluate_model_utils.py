@@ -1,13 +1,9 @@
 import torch
 from tqdm import tqdm
 
-<<<<<<< HEAD
-
 
 def evaluate_model_epoch(model, split_loader, criterion, device=None, top_k_values=[5, 10]):
-=======
-def evaluate_model_epoch(model, dataloader, criterion, device, top_k_values=[5, 10]):
->>>>>>> ba6b90abcb416706207d05daa90e9d3c98739756
+
     """
     Evaluate the model with different hyperparameters on the validation set using different values of K (e.g., 5, 10) and print the results.
 
@@ -23,7 +19,7 @@ def evaluate_model_epoch(model, dataloader, criterion, device, top_k_values=[5, 
     total_loss = 0
 
     with torch.no_grad():
-        for batch in tqdm(dataloader, "Evaluation Epoch"):
+        for batch in tqdm(split_loader, "Evaluation Epoch"):
             batch = batch.to(device)
             # Get the predicted scores
             out = model(batch, device)  # [batch_size, num_items]
