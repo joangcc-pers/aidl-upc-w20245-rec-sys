@@ -1,8 +1,8 @@
 import torch
 import gc
 
-from utils.metrics_utils import compute_precision, compute_recall, compute_mrr
-
+from utils.metrics_utils import compute_precision_and_recall, compute_mrr
+from tqdm import tqdm
 
 def train_model_epoch(model, dataloader, optimizer, criterion, device, top_k=[10,20]):
     model.train()
@@ -33,14 +33,13 @@ def train_model_epoch(model, dataloader, optimizer, criterion, device, top_k=[10
         predictions = out.detach().cpu()
         targets = batch.y.cpu()
 
-        precision = compute_precision(predictions, targets, top_k)
-        recall = compute_recall(predictions, targets, top_k)
+        precision, recall = compute_precision_and_recall(predictions, targets, top_k)
         mrr = compute_mrr(predictions, targets, top_k)
 
         # Accumulate metrics
         for k in top_k:
-            total_precision[k] += precision[k].item()
-            total_recall[k] += recall[k].item()
+            total_precision[k] += precision[k]
+            total_recall[k] += recall[k]
             total_mrr[k] += mrr[k]
 
      # Average the metrics over all batches
