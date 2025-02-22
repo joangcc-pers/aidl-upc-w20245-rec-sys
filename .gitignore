@@ -8,4 +8,6 @@ __pycache__
 echo "*.pth" >> .gitignore
 echo "notebooks/experiments/experiment_*/train_dataset.pth" >> .gitignore
 echo "notebooks/experiments/experiment_*/val_dataset.pth" >> .gitignore
-echo "notebooks/experiments/experiment_*/test_dataset.pth" >> .gitignore
+echo "notebooks/experiments/experiment_*/test_dataset.pth" >> .gitignore*.pth
+*.tfevents.*
+logs/
