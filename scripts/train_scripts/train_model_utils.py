@@ -46,6 +46,7 @@ def train_model_epoch(model, dataloader, optimizer, criterion, device, top_k=[10
     avg_precision = {k: total_precision[k] / num_batches for k in top_k}
     avg_recall = {k: total_recall[k] / num_batches for k in top_k}
     avg_mrr = {k: total_mrr[k] / num_batches for k in top_k}
+    avg_loss = total_loss / num_batches
 
-    return total_loss, avg_precision, avg_recall, avg_mrr
+    return avg_loss, avg_precision, avg_recall, avg_mrr
  
