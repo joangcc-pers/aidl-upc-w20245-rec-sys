@@ -111,11 +111,9 @@ def train_sr_gnn(
     writer.close()  # Cerrar TensorBoard correctamente
 
 def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20], device=None):
-    all_predictions, all_targets, total_loss = train_model_epoch(model, dataloader, optimizer, criterion, device)
+    total_loss, avg_precision, avg_recall, avg_mrr = train_model_epoch(model, dataloader, optimizer, criterion, device, top_k=top_k)
     
-    metrics = compute_metrics(all_predictions, all_targets, top_k)
-    
-    print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Training")
+    print_metrics(total_epochs, current_epoch, top_k, avg_precision, avg_recall, avg_mrr, task="Training")
     return total_loss, metrics  # Retornar pérdida y métricas
 
 def eval_epoch(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20], device=None):
