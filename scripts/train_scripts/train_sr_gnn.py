@@ -6,7 +6,7 @@ import os
 from scripts.collate_fn import collate_fn
 from torch.utils.data import DataLoader
 from scripts.evaluate_scripts.evaluate_model_utils import evaluate_model_epoch
-from utils.metrics_utils import compute_metrics, print_metrics
+from utils.metrics_utils import compute_metrics, print_metrics, aggregate_metrics
 from scripts.train_scripts.train_model_utils import train_model_epoch
 import torch
 from torch.utils.tensorboard import SummaryWriter
@@ -102,9 +102,6 @@ def train_sr_gnn(
         torch.save(model.state_dict(), output_folder_artifacts + f"trained_model_{str(epoch+1).zfill(4)}.pth")
         print(f"Model for epoch {epoch+1} saved at {intermediate_model_path}")
 
-
-
-
     #Save the final model implementation
     torch.save(model.state_dict(), output_folder_artifacts+"trained_model.pth")
     print(f"Trained model saved at {output_folder_artifacts+'trained_model.pth'}")
@@ -112,16 +109,18 @@ def train_sr_gnn(
 
 def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20], device=None):
     total_loss, avg_precision, avg_recall, avg_mrr = train_model_epoch(model, dataloader, optimizer, criterion, device, top_k=top_k)
+
+    metrics = aggregate_metrics(total_loss, avg_precision, avg_recall, avg_mrr)
     
-    print_metrics(total_epochs, current_epoch, top_k, avg_precision, avg_recall, avg_mrr, task="Training")
+    print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Training")
     return total_loss, metrics  # Retornar pérdida y métricas
 
 def eval_epoch(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20], device=None):
-    all_predictions, all_targets, total_loss = evaluate_model_epoch(model, eval_dataloader, criterion, device, top_k)
+    total_loss, avg_precision, avg_recall, avg_mrr = evaluate_model_epoch(model, eval_dataloader, criterion, device, top_k)
 
-    metrics = compute_metrics(all_predictions, all_targets, top_k)
+    metrics = aggregate_metrics(total_loss, avg_precision, avg_recall, avg_mrr)
     
-    print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Validate")
+    print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Evaluate")
     return total_loss, metrics  # Retornar pérdida y métricas
 
 #Para ver los resultados desde la teminal ir a la carpeta cd/experiments si volem fer la comparativa total, o cd/output_folder_artifacts path per un experiment en particular.
