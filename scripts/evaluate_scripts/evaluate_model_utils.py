@@ -3,13 +3,10 @@ import gc
 from tqdm import tqdm
 from utils.metrics_utils import compute_precision_and_recall, compute_mrr
 
-<<<<<<< HEAD
 
 def evaluate_model_epoch(model, split_loader, criterion, device=None, top_k_values=[5, 10]):
 
-=======
-def evaluate_model_epoch(model, dataloader, criterion, device, top_k=[5, 10]):
->>>>>>> 750d61d3a12fe3c797bea9b4a2bc7339ff02b76f
+
     """
     Evaluate the model with different hyperparameters on the validation set using different values of K (e.g., 5, 10) and print the results.
 
