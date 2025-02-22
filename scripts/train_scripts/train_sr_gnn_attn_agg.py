@@ -203,20 +203,20 @@ def train_sr_gnn_att_agg(
     writer.close()  # Cerrar TensorBoard correctamente
 
 def train_epoch_new(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20], device=None):
-    total_loss, avg_precision, avg_recall, avg_mrr = train_model_epoch(model, dataloader, optimizer, criterion, device, top_k=top_k)
+    avg_loss, avg_precision, avg_recall, avg_mrr = train_model_epoch(model, dataloader, optimizer, criterion, device, top_k=top_k)
 
-    metrics = aggregate_metrics(total_loss, avg_precision, avg_recall, avg_mrr)
+    metrics = aggregate_metrics(avg_loss, avg_precision, avg_recall, avg_mrr)
     
-    print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Training")
-    return total_loss, metrics
+    print_metrics(total_epochs, current_epoch, top_k, avg_loss, metrics, task="Training")
+    return avg_loss, metrics
 
 def eval_epoch_new(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20], device=None):
-    total_loss, avg_precision, avg_recall, avg_mrr = evaluate_model_epoch(model, eval_dataloader, criterion, device, top_k)
+    avg_loss, avg_precision, avg_recall, avg_mrr = evaluate_model_epoch(model, eval_dataloader, criterion, device, top_k)
 
-    metrics = aggregate_metrics(total_loss, avg_precision, avg_recall, avg_mrr)
+    metrics = aggregate_metrics(avg_loss, avg_precision, avg_recall, avg_mrr)
     
-    print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Evaluate")
-    return total_loss, metrics 
+    print_metrics(total_epochs, current_epoch, top_k, avg_loss, metrics, task="Evaluate")
+    return avg_loss, metrics 
 
 def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20], device=None):
     all_predictions, all_targets, total_loss = train_model_epoch(model, dataloader, optimizer, criterion, device)
