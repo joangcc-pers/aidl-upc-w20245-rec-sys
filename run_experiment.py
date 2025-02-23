@@ -1,8 +1,6 @@
 import argparse
 from scripts.preprocess import preprocess_data
 from scripts.train import train_model
-from scripts.validation import evaluate_model
-# from scripts.visualize import visualize_results
 from utils.config_parser import parse_config
 
 def main():
