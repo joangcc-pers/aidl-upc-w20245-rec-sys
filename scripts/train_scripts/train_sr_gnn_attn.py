@@ -18,7 +18,8 @@ def train_sr_gnn_attn(
         train_dataset,
         eval_dataset,
         output_folder_artifacts=None,
-        top_k=[20]
+        top_k=[20],
+        experiment_hyp_combinat_name=None
 ):
     if model_params is None:
         raise ValueError("model_params cannot be None")
@@ -32,14 +33,19 @@ def train_sr_gnn_attn(
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
+    if experiment_hyp_combinat_name is not None:
+        output_folder_artifacts_with_exp_hyp_cmb_name = os.path.join(output_folder_artifacts, experiment_hyp_combinat_name)
+    else :
+        output_folder_artifacts_with_exp_hyp_cmb_name = output_folder_artifacts
+
     # Crear carpeta de logs para TensorBoard
-    log_dir = os.path.join(output_folder_artifacts, "logs")  # Guardar los datos para TensorBoard aquí
+    log_dir = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "logs")  # Guardar los datos para TensorBoard aquí
     os.makedirs(log_dir, exist_ok=True)
     writer = SummaryWriter(log_dir)  # Inicializar TensorBoard (guarda los valores de pérdida y métricas en archivos de log)
 
     # Read JSON file with training parameters at experiments/sr_gnn_mockup/model_params.json
     # Combine the directory and the file name
-    file_path = os.path.join(output_folder_artifacts, "num_values_for_node_embedding.json")
+    file_path = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "num_values_for_node_embedding.json")
     train_dataloader = DataLoader(dataset=train_dataset,
                             batch_size=model_params.get("batch_size"),
                             shuffle=model_params.get("shuffle"),
@@ -100,12 +106,12 @@ def train_sr_gnn_attn(
 
         # Save the model state_dict for the epoch
         intermediate_model_path = f"trained_model_{str(epoch+1).zfill(4)}.pth"
-        torch.save(model.state_dict(), output_folder_artifacts + f"trained_model_{str(epoch+1).zfill(4)}.pth")
+        torch.save(model.state_dict(), output_folder_artifacts_with_exp_hyp_cmb_name + f"/{intermediate_model_path}")
         print(f"Model for epoch {epoch+1} saved at {intermediate_model_path}")
-    
+
     #Save the final model implementation
-    torch.save(model.state_dict(), output_folder_artifacts+"trained_model.pth")
-    print(f"Trained model saved at {output_folder_artifacts+'trained_model.pth'}")
+    torch.save(model.state_dict(), output_folder_artifacts_with_exp_hyp_cmb_name+"/trained_model.pth")
+    print(f"Trained model saved at {output_folder_artifacts_with_exp_hyp_cmb_name+'/trained_model.pth'}")
 
     writer.close()  # Cerrar TensorBoard correctamente
 

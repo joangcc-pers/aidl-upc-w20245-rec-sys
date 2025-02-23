@@ -23,7 +23,7 @@ This project aims to explore and apply Deep learning architectures for Recommend
 
 The implementaiton of these architectures will use pytorch, and visualize results through TensorFlow.
 
-## Contents
+## Contents (TO BE UPDATED)
 
 The repository is organized as follows:
 - **data**: Contains the data used in the project.
@@ -58,11 +58,20 @@ pip install -r requirements.txt
 
 ## Execution
 
+### Executing experiments (DEPRECATED)
 ```bash
-python run_experiment.py --config experiments/config.yaml --experiment experiment_1 --task clean train evaluate visualize
+python run_experiment.py --config experiments/config.yaml --experiment experiment_1 --task preprocess train
 ```
 
-- Tasks must be in correct order: clean, train, evaluate, and visualize. If orders are ntot placed in the correct order, process will fail and raise an error.
+- Tasks must be in correct order: preprocess and train. If orders are ntot placed in the correct order, process will fail and raise an error.
+- Tasks can be omitted if performed before.
+
+### Executing Grid Search optimization (DEPRECATED)
+```bash
+python run_optim.py --model your_model_name --task preprocess train
+```
+
+- Tasks must be in correct order: preprocess and train. If orders are ntot placed in the correct order, process will fail and raise an error.
 - Tasks can be omitted if performed before.
 
 ## License

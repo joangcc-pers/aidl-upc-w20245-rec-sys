@@ -17,7 +17,8 @@ def train_sr_gnn(
         train_dataset,
         eval_dataset,
         output_folder_artifacts=None,
-        top_k=[20]
+        top_k=[20],
+        experiment_hyp_combinat_name=None
 ):
     if model_params is None:
         raise ValueError("model_params cannot be None")
@@ -30,12 +31,16 @@ def train_sr_gnn(
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
-    
+    if experiment_hyp_combinat_name is not None:
+        output_folder_artifacts_with_exp_hyp_cmb_name = os.path.join(output_folder_artifacts, experiment_hyp_combinat_name)
+    else :
+        output_folder_artifacts_with_exp_hyp_cmb_name = output_folder_artifacts
     # Crear carpeta de logs para TensorBoard
-    log_dir = os.path.join(output_folder_artifacts, "logs") #GUARDAR LOS DATOS PARA  TENSOR AQUÍ: output_folder_artifacts/logs/
+    log_dir = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "logs") #GUARDAR LOS DATOS PARA  TENSOR AQUÍ: output_folder_artifacts/logs/
     os.makedirs(log_dir, exist_ok=True)
     writer = SummaryWriter(log_dir)  # Inicializar TensorBoard (guarda los valores de pérdida y métricas en archivos de log. Luego, TensorBoard lee estos archivos y genera las gráficas automáticamente)
     
+
     # Read JSON file with training parameters at experiments/sr_gnn_mockup/model_params.json
     # Combine the directory and the file name
     file_path = os.path.join(output_folder_artifacts, "num_values_for_node_embedding.json")
@@ -66,7 +71,7 @@ def train_sr_gnn(
                    num_categories=num_values_for_node_embedding["num_categories"],
                    num_sub_categories=num_values_for_node_embedding["num_sub_categories"],
                    num_elements=num_values_for_node_embedding["num_elements"],
-                   num_brands=num_values_for_node_embedding["num_brands"]
+                   num_brands=num_values_for_node_embedding["num_brands"],
                    )
     model = model.to(device)
 
@@ -97,12 +102,12 @@ def train_sr_gnn(
 
         # Save the model state_dict for the epoch
         intermediate_model_path = f"trained_model_{str(epoch+1).zfill(4)}.pth"
-        torch.save(model.state_dict(), output_folder_artifacts + f"trained_model_{str(epoch+1).zfill(4)}.pth")
+        torch.save(model.state_dict(), output_folder_artifacts_with_exp_hyp_cmb_name + f"/{intermediate_model_path}")
         print(f"Model for epoch {epoch+1} saved at {intermediate_model_path}")
 
     #Save the final model implementation
-    torch.save(model.state_dict(), output_folder_artifacts+"trained_model.pth")
-    print(f"Trained model saved at {output_folder_artifacts+'trained_model.pth'}")
+    torch.save(model.state_dict(), output_folder_artifacts_with_exp_hyp_cmb_name+"/trained_model.pth")
+    print(f"Trained model saved at {output_folder_artifacts_with_exp_hyp_cmb_name+'/trained_model.pth'}")
     writer.close()  # Cerrar TensorBoard correctamente
 
 def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20], device=None):
