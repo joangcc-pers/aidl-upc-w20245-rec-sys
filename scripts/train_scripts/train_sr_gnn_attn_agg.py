@@ -75,7 +75,7 @@ def train_sr_gnn_att_agg_with_onehot(
     model = model.to(device)
 
     if model_params["optimizer"] == "Adam":
-        optimizer = optim.Adam(model.parameters(), lr=model_params["lr"])
+        optimizer = optim.Adam(model.parameters(), lr=model_params["lr"], weight_decay=model_params["weight_decay"])
     else:
         raise ValueError(f"Unsupported optimizer: {model_params['optimizer']}")
 
@@ -166,7 +166,7 @@ def train_sr_gnn_att_agg(
     model = model.to(device)
 
     if model_params["optimizer"] == "Adam":
-        optimizer = optim.Adam(model.parameters(), lr=model_params["lr"])
+        optimizer = optim.Adam(model.parameters(), lr=model_params["lr"], weight_decay=model_params["weight_decay"])
     else:
         raise ValueError(f"Unsupported optimizer: {model_params['optimizer']}")
 

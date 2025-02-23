@@ -66,6 +66,7 @@ experiments:
       hidden_dim: 100
       shuffle: False
       batch_size: 50
+      weight_decay: 0.0001
     data_params:
       input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/experiment_4/"
@@ -96,6 +97,7 @@ experiments:
       hidden_dim: 100
       shuffle: False
       batch_size: 50
+      weight_decay: 0.0001
     data_params:
       input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/experiment_5/"
@@ -125,6 +127,7 @@ experiments:
       hidden_dim: 100
       batch_size: 50
       shuffle: False
+      weight_decay: 0.0001
     data_params:
       input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/experiment_6/"
@@ -158,6 +161,7 @@ experiments:
       lr: 0.0005
       epochs: 15
       batch_size: 32
+      weight_decay: 0.0001
     data_params:
       #input_folder_path: "/Users/miguelpalospou/Desktop/Data_projects/master_project/"
       input_folder_path: "data/raw/"
