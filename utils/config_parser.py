@@ -23,7 +23,7 @@ def parse_config(config_path="experiments/config.yaml", model_name=None, tasks=N
         config = yaml.safe_load(file)
     
     # Validate tasks order
-    allowed_tasks = ["preprocess", "train", "evaluate", "visualize"]
+    allowed_tasks = ["preprocess", "train"]
     if tasks:
         for task in tasks:
             if task not in allowed_tasks:
