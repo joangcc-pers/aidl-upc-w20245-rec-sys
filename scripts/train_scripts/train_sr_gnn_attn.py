@@ -45,7 +45,7 @@ def train_sr_gnn_attn(
 
     # Read JSON file with training parameters at experiments/sr_gnn_mockup/model_params.json
     # Combine the directory and the file name
-    file_path = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "num_values_for_node_embedding.json")
+    file_path = os.path.join(output_folder_artifacts, "num_values_for_node_embedding.json")
     train_dataloader = DataLoader(dataset=train_dataset,
                             batch_size=model_params.get("batch_size"),
                             shuffle=model_params.get("shuffle"),

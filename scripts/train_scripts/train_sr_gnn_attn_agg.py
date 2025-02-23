@@ -52,7 +52,7 @@ def train_sr_gnn_att_agg_with_onehot(
 
     # Read JSON file with training parameters at data/processed/sr_gnn_mockup/training_params.json
     # Combine the directory and the file name
-    file_path = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "num_values_for_node_embedding.json")
+    file_path = os.path.join(output_folder_artifacts, "num_values_for_node_embedding.json")
     train_dataloader = DataLoader(dataset=train_dataset,
                             batch_size=model_params.get("batch_size"),
                             shuffle=model_params.get("shuffle"),
@@ -151,7 +151,7 @@ def train_sr_gnn_att_agg(
     os.makedirs(log_dir, exist_ok=True)
     writer = SummaryWriter(log_dir)  # Inicializar TensorBoard (guarda los valores de pérdida y métricas en archivos de log)
 
-    file_path = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "num_values_for_node_embedding.json")
+    file_path = os.path.join(output_folder_artifacts, "num_values_for_node_embedding.json")
 
     train_dataloader = DataLoader(dataset=train_dataset,
                             batch_size=model_params.get("batch_size"),
