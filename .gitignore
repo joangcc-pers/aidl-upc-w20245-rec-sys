@@ -2,6 +2,7 @@
 /data/processed/
 /experiments/*
 !/experiments/.config.yaml
+!/experiments/config_hyp.yaml
 __pycache__
 .DS_Store
 
