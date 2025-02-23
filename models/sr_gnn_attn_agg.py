@@ -16,7 +16,8 @@ class SR_GNN_att_agg(nn.Module):
         num_sub_categories=None,
         num_elements=None,
         num_brands=None,
-        embedding_dim=None
+        embedding_dim=None,
+        dropout_rate=0.5,
         ):
         super(SR_GNN_att_agg, self).__init__()
         
@@ -36,7 +37,7 @@ class SR_GNN_att_agg(nn.Module):
         
         self.attentionalAggregation = AttentionalAggregation(
             nn.Sequential(
-                nn.Dropout(),
+                nn.Dropout(dropout_rate, inplace=True),
                 nn.Linear(hidden_dim, hidden_dim),
                 nn.ReLU(),
                 nn.Linear(hidden_dim, 1)
@@ -101,6 +102,7 @@ class SR_GNN_att_agg_with_onehot(nn.Module):
         num_sub_categories=None,
         num_elements=None,
         num_brands=None,
+        dropout_rate=0.5,
         # embedding_dim=None
         ):
         super(SR_GNN_att_agg_with_onehot, self).__init__()
@@ -125,7 +127,7 @@ class SR_GNN_att_agg_with_onehot(nn.Module):
         
         self.attentionalAggregation = AttentionalAggregation(
             nn.Sequential(
-                nn.Dropout(),
+                nn.Dropout(dropout_rate, inplace=True),
                 nn.Linear(hidden_dim, hidden_dim),
                 nn.ReLU(),
                 nn.Linear(hidden_dim, 1)

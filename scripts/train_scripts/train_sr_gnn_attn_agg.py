@@ -70,7 +70,8 @@ def train_sr_gnn_att_agg_with_onehot(
                    num_categories=num_values_for_node_embedding["num_categories"],
                    num_sub_categories=num_values_for_node_embedding["num_sub_categories"],
                    num_elements=num_values_for_node_embedding["num_elements"],
-                   num_brands=num_values_for_node_embedding["num_brands"]
+                   num_brands=num_values_for_node_embedding["num_brands"],
+                   dropout_rate=model_params.get("dropout_rate")
                    )
     model = model.to(device)
 
@@ -161,7 +162,8 @@ def train_sr_gnn_att_agg(
                    num_categories=num_values_for_node_embedding["num_categories"],
                    num_sub_categories=num_values_for_node_embedding["num_sub_categories"],
                    num_elements=num_values_for_node_embedding["num_elements"],
-                   num_brands=num_values_for_node_embedding["num_brands"]
+                   num_brands=num_values_for_node_embedding["num_brands"],
+                   dropout_rate=model_params["dropout_rate"]
                    )
     model = model.to(device)
 

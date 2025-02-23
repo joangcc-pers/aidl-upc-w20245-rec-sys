@@ -65,7 +65,8 @@ def train_sr_gnn_attn(
                    num_categories=num_values_for_node_embedding["num_categories"],
                    num_sub_categories=num_values_for_node_embedding["num_sub_categories"],
                    num_elements=num_values_for_node_embedding["num_elements"],
-                   num_brands=num_values_for_node_embedding["num_brands"]
+                   num_brands=num_values_for_node_embedding["num_brands"],
+                   dropout_rate=model_params["dropout_rate"]
                    )
     model = model.to(device)
 

@@ -67,6 +67,7 @@ experiments:
       shuffle: False
       batch_size: 50
       weight_decay: 0.0001
+      dropout_rate: None
     data_params:
       input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/experiment_4/"
@@ -98,6 +99,7 @@ experiments:
       shuffle: False
       batch_size: 50
       weight_decay: 0.0001
+      dropout_rate: None
     data_params:
       input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/experiment_5/"
@@ -128,6 +130,7 @@ experiments:
       batch_size: 50
       shuffle: False
       weight_decay: 0.0001
+      dropout_rate: 0.3
     data_params:
       input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/experiment_6/"
