@@ -15,7 +15,8 @@ class SR_GNN_attn(nn.Module):
         num_sub_categories=None,
         num_elements=None,
         num_brands=None,
-        embedding_dim=None
+        embedding_dim=None,
+        dropout_rate=None,
         ):
         super(SR_GNN_attn, self).__init__()
         
