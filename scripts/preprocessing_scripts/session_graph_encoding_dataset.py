@@ -1,6 +1,8 @@
 import os
 import pandas as pd
 import torch
+import pickle
+import lmdb
 
 import json
 
@@ -8,7 +10,8 @@ import numpy as np
 
 from torch.utils.data import Dataset
 from torch_geometric.data import Data
-from sklearn.preprocessing import LabelEncoder
+
+from tqdm import tqdm
 
 from utils.csv_files_enum import CsvFilesEnum
 
@@ -26,7 +29,8 @@ class SessionGraphOneHotDataset(Dataset):
                  limit_to_view_event=False,
                  drop_listwise_nulls=False,
                  min_products_per_session=3,
-                 normalization_method="min_max"
+                 normalization_method="min_max",
+                 lmdb_path=None
                  ):
         """
         Dataset for session-based recommendation using Graph Neural Networks.
@@ -42,7 +46,8 @@ class SessionGraphOneHotDataset(Dataset):
             min_products_per_session (int, optional): Minimum number of unique products per session.
             normalization_method (str, optional): Method for normalizing the price column. Options: 'min_max', 'z_score'.
         """
-
+        self.lmdb_path = lmdb_path
+        os.makedirs(output_folder_artifacts, exist_ok=True)
 
         print("[INFO] Initializing SessionGraphDataset...")
         
@@ -196,7 +201,6 @@ class SessionGraphOneHotDataset(Dataset):
         }
 
         #Create a new json file with the unique values of each column
-        os.makedirs(output_folder_artifacts, exist_ok=True)
         export_json_path = os.path.join(output_folder_artifacts, 'num_values_for_node_embedding.json')
         with open(export_json_path, 'w') as f:
             json.dump(num_values_for_node_encoding, f)
@@ -259,6 +263,36 @@ class SessionGraphOneHotDataset(Dataset):
         """
         return len(self.sessions)
     
+    def preprocess_and_save_graphs(self, lmdb_env):
+        with lmdb_env.begin(write=True) as txn:
+            for session_id in tqdm(self.sessions, desc="Processing sessions"):
+                session_data = self.data[self.data['user_session'] == session_id]
+
+                # Get one-hot encoded features by selecting columns with their respective prefixes
+                encoded_labels_dict = {
+                    'category': torch.tensor(
+                        session_data[[col for col in session_data.columns if col.startswith('category_') and col != 'category_code']].values, 
+                        dtype=torch.float
+                    ),
+                    'sub_category': torch.tensor(
+                        session_data[[col for col in session_data.columns if col.startswith('sub_category_')]].values,
+                        dtype=torch.float
+                    ),
+                    'element': torch.tensor(
+                        session_data[[col for col in session_data.columns if col.startswith('element_')]].values,
+                        dtype=torch.float
+                    ),
+                    'brand': torch.tensor(
+                        session_data[[col for col in session_data.columns if col.startswith('brand_')]].values,
+                        dtype=torch.float
+                    )
+                }
+                # Directly pass the encoded labels to the graph creation function
+                graph = self._get_graph(session_data, session_id, encoded_labels_dict)
+
+                graph_serialised = pickle.dumps(graph)
+                txn.put(session_id.encode('utf-8'), graph_serialised)
+    
     def __getitem__(self, idx):
         """
         Fetches a session and constructs a graph object.
@@ -266,31 +300,14 @@ class SessionGraphOneHotDataset(Dataset):
             PyTorch Geometric Data object
         """
         session_id = self.sessions[idx]
-        session_data = self.data[self.data['user_session'] == session_id]
-        
+        with lmdb.open(self.lmdb_path, readonly=True) as env:
+            with env.begin() as txn:
+                graph_serialized = txn.get(session_id.encode('utf-8'))
+                if graph_serialized is None:
+                    raise KeyError(f"Session ID {session_id} not found in LMDB.")
+                graph = pickle.loads(graph_serialized)
 
-
-        # Get one-hot encoded features by selecting columns with their respective prefixes
-        encoded_labels_dict = {
-            'category': torch.tensor(
-                session_data[[col for col in session_data.columns if col.startswith('category_') and col != 'category_code']].values, 
-                dtype=torch.float
-            ),
-            'sub_category': torch.tensor(
-                session_data[[col for col in session_data.columns if col.startswith('sub_category_')]].values,
-                dtype=torch.float
-            ),
-            'element': torch.tensor(
-                session_data[[col for col in session_data.columns if col.startswith('element_')]].values,
-                dtype=torch.float
-            ),
-            'brand': torch.tensor(
-                session_data[[col for col in session_data.columns if col.startswith('brand_')]].values,
-                dtype=torch.float
-            )
-        }
-        # Directly pass the encoded labels to the graph creation function
-        return self._get_graph(session_data, session_id, encoded_labels_dict)
+        return graph
 
     def _get_graph(self, session_data, session_id, encoded_labels_dict):
         """

@@ -12,8 +12,7 @@ from torch.utils.data import Dataset
 from torch_geometric.data import Data
 from sklearn.preprocessing import LabelEncoder
 
-from tqdm import tqdm 
-from concurrent.futures import ProcessPoolExecutor
+from tqdm import tqdm
 
 from utils.csv_files_enum import CsvFilesEnum
 
@@ -254,9 +253,6 @@ class SessionGraphEmbeddingsDataset(Dataset):
         return len(self.sessions)
     
     def preprocess_and_save_graphs(self, lmdb_env):
-        #print(f"Saving graphs data objects files to {self.precomputed_session_graphs_path}")
-        #os.makedirs(self.precomputed_session_graphs_path, exist_ok=True)  # Create directory for session graphs
-
         with lmdb_env.begin(write=True) as txn:
             for session_id in tqdm(self.sessions, desc="Processing sessions"):
                 session_data = self.data.loc[session_id]
@@ -274,10 +270,6 @@ class SessionGraphEmbeddingsDataset(Dataset):
                 graph_serialised = pickle.dumps(graph)
                 txn.put(session_id.encode('utf-8'), graph_serialised)
 
-            # Save the graph to a file
-            #file_path = f"{self.precomputed_session_graphs_path}/session_{session_id}.pt"
-            #torch.save(graph, file_path)
-
     def __getitem__(self, idx):
         """
         Fetches a session and constructs a graph object.
@@ -286,12 +278,6 @@ class SessionGraphEmbeddingsDataset(Dataset):
         """
         
         session_id = self.sessions[idx]
-
-        # Define the file path for loading the graph
-        #file_path = f"{self.precomputed_session_graphs_path}/session_{session_id}.pt"
-
-        # Load the graph from the file
-        #graph = torch.load(file_path, weights_only=False)
 
         with lmdb.open(self.lmdb_path, readonly=True) as env:
             with env.begin() as txn:
