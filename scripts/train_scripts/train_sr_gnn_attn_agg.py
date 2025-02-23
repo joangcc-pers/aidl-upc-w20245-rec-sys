@@ -7,7 +7,7 @@ import os
 from scripts.collate_fn import collate_fn
 from torch.utils.data import DataLoader
 from scripts.evaluate_scripts.evaluate_model_utils import evaluate_model_epoch
-from utils.metrics_utils import print_metrics, aggregate_metrics, compute_metrics
+from utils.metrics_utils import print_metrics, aggregate_metrics
 from scripts.train_scripts.train_model_utils import train_model_epoch
 import torch
 from torch.utils.tensorboard import SummaryWriter
