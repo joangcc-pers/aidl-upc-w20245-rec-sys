@@ -178,8 +178,8 @@ def train_sr_gnn_att_agg(
         print("----------------------------------")
 
         # Entrenamiento y evaluación por época
-        train_loss, train_metrics = train_epoch_new(model, train_dataloader, optimizer, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
-        eval_loss, eval_metrics = eval_epoch_new(model, eval_dataloader, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
+        train_loss, train_metrics = train_epoch(model, train_dataloader, optimizer, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
+        eval_loss, eval_metrics = eval_epoch(model, eval_dataloader, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
 
         # Registrar pérdidas y métricas en TensorBoard
         writer.add_scalar("Loss/Train", train_loss, epoch)
@@ -202,7 +202,7 @@ def train_sr_gnn_att_agg(
 
     writer.close()  # Cerrar TensorBoard correctamente
 
-def train_epoch_new(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20], device=None):
+def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20], device=None):
     avg_loss, avg_precision, avg_recall, avg_mrr = train_model_epoch(model, dataloader, optimizer, criterion, device, top_k=top_k)
 
     metrics = aggregate_metrics(avg_loss, avg_precision, avg_recall, avg_mrr)
@@ -210,22 +210,10 @@ def train_epoch_new(model, dataloader, optimizer, criterion, total_epochs, curre
     print_metrics(total_epochs, current_epoch, top_k, avg_loss, metrics, task="Training")
     return avg_loss, metrics
 
-def eval_epoch_new(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20], device=None):
+def eval_epoch(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20], device=None):
     avg_loss, avg_precision, avg_recall, avg_mrr = evaluate_model_epoch(model, eval_dataloader, criterion, device, top_k)
 
     metrics = aggregate_metrics(avg_loss, avg_precision, avg_recall, avg_mrr)
     
     print_metrics(total_epochs, current_epoch, top_k, avg_loss, metrics, task="Evaluate")
-    return avg_loss, metrics 
-
-def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20], device=None):
-    all_predictions, all_targets, total_loss = train_model_epoch(model, dataloader, optimizer, criterion, device)
-    metrics = compute_metrics(all_predictions, all_targets, top_k)
-    print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Training")
-    return total_loss, metrics  # Retornar pérdida y métricas
-
-def eval_epoch(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20], device=None):
-    all_predictions, all_targets, total_loss = evaluate_model_epoch(model, eval_dataloader, criterion, device, top_k)
-    metrics = compute_metrics(all_predictions, all_targets, top_k)
-    print_metrics(total_epochs, current_epoch, top_k, total_loss, metrics, task="Validate")
-    return total_loss, metrics  # Retornar pérdida y métricas
+    return avg_loss, metrics

@@ -4,7 +4,7 @@ from tqdm import tqdm
 from utils.metrics_utils import compute_precision_and_recall, compute_mrr
 
 
-def evaluate_model_epoch(model, split_loader, criterion, device=None, top_k_values=[5, 10]):
+def evaluate_model_epoch(model, dataloader, criterion, device=None, top_k=[5, 10]):
 
 
     """
@@ -27,7 +27,7 @@ def evaluate_model_epoch(model, split_loader, criterion, device=None, top_k_valu
     
 
     with torch.no_grad():
-        for batch in tqdm(split_loader, "Evaluation Epoch"):
+        for batch in tqdm(dataloader, "Evaluation Epoch"):
             batch = batch.to(device)
             # Get the predicted scores
             out = model(batch, device)  # [batch_size, num_items]
