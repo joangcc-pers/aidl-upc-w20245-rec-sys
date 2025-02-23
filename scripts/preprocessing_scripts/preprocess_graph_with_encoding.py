@@ -2,13 +2,17 @@ from torch.utils.data import DataLoader
 from scripts.preprocessing_scripts.session_graph_encoding_dataset import SessionGraphOneHotDataset
 from scripts.collate_fn import collate_fn
 from torch.utils.data import Subset, random_split
-
+import lmdb
+import os
 import torch
 
 
 def preprocess_graph_with_onehot(input_folder_path, output_folder_artifacts, preprocessing_params):
     """Preprocessing pipeline for Graph NN."""
     print("Applying preprocessing for Graph NN with embeddings for categorical features...")
+
+    # Create LMDB environment
+    lmdb_path = os.path.join(output_folder_artifacts,'graphsdb')
 
     # Initialize dataset and dataloader
     dataset = SessionGraphOneHotDataset(folder_path=input_folder_path,
@@ -20,11 +24,16 @@ def preprocess_graph_with_onehot(input_folder_path, output_folder_artifacts, pre
                                             # embedding_dim=64,
                                             limit_to_view_event=preprocessing_params.get("limit_to_view_event"),
                                             drop_listwise_nulls=preprocessing_params.get("drop_listwise_nulls"),
-                                            min_products_per_session=preprocessing_params.get("min_products_per_session")
+                                            min_products_per_session=preprocessing_params.get("min_products_per_session"),
+                                            lmdb_path = lmdb_path
                                             )
+    
+    # Creation of an lmdb database of 12gb (Oct+Nov sessions on embeddings take ~9gb)
+    lmdb_env = lmdb.open(lmdb_path, map_size=12*1024*1024*1024)
+    dataset.preprocess_and_save_graphs(lmdb_env)
+
     sample= dataset[0]
     print(sample)
-    
     
         # Check individual components
     if hasattr(sample, "product_id_remapped"):

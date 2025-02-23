@@ -159,7 +159,8 @@ experiments:
       epochs: 15
       batch_size: 32
     data_params:
-      input_folder_path: "/Users/miguelpalospou/Desktop/Data_projects/master_project/"
+      #input_folder_path: "/Users/miguelpalospou/Desktop/Data_projects/master_project/"
+      input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/experiment_7/"
     preprocessing:
       start_month: '2019-10'
