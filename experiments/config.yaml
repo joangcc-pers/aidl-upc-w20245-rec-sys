@@ -66,6 +66,7 @@ experiments:
       hidden_dim: 100
       shuffle: False
       batch_size: 50
+      dropout_rate: None
     data_params:
       input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/experiment_4/"
@@ -96,6 +97,7 @@ experiments:
       hidden_dim: 100
       shuffle: False
       batch_size: 50
+      dropout_rate: None
     data_params:
       input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/experiment_5/"
@@ -125,6 +127,7 @@ experiments:
       hidden_dim: 100
       batch_size: 50
       shuffle: False
+      dropout_rate: 0.3
     data_params:
       input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/experiment_6/"
