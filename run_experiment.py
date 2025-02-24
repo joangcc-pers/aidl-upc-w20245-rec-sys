@@ -72,7 +72,8 @@ def main():
                 model_name=experiment_config["model_name"],
                 model_params=experiment_config.get("model_params", {}),
                 output_folder_artifacts=experiment_config["data_params"]["output_folder_artifacts"],
-                top_k=experiment_config["evaluation"]["top_k"]
+                top_k=experiment_config["evaluation"]["top_k"],
+                resume = None
                 )
 
 if __name__ == "__main__":
