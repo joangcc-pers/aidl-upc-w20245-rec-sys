@@ -3,7 +3,7 @@ experiments:
   model_graph_with_embeddings:
     model_name: "graph_with_embeddings"
     model_params:
-      epochs: 1
+      epochs: 2
       optimizer: "Adam"
       num_iterations: 1
       embedding_dim: 64

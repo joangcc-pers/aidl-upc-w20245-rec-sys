@@ -19,7 +19,8 @@ def train_sr_gnn_attn(
         eval_dataset,
         output_folder_artifacts=None,
         top_k=[20],
-        experiment_hyp_combinat_name=None
+        experiment_hyp_combinat_name=None,
+        resume=None
 ):
     if model_params is None:
         raise ValueError("model_params cannot be None")
@@ -85,7 +86,24 @@ def train_sr_gnn_attn(
 
     epochs = model_params["epochs"]
 
-    for epoch in range(epochs):
+    last_checkpoint_epoch = 0
+
+    if resume is not None:
+
+        # Get into output_folder_artifacts_with_exp_hyp_cmb_name, check if there is a trained_model file with the epoch number, and get the maximum epoch number
+        for file in os.listdir(output_folder_artifacts_with_exp_hyp_cmb_name):
+            # Check if file is a trained_model file and get the max epoch number
+            if file.startswith("trained_model_") and file.endswith(".pth"):
+                epoch_number = int(file.split("_")[2].split(".")[0])
+                if epoch_number > last_checkpoint_epoch:
+                    last_checkpoint_epoch = epoch_number
+        
+        if last_checkpoint_epoch > 0:
+            model.load_state_dict(torch.load(output_folder_artifacts_with_exp_hyp_cmb_name + f"/trained_model_{str(last_checkpoint_epoch).zfill(4)}.pth", weights_only=False))
+            print(f"Model checkpoint loaded from {output_folder_artifacts_with_exp_hyp_cmb_name + f'/trained_model_{str(last_checkpoint_epoch).zfill(4)}.pth'}")
+
+    # For loop to train the model from first epoch to the last epoch
+    for epoch in range(last_checkpoint_epoch, epochs):
         print("----------------------------------")
         
 

@@ -3,6 +3,7 @@
 /experiments/*
 !/experiments/.config.yaml
 !/experiments/config_hyp.yaml
+!/experiments/rerun_list.yaml
 __pycache__
 .DS_Store
 
