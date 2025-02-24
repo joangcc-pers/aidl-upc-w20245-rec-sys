@@ -10,6 +10,37 @@ from utils.config_parser import parse_config
 import os
 
 def main():
+    """
+    Run experiments with different models and hyperparameters.
+
+    Arguments:
+    --model : str
+        Required. Model to use for the experiment. Choices are:
+        - "graph_with_embeddings"
+        - "graph_with_embeddings_and_attention"
+        - "graph_with_embeddings_and_attentional_aggregation"
+        - "graph_with_encoding_and_attentional_aggregation"
+    
+    --task : list of str
+        Required. Tasks to perform in the correct order. Choices are:
+        - "preprocess"
+        - "train"
+    
+    --log_dir : str
+        Optional. Directory to save TensorBoard logs. Default is "experiments".
+    
+    --force_rerun_train : str
+        Required. Force rerun training scenarios. Choices are:
+        - "no": Will check the local directory for existing runs. If a complete training has been done before (i.e., the pertinent .pth file exists), it will not rerun. New or partially calculated scenarios will be executed.
+        - "all": Will execute all scenarios, regardless of whether they have been calculated before.
+        - "rerun_list": Will only overwrite those scenarios in the list.
+    
+    --resume : str
+        Required. Resume training from initialized experiments. Choices are:
+        - "yes"
+        - "no"
+        Note: This argument is only used if rerunning the scenario.
+    """
     parser = argparse.ArgumentParser(description="Run experiments with different models and hyperparameters.")
     parser.add_argument('--model', type=str, required=True, choices=["graph_with_embeddings", "graph_with_embeddings_and_attention", "graph_with_embeddings_and_attentional_aggregation", "graph_with_encoding_and_attentional_aggregation"], help="Model to use for the experiment")
     parser.add_argument(
