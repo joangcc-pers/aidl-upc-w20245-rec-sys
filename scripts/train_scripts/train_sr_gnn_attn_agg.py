@@ -210,7 +210,7 @@ def train_sr_gnn_att_agg(
 
     last_checkpoint_epoch = 0
 
-    if resume is not None:
+    if resume == "yes":
 
         # Get into output_folder_artifacts_with_exp_hyp_cmb_name, check if there is a trained_model file with the epoch number, and get the maximum epoch number
         for file in os.listdir(output_folder_artifacts_with_exp_hyp_cmb_name):
