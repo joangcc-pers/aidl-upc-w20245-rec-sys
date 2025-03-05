@@ -162,6 +162,9 @@ Sorted by MRR@20 (highest to lowest, top 5):
   - dropout_rate = 0.5
   - learning_rate = 0.001
   - Achieves MRR@20 = 0.3014877736568451 and R@20 = 0.6393100023269653
+* The best configuration achieves better results than running experiment 5 (weight_decay=0,0001, no dropout_rate) for 25 epochs with a scheduler to adjust the lr. The results for experiment 6 are:
+  - R@20=0.5706
+  - P@20=0.0285
 
 ## Common Patterns:
 * Higher learning rate (0.001) consistently performs better
@@ -245,6 +248,11 @@ Sorted by MRR@20 (highest to lowest, top 5):
   - dropout_rate = 0.0
   - learning_rate = 0.001
   - Achieves MRR@20 = 0.35357096791267395 and R@20 = 0.6926050186157227
+* The best configuration achieves better results than running experiment 6 (weight_decay=0,0001, dropout_rate=0.3) for 25 epochs with a scheduler to adjust the lr. The results for experiment 6 are:
+  - R@20: 0.5980
+  - MRR@20: 0.3119
+
+
 
 ## Common Patterns:
 * Higher learning rate (0.001) consistently performs better
