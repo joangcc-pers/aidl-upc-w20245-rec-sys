@@ -16,8 +16,6 @@ from tqdm import tqdm
 
 from utils.csv_files_enum import CsvFilesEnum
 
-from scripts.preprocessing_scripts.node_embedding import NodeEmbedding
-
 class SessionGraphEmbeddingsDataset(Dataset):
     def __init__(self,
                  folder_path,

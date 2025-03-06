@@ -183,3 +183,34 @@ experiments:
       split_method: 'random'
     evaluation:
       top_k: [1, 5, 10, 20]
+
+  experiment_8:
+    model_name: "simple_sr_gnn"
+    model_params:
+      lr: 0.001
+      epochs: 50
+      optimizer: "Adam"
+      num_iterations: 1
+      embedding_dim: 64
+      hidden_dim: 100
+      batch_size: 50
+      shuffle: False
+      weight_decay: 0.0001
+      dropout_rate: 0.3
+    data_params:
+      input_folder_path: "data/raw/"
+      output_folder_artifacts: "experiments/experiment_8/"
+    preprocessing:
+      start_month: '2019-10'
+      end_month: '2019-10'
+      test_sessions_first_n: 500000
+      limit_to_view_event: True
+      drop_listwise_nulls: True
+      min_products_per_session: 3
+      normalization_method: 'zscore'
+      train_split: 0.8
+      val_split: 0.1
+      test_split: 0.1
+      split_method: 'temporal'
+    evaluation:
+      top_k: [1, 5, 10, 20]
