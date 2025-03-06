@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader
 from scripts.evaluate_scripts.evaluate_model_utils import evaluate_model_epoch
 from utils.metrics_utils import print_metrics, aggregate_metrics
 from scripts.train_scripts.train_model_utils import train_model_epoch
+from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau
 import torch
 from torch.utils.tensorboard import SummaryWriter
 #import multiprocessing
@@ -111,7 +112,6 @@ def train_sr_gnn_att_agg_with_onehot(
     # For loop to train the model from first epoch to the last epoch
     for epoch in range(last_checkpoint_epoch, epochs):
         print("----------------------------------")
-
         # Entrenamiento y evaluación por época
         train_loss, train_metrics = train_epoch(model, train_dataloader, optimizer, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
         eval_loss, eval_metrics = eval_epoch(model, eval_dataloader, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
@@ -208,6 +208,10 @@ def train_sr_gnn_att_agg(
 
     epochs = model_params["epochs"]
 
+    # TODO Choose between CosineAnnealingLR and ReduceLROnPlateau
+    scheduler = CosineAnnealingLR(optimizer, T_max=epochs)
+    #scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=2, verbose=True)
+
     last_checkpoint_epoch = 0
 
     if resume == "yes":
@@ -227,10 +231,12 @@ def train_sr_gnn_att_agg(
     # For loop to train the model from first epoch to the last epoch
     for epoch in range(last_checkpoint_epoch, epochs):
         print("----------------------------------")
-
+        print(f"Current scheduler-managed lr: {scheduler.get_last_lr()}")
         # Entrenamiento y evaluación por época
         train_loss, train_metrics = train_epoch(model, train_dataloader, optimizer, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
         eval_loss, eval_metrics = eval_epoch(model, eval_dataloader, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
+
+        scheduler.step(eval_loss)
 
         # Registrar pérdidas y métricas en TensorBoard
         writer.add_scalar("Loss/Train", train_loss, epoch)

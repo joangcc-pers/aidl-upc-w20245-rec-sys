@@ -12,7 +12,7 @@ from scripts.train_scripts.train_model_utils import train_model_epoch
 import torch
 from torch.utils.tensorboard import SummaryWriter
 import multiprocessing
-
+from torch.optim.lr_scheduler import CosineAnnealingLR, ReduceLROnPlateau
 def train_sr_gnn_attn(
         model_params,
         train_dataset,
@@ -86,6 +86,10 @@ def train_sr_gnn_attn(
 
     epochs = model_params["epochs"]
 
+    # TODO Choose between CosineAnnealingLR and ReduceLROnPlateau
+    scheduler = CosineAnnealingLR(optimizer, T_max=epochs)
+    #scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=2, verbose=True)
+
     last_checkpoint_epoch = 0
 
     if resume is not None:
@@ -105,12 +109,13 @@ def train_sr_gnn_attn(
     # For loop to train the model from first epoch to the last epoch
     for epoch in range(last_checkpoint_epoch, epochs):
         print("----------------------------------")
-        
+        print(f"Current scheduler-managed lr: {scheduler.get_last_lr()}")
 
         # Entrenamiento y evaluación por época
         train_loss, train_metrics = train_epoch(model, train_dataloader, optimizer, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
         eval_loss, eval_metrics = eval_epoch(model, eval_dataloader, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
 
+        scheduler.step(eval_loss)
         # Registrar pérdidas y métricas en TensorBoard
         writer.add_scalar("Loss/Train", train_loss, epoch)
         writer.add_scalar("Loss/Validation", eval_loss, epoch)
