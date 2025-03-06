@@ -50,3 +50,9 @@ def train_model_epoch(model, dataloader, optimizer, criterion, device, top_k=[10
 
     return avg_loss, avg_precision, avg_recall, avg_mrr
  
+def print_model_parameters(model):
+    total_params = sum(p.numel() for p in model.parameters())  # Total parameters
+    learnable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)  # Learnable parameters
+
+    print(f"Total parameters: {total_params}")
+    print(f"Learnable parameters: {learnable_params}")

@@ -8,7 +8,7 @@ from scripts.collate_fn import collate_fn
 from torch.utils.data import DataLoader
 from scripts.evaluate_scripts.evaluate_model_utils import evaluate_model_epoch
 from utils.metrics_utils import print_metrics, aggregate_metrics
-from scripts.train_scripts.train_model_utils import train_model_epoch
+from scripts.train_scripts.train_model_utils import train_model_epoch, print_model_parameters
 import torch
 from torch.utils.tensorboard import SummaryWriter
 #import multiprocessing
@@ -82,6 +82,8 @@ def train_sr_gnn_att_agg_with_onehot(
                    dropout_rate=model_params.get("dropout_rate")
                    )
     model = model.to(device)
+
+    print_model_parameters(model)
 
     if model_params["optimizer"] == "Adam":
         optimizer = optim.Adam(model.parameters(), lr=model_params["lr"], weight_decay=model_params["weight_decay"])
@@ -198,6 +200,8 @@ def train_sr_gnn_att_agg(
                    dropout_rate=model_params["dropout_rate"]
                    )
     model = model.to(device)
+
+    print_model_parameters(model)
 
     if model_params["optimizer"] == "Adam":
         optimizer = optim.Adam(model.parameters(), lr=model_params["lr"], weight_decay=model_params["weight_decay"])
