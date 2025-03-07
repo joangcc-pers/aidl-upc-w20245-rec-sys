@@ -16,6 +16,9 @@ from tqdm import tqdm
 
 from utils.csv_files_enum import CsvFilesEnum
 
+from scripts.preprocessing_scripts.node_embedding import NodeEmbedding
+from utils.preprocessing_utils import convert_yyyy_mmm_to_yyyy_mm
+
 class SessionGraphEmbeddingsDataset(Dataset):
     def __init__(self,
                  folder_path,
@@ -65,11 +68,17 @@ class SessionGraphEmbeddingsDataset(Dataset):
         print("[INFO] Loading CSV files from folder:", folder_path)
         csv_files = []
         for f in os.listdir(folder_path):
+            print(f)
             if f.endswith('.csv'):
                 # Extract the portion of the filename to compare
                 filename_without_extension = os.path.splitext(f)[0]
                 key = filename_without_extension.split("/")[-1]  # Handle forward slash or use full name
-                if start_key <= key <= end_key:
+                # Transform values from YYYY-MMM format to YYYY-MM format
+                start_key_month = convert_yyyy_mmm_to_yyyy_mm(start_key)
+                end_key_month = convert_yyyy_mmm_to_yyyy_mm(end_key)
+                key_month = convert_yyyy_mmm_to_yyyy_mm(key)
+
+                if start_key_month <= key_month <= end_key_month:
                     csv_files.append(os.path.join(folder_path, f))
 
         print(csv_files)
