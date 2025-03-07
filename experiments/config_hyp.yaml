@@ -100,7 +100,7 @@ experiments:
       output_folder_artifacts: "experiments/model_graph_with_encoding_and_attentional_aggregation/"
     preprocessing:
       start_month: '2019-10'
-      end_month: '2019-11'
+      end_month: '2019-10'
       test_sessions_first_n: 500000
       limit_to_view_event: True
       drop_listwise_nulls: True
