@@ -112,3 +112,30 @@ experiments:
       split_method: 'temporal'
     evaluation:
       top_k: [1, 5, 10, 20]
+
+  model_simple_sr_gnn:
+    model_name: "simple_sr_gnn"
+    model_params:
+      epochs: 50
+      optimizer: "Adam"
+      num_iterations: 1
+      embedding_dim: 64
+      hidden_dim: 100
+      shuffle: False
+      batch_size: 50
+    data_params:
+      input_folder_path: "data/raw/"
+      output_folder_artifacts: "experiments/simple_sr_gnn/"
+    preprocessing:
+      start_month: '2019-10'
+      end_month: '2019-11'
+      limit_to_view_event: True
+      drop_listwise_nulls: True
+      min_products_per_session: 3
+      normalization_method: 'zscore'
+      train_split: 0.8
+      val_split: 0.1
+      test_split: 0.1
+      split_method: 'temporal'
+    evaluation:
+      top_k: [1, 5, 10, 20]
