@@ -20,6 +20,8 @@ def main():
         - "graph_with_embeddings_and_attention"
         - "graph_with_embeddings_and_attentional_aggregation"
         - "graph_with_encoding_and_attentional_aggregation"
+        - "graph"
+        - "graph_with_attention"
     
     --task : list of str
         Required. Tasks to perform in the correct order. Choices are:
@@ -42,7 +44,7 @@ def main():
         Note: This argument is only used if rerunning the scenario.
     """
     parser = argparse.ArgumentParser(description="Run experiments with different models and hyperparameters.")
-    parser.add_argument('--model', type=str, required=True, choices=["simple_sr_gnn","graph_with_embeddings", "graph_with_embeddings_and_attention", "graph_with_embeddings_and_attentional_aggregation", "graph_with_encoding_and_attentional_aggregation"], help="Model to use for the experiment")
+    parser.add_argument('--model', type=str, required=True, choices=["graph", "graph_with_attention", "graph_with_embeddings", "graph_with_embeddings_and_attention", "graph_with_embeddings_and_attentional_aggregation", "graph_with_encoding_and_attentional_aggregation"], help="Model to use for the experiment")
     parser.add_argument(
         "--task", 
         nargs="+", 

@@ -7,7 +7,7 @@ def preprocess_data(model_name, input_folder_path, output_folder_artifacts, prep
     print(f"Preprocessing data for {model_name}...")
 
     # Define preprocessing pipeline for each architecture
-    if model_name in ["simple_sr_gnn", "graph_with_embeddings", "graph_with_embeddings_and_attention", "graph_with_embeddings_and_attentional_aggregation"]:
+    if model_name in ["simple_sr_gnn", "simple_sr_gnn_attn", "graph_with_embeddings", "graph_with_embeddings_and_attention", "graph_with_embeddings_and_attentional_aggregation"]:
         preprocess_graph_with_embeddings(input_folder_path, output_folder_artifacts, preprocessing_params)
     elif model_name in ["graph_with_encoding", "graph_with_encoding_and_attentional_aggregation"]:
         preprocess_graph_with_onehot(input_folder_path, output_folder_artifacts, preprocessing_params)
