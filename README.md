@@ -86,32 +86,112 @@ The repository is organized as follows:
 
 Not sure where to start? Take a look at the [open issues](https://github.com/joangcc-pers/aidl-upc-w20245-rec-sys/issues) in our repository.
 
-## Requirements
+## Project setup
+### Install project dependencies
 
-WORK IN PROGRESS...
-
-To install the dependencies, run:
+To install the requirements, run:
 ```bash
 pip install -r requirements.txt
 ```
 
-## Execution
+### Download the dataset
 
-### Executing experiments (DEPRECATED)
-```bash
-python run_experiment.py --config experiments/config.yaml --experiment experiment_1 --task preprocess train
+Download the dataset files from [kaggle](https://www.kaggle.com/datasets/mkechinov/ecommerce-behavior-data-from-multi-category-store) and place the CSV uncompressed files inside the `data/raw/` directory. Create the `raw` directory if needed. Make sure to keep the original CSV file names.
+
+## Experiments
+
+### Definition
+
+Define experiments in `experiments/config.yaml`. The recommended approach is to create a new experiment using as a reference one of the already defined experiments. For instance, a valid experiment definition for the sr_gnn with attentional aggregation model is: 
+
+```yaml
+experiment_name:
+    model_name: "graph_with_embeddings_and_attentional_aggregation"
+    model_params:
+      lr: 0.001                         # learning rate
+      epochs: 30                        # number of epochs
+      optimizer: "Adam" 
+      num_iterations: 1                 # number of iterations within the GGNN
+      embedding_dim: 64                 # embedding dimension for product date embeddings.
+      hidden_dim: 100                   # hidden dimension value for the GGNN
+      batch_size: 50
+      shuffle: False
+      weight_decay: 0.0001
+      dropout_rate: 0.3
+    data_params:
+      input_folder_path: "data/raw/"
+      output_folder_artifacts: "experiments/experiment_name/" 
+    preprocessing:
+      start_month: '2019-10'            # Start month of data to consider for the dataset generation
+      end_month: '2019-10'              # End month of data to consider for the dataset generation
+      test_sessions_first_n: 10000      # Limit number of sessions. Remove to use the whole dataset.
+      limit_to_view_event: True         # Limiting to "view" events or not.
+      drop_listwise_nulls: True
+      min_products_per_session: 3       # Smaller sessions will be discarded.
+      normalization_method: 'zscore'
+      train_split: 0.8
+      val_split: 0.1
+      test_split: 0.1
+      split_method: 'temporal'          # Allowed values are 'temporal' and 'random'
+    evaluation:
+      top_k: [1, 5, 10, 20]             # top K values to take into account for metrics calculation
 ```
 
-- Tasks must be in correct order: preprocess and train. If orders are ntot placed in the correct order, process will fail and raise an error.
-- Tasks can be omitted if performed before.
+### Execution
 
-### Executing Grid Search optimization (DEPRECATED)
+Command to execute an experiment.
 ```bash
-python run_optim.py --model your_model_name --task preprocess train
+python run_experiment.py --config experiments/config.yaml --experiment your_experiment_name --task preprocess train
 ```
 
-- Tasks must be in correct order: preprocess and train. If orders are ntot placed in the correct order, process will fail and raise an error.
-- Tasks can be omitted if performed before.
+## Grid Search
+
+### Definition
+Define the grid search scenarios in `experiments/config-hyp.yaml`.  The definition is quite similar to the experiments definintion. 
+
+```yaml
+model_graph_with_embeddings_and_attentional_aggregation:
+    model_name: "graph_with_embeddings_and_attentional_aggregation"
+    model_params:
+      epochs: 5
+      optimizer: "Adam"
+      num_iterations: 1
+      embedding_dim: 64
+      hidden_dim: 100
+      batch_size: 50
+      shuffle: False
+    data_params:
+      input_folder_path: "data/raw/"
+      output_folder_artifacts: "experiments/graph_with_embeddings_and_attentional_aggregation/"
+    preprocessing:
+      start_month: '2019-10'
+      end_month: '2019-10'
+      test_sessions_first_n: 500000
+      limit_to_view_event: True
+      drop_listwise_nulls: True
+      min_products_per_session: 3
+      normalization_method: 'zscore'
+      train_split: 0.8
+      val_split: 0.1
+      test_split: 0.1
+      split_method: 'temporal'
+    evaluation:
+      top_k: [1, 5, 10, 20]
+```
+
+### Execution
+```bash
+python run_optim.py --model your_model_name --task preprocess train --force_rerun_train yes/no --resume yes/no 
+```
+
+- **--force_rerun_train**
+  - "no": Will check the local directory for existing runs. If a complete training has been done before (i.e., the pertinent .pth file exists), it will not rerun. New or partially calculated scenarios will be executed.
+  - "all": Will execute all scenarios, regardless of whether they have been calculated before.
+  - "rerun_list": Will only overwrite those scenarios in the list.
+    
+- **--resume** : Resume training. If "yes":
+  - Will skip fully executed scenarios
+  - Will complete started scenarios from the last checkpoint
 
 # License
 
