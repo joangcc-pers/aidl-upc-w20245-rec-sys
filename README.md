@@ -21,31 +21,70 @@ This project aims to explore and apply Deep learning architectures for Recommend
 - Process the needed data.
 - Training, evaluation, visualize and compare the diffrenet architectures and configurations.
 
-The implementaiton of these architectures will use pytorch, and visualize results through TensorFlow.
+The implementaiton of these architectures will use pytorch, and visualize results through TensorBoard.
 
-## Contents (TO BE UPDATED)
+[Project repository](https://github.com/joangcc-pers/aidl-upc-w20245-rec-sys)
+
+# 1. Motivation
+
+//TODO
+
+# 2. Problem to solve
+
+//TODO
+
+# 3. Dataset
+
+//TODO
+
+# 4. Achitectures
+
+//TODO
+
+# 5. Preprocessing and training
+
+//TODO
+
+# 6. Model evolutions
+
+//TODO
+
+# 7. Repository structure and MLOPS features
+
+// TODO Xavi
+
+## Repository structure
 
 The repository is organized as follows:
 - **data**: Contains the data used in the project.
     - **raw**: Stores the original, unprocessed dataset downloaded from Kaggle.
     - **processed**: Stores the data after preprocessing and feature engineering. This data is ready to be used for training and evaluation.
-- **experiments**: Contains configuration files and results for different experiments. Each experiment has its own subfolder, where the results of the experiment will be stored.
-    **config.yaml**: Contains the configuration for preprocessing and executing each experiment.
-- **models**: Stores model_registry.py, which has the correspondence of each model class to each model called in config.yaml (within experiments). It also stores each individual model code, with the corresponding amethods to train, evaluate and construct the visualization artifacts.
-- **notebooks**: where to store all notebooks.
-- **results** Placeholder for resulting artifacts. We may delete it and use expriments folder instead.
-- **scripts**: Code called by the run_experiments (main) function, that is reponsible for calling the corresponding methods of architectures' class.
-- **test**: unit and integrity test we might need.
-- **utils**: auxiliary utils we might need.
-**run_experiment.py**: the "main" function we will call to train a model and store and visualize its results.
+- **experiments**: Contains configuration files and results for different experiments. 
+    - **experiment_folder**: Each experiment has its own subfolder, where the following artifacts will be stored:
+        - **graphsdb**: lmdb files storing the preprocessing outcome for each experiment.
+        - **train_dataset.pth**: Train dataset generated during the data preprocessing.
+        - **val_dataset.pth**: Validation dataset generated during the data preprocessing.
+        - **test_dataset.pth**: Test dataset generated during the data preprocessing.
+        - **logs**: Tensorboard files for the training of each experiment.
+        - **trained_model_000x.pth**: Model checkpoints after each training epoch.
+    - **config.yaml**: Contains the configuration for preprocessing and executing each experiment using `run_experiment.py`.
+    - **config_hyp.yaml**: Containst the configuration for preprocessing and executing hyperparameter tuning using `run_optim.py`
+- **models**: Contains the different deep leanning models implementations.
+- **notebooks**: Folder to store Jupyter notebooks that can be useful to explore different parts of this project. 
+- **scripts**: The scripts folder contains all the logic needed to implement the whole lifecycle of this machine learning project. Contains `preprocessing_scripts`, `train_scripts`, `evaluate_scripts` and `test_scripts`.
+- **utils**: Helper classes and methods used in by other classes in the repository.
+**run_experiment.py**: Entry point for running experiments defined in `experiments/config.yaml` file.
+**run_optim.py**: Entry point for running grid search defined in `experiments/config-hyp.yaml` file.
 
 
-## Workflow
+## Contributing to the repository
 
-- Branch from develop when testing a new feature.
-- After new feature has been added, merge to develop, NOT to main.
-- Test everything in develop in the cloud, and when it is working, merge to main.
-- Do **NOT** merge to main directly, so that we are sure that before marging to main, the test works in develop first.
+- Create a new branch from `develop` to work on your contribution to this repository.
+- Create a merge request and assign it to at least one of the authors.
+- Merge requests will be reviewed, approved and merged to `develop`and `main` by the authors.
+- Do **NOT** merge to `main` or `develop` directly.
+
+Not sure where to start? Take a look at the [open issues](https://github.com/joangcc-pers/aidl-upc-w20245-rec-sys/issues) in our repository.
 
 ## Requirements
 
@@ -74,11 +113,11 @@ python run_optim.py --model your_model_name --task preprocess train
 - Tasks must be in correct order: preprocess and train. If orders are ntot placed in the correct order, process will fail and raise an error.
 - Tasks can be omitted if performed before.
 
-## License
+# License
 
 
 
-## Contact
+# Contact
 
 For any inquiries, you can contact us at:
 
