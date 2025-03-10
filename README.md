@@ -56,7 +56,14 @@ Each row in the file represents an event. An event is defined as an interaction 
 
 # 4. Architectures
 
-//TODO
+In our project, we learned about multiple approaches to deal with the main characteristics of our modelling problem: how to process the sequence of interactions maintaining a relevant context (i.e. GRU Layer), and how to weight each interaction (i.e., attention mechanism) in the final prediction. We have learned that it is important to manage both: GRU manages the temporal context deciding which of all the pieces of information have to be remember of past interactions while keeping the context relevant for the sequence, and the attention mechanism decides which of these interactions processed by GRU are important for the task at hand.
+
+Here we give a brief definition of both GRU and the attention mechanisms:
+
+-- WORK IN PROGRESS
+
+
+
 
 # 5. Preprocessing and training
 
