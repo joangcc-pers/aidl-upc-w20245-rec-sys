@@ -58,10 +58,52 @@ Each row in the file represents an event. An event is defined as an interaction 
 
 In our project, we learned about multiple approaches to deal with the main characteristics of our modelling problem: how to process the sequence of interactions maintaining a relevant context (i.e. GRU Layer), and how to weight each interaction (i.e., attention mechanism) in the final prediction. We have learned that it is important to manage both: GRU manages the temporal context deciding which of all the pieces of information have to be remember of past interactions while keeping the context relevant for the sequence, and the attention mechanism decides which of these interactions processed by GRU are important for the task at hand.
 
-Here we give a brief definition of both GRU and the attention mechanisms:
+Whilst developing the architectures, we wanted to differentiate our project from the reference paper (Wu et al.,), by incorporting into our architectures the product information (product category and brand).
+
+Here we give a brief definition of both GRU and the attention mechanisms, and later on how we implemented the product information.
+
+### GRU: modelling the temporal context of the session
+
+In a session-based recommender, managing the context and the sequential information properly is key for making good predictions and capturing the nature of the customer journey. GRU stands for Gated Recurrent Unit. It is a variant from Recurrent Neural Networks (RNN), adding gates, which allows it to assess the pieces of information that GRU has to remember and forget about the past interactions (in our case, views).The ifnromation flows through the sequence of steps, updating the element sof each node (in our case, of each product), based on the messages that come from the previous element sof the custoemr journey sequence. As a result, the network ends up having **temporal memory** of the past, building the context properly.
+
+### Attention: implicit or explicit
+
+In a customer journey, when the client is shopping, the past itneractions of the item may have different weights as to what they view next. Modelling which steps of the interaction should be attended to is a key factor in the prediction of the next viewed item. However, such mechanisms have increased computational costs and added complexity.
+
+One could opt for implicit attention. That is, the network gives uniform weights to each of the product nodes. Alternatives are This is less computationally demanding, whilst hinding the ability to prioritize more relevant products. The alternative is to use explicit attention. That is, add mechanisms to set weights for each interaction differently. In the next description of our architectures, you will see the different alternatives we used: AttentionalAggregation and self-attention based on session products.
+
+### Modelling product information: embedding vs one-hot enconding followed by a fully-connected layer
+
+Product category and brand info are a crucial part for users to navigate and choose products of categories they are attracted to and brands the know of. There are two main ways to manage categorical information such as this: embeddings or one-hot encodings with a fully connected layer.
+In early iterations, the team developed the code for one-hot encoding. However, the usage of one-hot encodings with afully conencted layer was causibgn many RAM problems, as there are multiple categories within each layer of the product taxonomy, as well as brands. Therefore, this implmentation was discarded, and continued with embeddings.
+
+
+## Architecture iterations tested (saved as "graph_with_embeddings")
+
+### Gated Graph Neural Networks with node embeddings
+This architecture is based on a Gated Graph Neural Network (GGNN), that relies on Graph Neural Networks (GNNs) combined with GRU cells in order to work with sequential information in-session. The main characteristics of this implementation are:
+
+- Node embeddings: the class NodeEmbedding is capable of mapping products and its featrures (category, subcategory, element, brand) to dense representations of that info. Price of the product is added as a separate tensor.
+- GNN layer (GRUGraphLayer): Propogation of messages in the session graph are leveraged to update the node embedding sin each session. The GRUCell updates iteratively the states of each of the nodes, and thus the network is capable of keeping information sequentially.
+- Global pooling (global_mean_pool): Node embeddings are group at a session level to consolidate the information.
+- Fully connected layer: it is used to map the final representation of the session into a score for each of the products.
+
+#### Key highlights of this architecture
+GRUGraphLayer inherits from Message Passing and it works through these steps:
+
+1. Linear transformation of node features
+```
+node_embeddings = self.message_linear(x)
+```
+Transforms node embeddings to hidden dimension.
+
+2. Message propagation
+```
+messages = self.propagate(edge_index, x=node_embeddings)
+```
+Its objective is to call the message ```message(x_j)```, with x_j representing the features of the neighbour nodes.
 
 -- WORK IN PROGRESS
-
 
 
 
