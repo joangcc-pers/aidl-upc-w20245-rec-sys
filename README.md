@@ -15,29 +15,46 @@ This repository contains the development of a project carried out as part of the
 
 ## Project Description
 
-This project aims to explore and apply Deep learning architectures for Recommender Systems, intrasession. In this repository, we provide the code to:
+This project aims to explore and apply Deep learning architectures for Session-Based Recommender Systems. In this repository, we provide the code to:
 
 - Implement architectures for deep learning in RecSys.
 - Process the needed data.
 - Training, evaluation, visualize and compare the diffrenet architectures and configurations.
 
-The implementaiton of these architectures will use pytorch, and visualize results through TensorBoard.
+The implementation of these architectures uses pytorch (speicifcally, PyGraph), and visualizes results through TensorBoard.
 
 [Project repository](https://github.com/joangcc-pers/aidl-upc-w20245-rec-sys)
 
 # 1. Motivation
 
-//TODO
+Businesses needs tools that helps predict customer needs in order to speed up conversion, reduce friciton, and increase customer value through proper suggestions. It is getting more difficult to give adequate preidctions for already existing customer due to data privacy laws. Also, personal information of non-registered /new customers is sparse or non-existent.
+This calls for the need of strong algorithms that leverage implicit feedback such as navigation history, so that both non-registered and new users can benefit from a faster navigation and purhcase, and receive offer of interesting products that would fulfill their needs.
 
 # 2. Problem to solve
 
-//TODO
+Apply Graph Neural Networks to predict next visited item in an e-commerce, based on session-info (navigation trhough items) and item info (brand and product category). The architecture has the objective to detect as many true positives as possible (we want to propose products users would click) in top 20 predicted products. 
 
 # 3. Dataset
 
-//TODO
+Dataset used was ["eCommerce behavior data from multi category store"](https://www.kaggle.com/datasets/mkechinov/ecommerce-behavior-data-from-multi-category-store).
+It contains data from multi-category store from October 2019 to April 2020. In this project we used October and November 2019, given constraints on time and compute resources.
 
-# 4. Achitectures
+This data was collected by the Open CPD Project.
+This file contains behavior data for a one month (November 2019) from a large multi-category online store, collected by [Open CDP (Customer Data Platform) project](https://rees46.com/en/open-cdp).
+
+Each row in the file represents an event. An event is defined as an interaction related to products and users. Here are the columns, quoting the description of the Kaggle Dataset:
+- event_time:	    Time when event happened at (in UTC).
+- event_type:	    Only one kind of event: view, add_to_cart, remove_from_cart, purchase.
+- product_id:	    ID of a product
+- category_id:	    Product's category ID
+- category_code:	Product's category taxonomy.Might be missing. Contains the info of the place of the product taxonomy that this product falls in (kitchen.appliances.microwave).
+- brand:	        Downcased string of brand name. Can be missed.
+- price:	        Float price of a product. Present.
+- user_id:	        Permanent user ID.
+- user_session:	Temporary user's session ID. Same for each user's session. It changes every time user come back to online store from a long pause.
+
+
+# 4. Architectures
 
 //TODO
 
