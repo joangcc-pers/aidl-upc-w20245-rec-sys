@@ -51,8 +51,6 @@ The implementaiton of these architectures will use pytorch, and visualize result
 
 # 7. Repository structure and MLOPS features
 
-// TODO Xavi
-
 ## Repository structure
 
 The repository is organized as follows:
