@@ -27,8 +27,26 @@ The implementation of these architectures uses pytorch (speicifcally, PyGraph), 
 
 # 1. Motivation
 
-Businesses needs tools that helps predict customer needs in order to speed up conversion, reduce friciton, and increase customer value through proper suggestions. It is getting more difficult to give adequate preidctions for already existing customer due to data privacy laws. Also, personal information of non-registered /new customers is sparse or non-existent.
-This calls for the need of strong algorithms that leverage implicit feedback such as navigation history, so that both non-registered and new users can benefit from a faster navigation and purhcase, and receive offer of interesting products that would fulfill their needs.
+Businesses need tools that help predict customer needs in order to speed up conversion, reduce friction, and increase customer value through proper suggestions. It is getting more difficult to give adequate predictions for already existing customers due to data privacy laws. Also, personal information of non-registered /new customers is sparse or non-existent.
+
+In today’s competitive e-commerce landscape, businesses strive to predict customer needs to accelerate conversions, reduce friction, and enhance customer value through relevant product recommendations. Traditional recommendation systems, such as collaborative filtering and matrix factorization, rely heavily on historical user data, including past purchases and interactions. While effective for registered and returning customers, these approaches struggle with two growing challenges:
+
+- Data Privacy and Regulations: Stricter data privacy laws limit access to user information, making it difficult to rely on long-term customer profiles for personalized recommendations.
+- Sparse or Non-Existent Data for New Users: Non-registered and first-time visitors lack historical data, reducing the effectiveness of conventional recommendation methods.
+This calls for the need of strong algorithms that leverage implicit feedback such as navigation history, so that both non-registered and new users can benefit from a faster navigation and purchase, and receive offers of interesting products that would fulfill their needs.
+
+To address these challenges, we focus on session-based recommendation systems, which infer user preferences from short-term interactions rather than relying on past behavior. By analyzing user navigation within a single session, such as product views and clicks, we can dynamically predict and suggest relevant items without requiring long-term user data. This approach is particularly advantageous as it enables fast, personalized recommendations while adhering to evolving data privacy standards.
+
+Inspired by the work of Wu et al. (2023) in Session-Based Recommendations for E-Commerce with Graph-Based Data Modeling, we adopt a graph-based framework to model session interactions. This method allows us to:
+
+- Capture implicit relationships between products through user browsing behavior.
+- Predict the next likely action or click to optimize the customer journey.
+- Enhance user experience by providing relevant recommendations even for first-time visitors.
+- Increase business revenue by reducing decision-making time and improving product discovery.
+- 
+For our team, this project is more than an academic exercise; it is a practical response to the challenges of modern e-commerce personalization. As businesses move toward more privacy-conscious solutions, session-based recommendations offer a viable, future-proof strategy for engaging customers in real-time. Additionally, for many of us, this project represents an opportunity to deepen our expertise in recommendation systems and take meaningful steps in our professional development.
+
+By leveraging advanced session-based models, we aim to contribute to the evolution of personalized e-commerce experiences, ensuring that both businesses and customers benefit from seamless, privacy-compliant recommendations.
 
 # 2. Problem to solve
 
