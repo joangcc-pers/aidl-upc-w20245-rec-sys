@@ -81,6 +81,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
                 if start_key_month <= key_month <= end_key_month:
                     csv_files.append(os.path.join(folder_path, f))
 
+        print(csv_files)
         if not csv_files:
             raise FileNotFoundError(
                 f"No CSV files found in the specified date range: {start_month} to {end_month}.\n"
