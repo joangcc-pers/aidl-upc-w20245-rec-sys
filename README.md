@@ -116,6 +116,7 @@ experiment_name:
       shuffle: False
       weight_decay: 0.0001
       dropout_rate: 0.3
+      use_scheduler: True               # If False or not defined, no scheduler is used. If True, using reduceLRonPlateau
     data_params:
       input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/experiment_name/" 
@@ -158,6 +159,7 @@ model_graph_with_embeddings_and_attentional_aggregation:
       hidden_dim: 100
       batch_size: 50
       shuffle: False
+      use_scheduler: False
     data_params:
       input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/graph_with_embeddings_and_attentional_aggregation/"
