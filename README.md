@@ -188,6 +188,9 @@ In more plain terms, the way in which GRU and Attentional Aggregation help each 
 2. Attentional aggregation then takes these node (product) representations generated (and updated sequentially) by the GNN with GRU cells and applies an attetion mechanism during the message aggregation process between the session graph nodes. THis means that, when deciding how to combine the representations of the neighbors in a node to update their own state, Attentional Aggregation gives more weight to the interactions tha tconsiders mor eimportant, based on learned pairwise interactions.
 
 This approach enhances the effectiveness of session-based recommendations by ensuring that the most relevant past interactions are emphasized at every stage of the model, leading to a more contextually aware and accurate prediction process.
+In sum, GRU is the mechanism reposnible to stablish the temporal context and produces informative representations of interactions between browsed items. Attentional Aggregation the come sinto play and refines the wat in which those itneractions contribute to general session representation. It focuses on the relative importance of each and eveyr one of the itneracions when doing the message propagation. As a result, the models would be then be capable of capturing more complex relationships between session products, and adapt more to different type of sessions, such as more sequential (paint supplies: first paint, then the brush) or natura or more global patterns (booking a trip: jumping around, as in preparing a holiday). 
+
+Now that the network emphasizes the past interactions that are more relevant, then we are capable of having a more precise prediciton of next-viewed item and aware of the context of the session.
 
 # 5. Preprocessing and training
 
