@@ -170,6 +170,9 @@ The key limitation of this architecture though is that it prirotizes the penulti
 
 ### GGNN with Explicit Self-Attention using Attentional Aggregation (saved as "graph-with-embeddings-and-attentional-aggregation")
 
+
+<img width="1583" alt="image" src="https://github.com/user-attachments/assets/6d168916-c95d-4452-8fda-77c9296c2885" />
+
 In this architecture, we introduce Attentional Aggregation, a mechanism that refines the way information is aggregated across nodes in the session graph. While the previous self-attention model applied attention weights based on the interaction between each product and the last visited product, this architecture further improves the aggregation process by explicitly modeling the importance of each interaction during message passing.
 
 #### Key Differences between Attentional Aggregation and Self-Attention
