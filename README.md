@@ -99,6 +99,10 @@ In early iterations, the team developed the code for one-hot encoding. However, 
 ## Architecture iterations tested
 
 ### Gated Graph Neural Network with node embeddings and Sequential Message Propagation with GRU (saved as "graph_with_embeddings")
+
+<img width="825" alt="image" src="https://github.com/user-attachments/assets/30a3831a-4603-4c3e-b010-e7af5a5ee09e" />
+
+
 This architecture is based on a Gated Graph Neural Network (GGNN), that relies on Graph Neural Networks (GNNs) combined with GRU cells in order to work with sequential information in-session. The main characteristics of this implementation are:
 
 - Node embeddings: the class NodeEmbedding is capable of mapping products and its featrures (category, subcategory, element, brand) to dense representations of that info. Price of the product is added as a separate tensor.
@@ -141,6 +145,8 @@ However, this architecture has a key wekness. It gives equal importance to all t
 
 ### GGNN with Implicit Self-Attention using Sigmoid (saved as "graph-with-embeddings-and-attention")
 
+<img width="1577" alt="image" src="https://github.com/user-attachments/assets/23465727-a41a-4ad0-80cf-e6b56378951a" />
+
 In this architecture, we keep using GNN mean aggregation in the GRUPGraphLayer and the GRUCeel adjusting dinamically the importance of the messages. However, we introduce a self-attention mechanism on the session based on the second before last (penultimate item). Here are the details. That is, we put under the spotlight (give more importance) to the last product of the session.
 
 #### Explicit attention
@@ -170,7 +176,7 @@ The key limitation of this architecture though is that it prirotizes the penulti
 
 ### GGNN with Explicit Self-Attention using Attentional Aggregation (saved as "graph-with-embeddings-and-attentional-aggregation")
 
-<img width="1577" alt="image" src="https://github.com/user-attachments/assets/23465727-a41a-4ad0-80cf-e6b56378951a" />
+
 
 
 In this architecture, we introduce Attentional Aggregation, a mechanism that refines the way information is aggregated across nodes in the session graph. While the previous self-attention model applied attention weights based on the interaction between each product and the last visited product, this architecture further improves the aggregation process by explicitly modeling the importance of each interaction during message passing.
