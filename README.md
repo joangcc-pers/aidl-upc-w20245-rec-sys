@@ -1,4 +1,4 @@
-# Project: Artificial Intelligence with Deep Learning
+ # Project: Artificial Intelligence with Deep Learning
 
 This repository contains the development of a project carried out as part of the **Artificial Intelligence with Deep Learning** postgraduate program.
 
@@ -15,41 +15,214 @@ This repository contains the development of a project carried out as part of the
 
 ## Project Description
 
-This project aims to explore and apply Deep learning architectures for Recommender Systems, intrasession. In this repository, we provide the code to:
+This project aims to explore and apply Deep learning architectures for Session-Based Recommender Systems. In this repository, we provide the code to:
 
 - Implement architectures for deep learning in RecSys.
 - Process the needed data.
 - Training, evaluation, visualize and compare the diffrenet architectures and configurations.
 
-The implementaiton of these architectures will use pytorch, and visualize results through TensorBoard.
+The implementation of these architectures uses pytorch (specifically, PyGraph), and visualizes results through TensorBoard.
 
 [Project repository](https://github.com/joangcc-pers/aidl-upc-w20245-rec-sys)
 
 # 1. Motivation
 
-//TODO
+Businesses need tools that help predict customer needs in order to speed up conversion, reduce friction, and increase customer value through proper suggestions. It is getting more difficult to give adequate predictions for already existing customers due to data privacy laws. Also, personal information of non-registered /new customers is sparse or non-existent.
+
+In today’s competitive e-commerce landscape, businesses strive to predict customer needs to accelerate conversions, reduce friction, and enhance customer value through relevant product recommendations. Traditional recommendation systems, such as collaborative filtering and matrix factorization, rely heavily on historical user data, including past purchases and interactions. While effective for registered and returning customers, these approaches struggle with two growing challenges:
+
+- Data Privacy and Regulations: Stricter data privacy laws limit access to user information, making it difficult to rely on long-term customer profiles for personalized recommendations.
+- Sparse or Non-Existent Data for New Users: Non-registered and first-time visitors lack historical data, reducing the effectiveness of conventional recommendation methods.
+This calls for the need of strong algorithms that leverage implicit feedback such as navigation history, so that both non-registered and new users can benefit from a faster navigation and purchase, and receive offers of interesting products that would fulfill their needs.
+
+To address these challenges, we focus on session-based recommendation systems, which infer user preferences from short-term interactions rather than relying on past behavior. By analyzing user navigation within a single session, such as product views and clicks, we can dynamically predict and suggest relevant items without requiring long-term user data. This approach is particularly advantageous as it enables fast, personalized recommendations while adhering to evolving data privacy standards.
+
+Inspired by the work of Wu et al. (2023) in Session-Based Recommendations for E-Commerce with Graph-Based Data Modeling, we adopt a graph-based framework to model session interactions. This method allows us to:
+
+- Capture implicit relationships between products through user browsing behavior.
+- Predict the next likely action or click to optimize the customer journey.
+- Enhance user experience by providing relevant recommendations even for first-time visitors.
+- Increase business revenue by reducing decision-making time and improving product discovery.
+- 
+For our team, this project is more than an academic exercise; it is a practical response to the challenges of modern e-commerce personalization. As businesses move toward more privacy-conscious solutions, session-based recommendations offer a viable, future-proof strategy for engaging customers in real-time. Additionally, for many of us, this project represents an opportunity to deepen our expertise in recommendation systems and take meaningful steps in our professional development.
+
+By leveraging advanced session-based models, we aim to contribute to the evolution of personalized e-commerce experiences, ensuring that both businesses and customers benefit from seamless, privacy-compliant recommendations.
 
 # 2. Problem to solve
 
-//TODO
+Apply Graph Neural Networks to predict next visited item in an e-commerce, based on session-info (navigation trhough items) and item info (brand and product category). The architecture has the objective to detect as many true positives as possible (we want to propose products users would click) in top 20 predicted products. 
 
 # 3. Dataset
 
-//TODO
+Dataset used was ["eCommerce behavior data from multi category store"](https://www.kaggle.com/datasets/mkechinov/ecommerce-behavior-data-from-multi-category-store).
+It contains data from multi-category store from October 2019 to April 2020. In this project we used October and November 2019, given constraints on time and compute resources.
 
-# 4. Achitectures
+This data was collected by the Open CPD Project.
+This file contains behavior data for a one month (November 2019) from a large multi-category online store, collected by [Open CDP (Customer Data Platform) project](https://rees46.com/en/open-cdp).
 
-//TODO
+Each row in the file represents an event. An event is defined as an interaction related to products and users. Here are the columns, quoting the description of the Kaggle Dataset:
+- event_time:	    Time when event happened at (in UTC).
+- event_type:	    Only one kind of event: view, add_to_cart, remove_from_cart, purchase.
+- product_id:	    ID of a product
+- category_id:	    Product's category ID
+- category_code:	Product's category taxonomy.Might be missing. Contains the info of the place of the product taxonomy that this product falls in (kitchen.appliances.microwave).
+- brand:	        Downcased string of brand name. Can be missed.
+- price:	        Float price of a product. Present.
+- user_id:	        Permanent user ID.
+- user_session:	Temporary user's session ID. Same for each user's session. It changes every time user come back to online store from a long pause.
+
+
+# 4. Architectures
+
+In our project, we learned about multiple approaches to deal with the our modelling problem: how to predict the next item that a customer will click on. The cleark (or the AI in our case) will have to learn how the products they are selling relate to each other, what the user has attended during their shopping, and what items may have more importance to predict the next-viewed item based on what have browsed.
+In more technical terms, our architecture must be able to know the relationship between items, how to process the sequence of interactions while maintaining a relevant context and what to remember or discard (i.e. GRU Layer), and how to weight each interaction (i.e., attention mechanism) in the final prediction (i.e., where to put the spotlight on when predicting the next-viewed item).
+We have learned that we need to attend to each of these items, but we evolved oru architectures, getting them more and more sophisticated: embeddings provide the footprint of each product category and brand, GRU manages the temporal context deciding which of all the pieces of information have to be remember of past interactions while keeping the context relevant for the sequence, and the attention mechanism decides which of these interactions processed by GRU are important for the task at hand.
+
+We want to udnerscore that, while developing the architectures, we made important additions to the reference paper (Wu et al.,), by incorporating into our architectures the product information (product category and brand) and more sophisticated attentional mechanisms. Here we give a brief definition of both GRU and the attention mechanisms, and later on how we implemented the product information.
+
+### GRU: modelling the temporal context of the session
+
+In a session-based recommender, managing the context and the sequential information properly is key for making good predictions and capturing the nature of the customer journey. GRU stands for Gated Recurrent Unit. It is a variant from Recurrent Neural Networks (RNN), adding gates, which allows it to assess the pieces of information that GRU has to remember and forget about the past interactions (in our case, views).The ifnromation flows through the sequence of steps, updating the element sof each node (in our case, of each product), based on the messages that come from the previous element sof the custoemr journey sequence. As a result, the network ends up having **temporal memory** of the past, building the context properly.
+
+### Attention: implicit or explicit
+
+In a customer journey, when the client is shopping, the past itneractions of the item may have different weights as to what they view next. Modelling which steps of the interaction should be attended to is a key factor in the prediction of the next viewed item. However, such mechanisms have increased computational costs and added complexity.
+
+One could opt for implicit attention. That is, the network gives uniform weights to each of the product nodes. Alternatives are This is less computationally demanding, whilst hinding the ability to prioritize more relevant products. The alternative is to use explicit attention. That is, add mechanisms to set weights for each interaction differently. In the next description of our architectures, you will see the different alternatives we used: AttentionalAggregation and self-attention based on session products.
+
+### Modelling product information: embedding vs one-hot enconding followed by a fully-connected layer
+
+Product category and brand info are a crucial part for users to navigate and choose products of categories they are attracted to and brands the know of. There are two main ways to manage categorical information such as this: embeddings or one-hot encodings with a fully connected layer.
+In early iterations, the team developed the code for one-hot encoding. However, the usage of one-hot encodings with afully conencted layer was causibgn many RAM problems, as there are multiple categories within each layer of the product taxonomy, as well as brands. Therefore, this implmentation was discarded, and continued with embeddings.
+
+
+## Architecture iterations tested
+
+### Gated Graph Neural Network with node embeddings and Sequential Message Propagation with GRU (saved as "graph_with_embeddings")
+
+<img width="825" alt="image" src="https://github.com/user-attachments/assets/30a3831a-4603-4c3e-b010-e7af5a5ee09e" />
+
+
+This architecture is based on a Gated Graph Neural Network (GGNN), that relies on Graph Neural Networks (GNNs) combined with GRU cells in order to work with sequential information in-session. The main characteristics of this implementation are:
+
+- Node embeddings: the class NodeEmbedding is capable of mapping products and its featrures (category, subcategory, element, brand) to dense representations of that info. Price of the product is added as a separate tensor.
+- GNN layer (GRUGraphLayer): Propogation of messages in the session graph are leveraged to update the node embedding sin each session. The GRUCell updates iteratively the states of each of the nodes, and thus the network is capable of keeping information sequentially.
+- Global pooling (global_mean_pool): Node embeddings are group at a session level to consolidate the information.
+- Fully connected layer: it is used to map the final representation of the session into a score for each of the products.
+
+#### Key highlights of this architecture
+GRUGraphLayer inherits from Message Passing and it works through these steps:
+
+1. Linear transformation of node features
+```
+node_embeddings = self.message_linear(x)
+```
+Transforms node embeddings to hidden dimension.
+
+2. Message propagation
+```
+messages = self.propagate(edge_index, x=node_embeddings)
+```
+Its objective is to call the message ```message(x_j)```, with x_j representing the features of the neighbour nodes.
+
+3. Updating states with GRU
+
+```
+node_embeddings = self.gru(messages, node_embeddings)
+```
+Network learns past interactions sequentially through GRU, as it updated the states of the nodes.
+
+##### Implicit attention
+
+This architecture implements implicit attention mechanisms. It leverages mean aggregation in propagate. The mean of the embeddings of the neighbors is calculated, setting the same weight to all of the neighbors without differentiating its importance.
+
+In addition, the GRUCell also adds implicit attention. Based on the previous state of the node, it adjusts dinamically the importance of all the messages passed. As a result, it decides:
+- Which are the parts of the message of the neighbors that will be used.
+- How much it has to remember of the previous state of the node.
+- It filters the information that's less relevant or less useful, causing that the more relevant and recent messages passed have more weight.
+
+However, this architecture has a key wekness. It gives equal importance to all the viewed products. SOme actions are more telling than others, but this is something that an equally distributed importance cannot tackle. Therefore, we updated this architecture by adding a self-attention mechanism that would bring closer our model to how the shopping behavior occurs.
+
+### GGNN with Implicit Self-Attention using Sigmoid (saved as "graph-with-embeddings-and-attention")
+
+<img width="1584" alt="image" src="https://github.com/user-attachments/assets/2a0e78e1-0943-45ce-8718-775cb69319ab" />
+
+In this architecture, we keep using GNN mean aggregation in the GRUPGraphLayer and the GRUCeel adjusting dinamically the importance of the messages. However, we introduce a self-attention mechanism on the session based on the second before last (penultimate item). Here are the details. That is, we put under the spotlight (give more importance) to the last product of the session.
+
+#### Explicit attention
+We adapted the architecture so it would be closer to the real world case: give more importance to the last item. However, we cannot use directly the last item (as we would have then no item to predict), so we reproduced Wu et al approach, and used the penultimate visited item. In this code and structure then, whenever we talk about using the last visited product, it always **refers to the penultimate item**.
+
+Specifically:
+- Transformed embedding calculations
+
+We applied linear layers to node embeddings (```ìtem_embeddings_lt```) and the last visited product (```last_visited_product_embeddings_lt```) separately. The objective of this separation is to capture more sophisticated relationships than mean aggregation of neighbors.
+
+- Interaction between products and last visited item
+
+We sum the embeddings of the last visited product with the embeddings of the rest of the products of the session. After doing so, we use a linear layer (``attention_score_fc```) with a sigmoid function in order to calculate the attention weights of each session. By doing so, the model learns how important is each product in terms of the last visited product.
+
+- Weight normalization through scatter_soft_max
+Scatter_soft_max is used to normalize the attention weight in each session, so that attention distribution in each individual graph is coherent with the rest of the sessions of the batch.
+
+-  Session embeddings compute
+
+The embeddings of the products are then weighted by the attention weights ```(attention_weights * item_embeddings_lt) ```. Afterwards, these session-weighted embeddings are summed ```(scatter_sum)```, building the final representation of the session.
+
+#### Key highlight
+
+The introduction of self-attention let us model the fatc that certain nodes or products within a session may have more importance in thef inal representaiton of the session, instead of giving them equal importance. This is an improvement, as it allows to capture more complex relationships between products.
+
+The key limitation of this architecture though is that it prirotizes the penultimat eitem, but it might be that there are other browsed items or events of the session that should have more weight in the session representation. That's what we did in our third and last iteration: add Attentional Aggregation mechanism.
+
+### GGNN with Explicit Self-Attention using Attentional Aggregation (saved as "graph-with-embeddings-and-attentional-aggregation")
+
+<img width="1416" alt="image" src="https://github.com/user-attachments/assets/5673f5f3-33e2-4ab1-8327-7d9dda9abf3e" />
+
+In this architecture, we introduce Attentional Aggregation, a mechanism that refines the way information is aggregated across nodes in the session graph. While the previous self-attention model applied attention weights based on the interaction between each product and the last visited product, this architecture further improves the aggregation process by explicitly modeling the importance of each interaction during message passing.
+
+#### Key Differences between Attentional Aggregation and Self-Attention
+The main difference between this approach and the previous explicit self-attention mechanism lies in how attention is applied:
+
+##### Self-Attention (Previous Architecture):
+
+The attention mechanism focused on the interaction between each product and the last visited product.
+It computed attention scores for all nodes in the session relative to the last visited item, using a sigmoid activation and normalization.
+The weighted sum of product embeddings created a session representation.
+Attentional Aggregation (This Architecture):
+
+Instead of applying attention only at the session level, this approach incorporates attention directly into the message-passing phase of the GNN.
+Each node in the session graph dynamically attends to its neighbors using an attention mechanism that weighs incoming messages differently.
+This allows the model to capture node-level contextual importance, ensuring that more relevant interactions contribute more effectively to the session representation.
+##### How Attentional Aggregation Works
+- Neighborhood Interaction: During message propagation, instead of simply taking the mean of neighbor embeddings (implicit attention in the first architecture), we compute attention scores dynamically based on pairwise interactions between nodes.
+
+ - Learned Attention Weights: The importance of each neighbor is determined via a trainable attention function. This function scores interactions between nodes, allowing the model to prioritize the most relevant information during aggregation.
+
+- Weighted Message Passing: Instead of treating all neighbors equally, the aggregation function applies attention weights to prioritize relevant past interactions.
+
+- Session Representation Construction: After message passing, the updated node embeddings are aggregated into a session representation. The model effectively learns how much each past interaction should contribute to predicting the next interaction.
+
+#### Key Highlights
+- More flexible attention: Unlike the previous self-attention, which only adjusted the final session representation, Attentional Aggregation adapts the entire message-passing process to highlight important interactions dynamically.
+
+- Stronger representation learning: By allowing attention-based aggregation at the node level, the model captures more fine-grained relationships between products in a session.
+- Better adaptability to different session types: Some sessions may have interactions that are more sequential, while others may rely more on global patterns. Attentional Aggregation allows the model to adjust dynamically, depending on the session structure.
+
+In more plain terms, the way in which GRU and Attentional Aggregation help each other is the following:
+
+1. GRU processes the sequence of interactions, creating contextualized representations of each product according to the other in whihc they were seen. It maintains a memory of the past interacitons and updates the importance of the information throughour time.
+2. Attentional aggregation then takes these node (product) representations generated (and updated sequentially) by the GNN with GRU cells and applies an attetion mechanism during the message aggregation process between the session graph nodes. THis means that, when deciding how to combine the representations of the neighbors in a node to update their own state, Attentional Aggregation gives more weight to the interactions tha tconsiders mor eimportant, based on learned pairwise interactions.
+
+This approach enhances the effectiveness of session-based recommendations by ensuring that the most relevant past interactions are emphasized at every stage of the model, leading to a more contextually aware and accurate prediction process.
+In sum, GRU is the mechanism reposnible to stablish the temporal context and produces informative representations of interactions between browsed items. Attentional Aggregation the come sinto play and refines the wat in which those itneractions contribute to general session representation. It focuses on the relative importance of each and eveyr one of the itneracions when doing the message propagation. As a result, the models would be then be capable of capturing more complex relationships between session products, and adapt more to different type of sessions, such as more sequential (paint supplies: first paint, then the brush) or natura or more global patterns (booking a trip: jumping around, as in preparing a holiday). 
+
+Now that the network emphasizes the past interactions that are more relevant, then we are capable of having a more precise prediciton of next-viewed item and aware of the context of the session.
 
 # 5. Preprocessing and training
 
 //TODO
 
-# 6. Model evolutions
-
-//TODO
-
-# 7. Models benchmarking
+# 6. Models benchmarking
 
 The table below summarises the results benchmarking different model configurations using the same dataset (Oct 2019 and Nov 2019).
 
@@ -65,7 +238,7 @@ We can see how our model "Graph with Embeddings and Attentional Aggregation" rep
 - A 5.26% of improvement in the Recall@20 
 - A 8.19% of improvement in the MRR@20
 
-# 8. Repository structure and MLOPS features
+# 7. Repository structure and MLOPS features
 
 ## Repository structure
 
