@@ -48,6 +48,7 @@ class SR_GNN_attn(nn.Module):
         
         graph_embeddings = self.attention_mechanism(item_embeddings_gnn, data.batch, device)
         
+        # Linear layer to get scores for each product
         scores = self.fc(graph_embeddings) # Shape (batch_size, num_items)
         
         return scores
