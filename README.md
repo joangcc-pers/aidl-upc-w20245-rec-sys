@@ -145,7 +145,7 @@ However, this architecture has a key wekness. It gives equal importance to all t
 
 ### GGNN with Implicit Self-Attention using Sigmoid (saved as "graph-with-embeddings-and-attention")
 
-<img width="1577" alt="image" src="https://github.com/user-attachments/assets/23465727-a41a-4ad0-80cf-e6b56378951a" />
+<img width="1597" alt="image" src="https://github.com/user-attachments/assets/88aaa2d0-a045-4cc2-9c51-fddbf57b7951" />
 
 In this architecture, we keep using GNN mean aggregation in the GRUPGraphLayer and the GRUCeel adjusting dinamically the importance of the messages. However, we introduce a self-attention mechanism on the session based on the second before last (penultimate item). Here are the details. That is, we put under the spotlight (give more importance) to the last product of the session.
 
