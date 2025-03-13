@@ -220,9 +220,39 @@ Now that the network emphasizes the past interactions that are more relevant, th
 
 # 5. Preprocessing and training
 
-//TODO
+#TODO
 
-# 6. Models benchmarking
+# 6. Hyperparameter tuning
+
+`run_optim.py` allows to perform grid search and random search hyperparameter exploration. 
+
+We ran hyperparameter tuning for the following models:
+* graph_with_embeddings
+* graph_with_embeddings_and_attention
+* graph_with_embeddings_and_attentional_aggregation
+
+The code can easily be adapted to allow defining the search space as a configuration, but right now, the hyperparameter search values are defined in the code as: 
+
+```python
+weight_decay_values = [1e-4, 1e-5, 1e-6]
+dropout_rate_values = [0.0, 0.2, 0.5]
+learning_rate_values = [1e-3, 1e-4, 1e-5]
+```
+
+As a result, our hyperparameter tuning explored:
+- 3 models (graph_with_embeddings, graph_with_embeddings_and_attention, graph_with_embeddings_and_attentional_aggregation)
+- 27 different hyperparameter configurations per model
+  - 3 different weight_decay values
+  - 3 different dropout_rate values
+  - 3 different learning_rate values
+
+In this case, each model trained for 5 epochs, with the dataset limited to the first 500.000 sessions in order to limit the training time (the whole dataset for Oct 2019 and Nov 2019, after preprocessing contains ~5 million sessions).After that, we assessed the best configuration for each model against the "test" dataset.
+
+An early conclusion we got from this grid search is that the loss can keep going down, and the metrics going up if we train during more epochs. 
+
+Because of that, we selected the 3 best configurations of the best model and train them for the whole dataset, during 30 epochs, with a `ReduceLROnPlateau` scheduler. The results of this extended training are the ones taken into account for the models benchmarking summary.
+
+# 7. Models benchmarking
 
 The table below summarises the results benchmarking different model configurations using the same dataset (Oct 2019 and Nov 2019).
 
@@ -238,7 +268,7 @@ We can see how our model "Graph with Embeddings and Attentional Aggregation" rep
 - A 5.26% of improvement in the Recall@20 
 - A 8.19% of improvement in the MRR@20
 
-# 7. Repository structure and MLOPS features
+# 8. Repository structure and MLOPS features
 
 ## Repository structure
 
