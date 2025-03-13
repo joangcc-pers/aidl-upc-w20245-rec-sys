@@ -222,9 +222,23 @@ Now that the network emphasizes the past interactions that are more relevant, th
 
 //TODO
 
-# 6. Repository structure and MLOPS features
+# 6. Models benchmarking
 
-// TODO Xavi
+The table below summarises the results benchmarking different model configurations using the same dataset (Oct 2019 and Nov 2019).
+
+| Model | R@20 | MRR@20 |
+|-------|------|--------|
+| GRU4Rec (baseline) | 0.5293 | 0.2008 |
+| SR_GNN (own implementation) | 0.5703| 0.3200 |
+| Graph with Embeddings and Attentional Aggregation | 0.6003 | 0.3462 |
+
+We created our own implementation of SR_GNN because the SR_GNN does not report results on the dataset we are using for the baseline and the assessment of our model.
+
+We can see how our model "Graph with Embeddings and Attentional Aggregation" represents:
+- A 5.26% of improvement in the Recall@20 
+- A 8.19% of improvement in the MRR@20
+
+# 7. Repository structure and MLOPS features
 
 ## Repository structure
 
