@@ -1,4 +1,4 @@
-# Project: Artificial Intelligence with Deep Learning
+ # Project: Artificial Intelligence with Deep Learning
 
 This repository contains the development of a project carried out as part of the **Artificial Intelligence with Deep Learning** postgraduate program.
 
@@ -21,7 +21,7 @@ This project aims to explore and apply Deep learning architectures for Session-B
 - Process the needed data.
 - Training, evaluation, visualize and compare the diffrenet architectures and configurations.
 
-The implementation of these architectures uses pytorch (speicifcally, PyGraph), and visualizes results through TensorBoard.
+The implementation of these architectures uses pytorch (specifically, PyGraph), and visualizes results through TensorBoard.
 
 [Project repository](https://github.com/joangcc-pers/aidl-upc-w20245-rec-sys)
 
@@ -176,8 +176,7 @@ The key limitation of this architecture though is that it prirotizes the penulti
 
 ### GGNN with Explicit Self-Attention using Attentional Aggregation (saved as "graph-with-embeddings-and-attentional-aggregation")
 
-
-
+<img width="1416" alt="image" src="https://github.com/user-attachments/assets/5673f5f3-33e2-4ab1-8327-7d9dda9abf3e" />
 
 In this architecture, we introduce Attentional Aggregation, a mechanism that refines the way information is aggregated across nodes in the session graph. While the previous self-attention model applied attention weights based on the interaction between each product and the last visited product, this architecture further improves the aggregation process by explicitly modeling the importance of each interaction during message passing.
 
