@@ -14,7 +14,8 @@ class SR_GNN(nn.Module):
         num_sub_categories=None,
         num_elements=None,
         num_brands=None,
-        embedding_dim=None
+        embedding_dim=None,
+        dropout_rate=None,
         ):
         super(SR_GNN, self).__init__()
         
@@ -34,6 +35,8 @@ class SR_GNN(nn.Module):
         # That is, doing nn.Linear(hidden_dim, hidden_dim) would allow us to calculate scores as similitudes (dot product) between the graph embedding and the item embeddings
         # We opt for nn.Linear(hidden_dim, num_items) as we "just" need to produce scores for each item, an our num_items quantity is fixed and want to predict explictly the probability of each item.
         self.fc = nn.Linear(hidden_dim, num_items)
+
+        self.dropout = nn.Dropout(dropout_rate)
         
     def forward(self, data, device):
         embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand, data.product_id_remapped)
@@ -70,6 +73,8 @@ class SR_GNN(nn.Module):
 
         graph_embeddings = global_mean_pool(item_embeddings_gnn, data.batch)  # Shape: (batch_size, hidden_dim) # El data.batch passa quin node pertany a quina sessió
         
+        graph_embeddings = self.dropout(graph_embeddings)
+
         scores = self.fc(graph_embeddings) # Shape (batch_size, num_items)
         
         return scores
@@ -77,7 +82,6 @@ class SR_GNN(nn.Module):
 class GRUGraphLayer(MessagePassing):
     def __init__(self, input_dim, hidden_dim, num_iterations=1):
         super(GRUGraphLayer, self).__init__(aggr="mean")  # Adapted to mean aggregation to be more aligned with the original paper
-        #TODO: consultar amb l'oscar si hidden_dim té sentit que sigui embedding dim * nombre embeddings + els 2 tensors (preu i producte)
         self.gru = nn.GRUCell(hidden_dim, hidden_dim)
         self.num_iterations = num_iterations
 
