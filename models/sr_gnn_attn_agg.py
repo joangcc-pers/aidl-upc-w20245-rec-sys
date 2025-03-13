@@ -90,7 +90,6 @@ class GRUGraphLayer(MessagePassing):
     def message(self, x_j):
         return x_j
     
-    
 class SR_GNN_att_agg_with_onehot(nn.Module):
     def __init__(
         self,
@@ -106,7 +105,7 @@ class SR_GNN_att_agg_with_onehot(nn.Module):
         # embedding_dim=None
         ):
         super(SR_GNN_att_agg_with_onehot, self).__init__()
-        
+
         #TODO: Iniciar la classe node_embedding i passar-li els paràmetres necessaris
 
         self.input_dim = num_categories + num_sub_categories + num_elements + num_brands + 1
@@ -114,17 +113,17 @@ class SR_GNN_att_agg_with_onehot(nn.Module):
         self.hidden_dim=hidden_dim
         self.num_items = num_items
         self.num_iterations=num_iterations
-        
+
         self.initial_linear=nn.Linear(self.input_dim, initial_dimension_dim)
 
-        
+
         # GGNN Layer
         self.gnn_layer = GRUGraphLayer(initial_dimension_dim, hidden_dim, num_iterations)
 
         # Linear transformation for last visited embeddings
         self.last_visited_transform = nn.Linear(self.input_dim, hidden_dim)
 
-        
+
         self.attentionalAggregation = AttentionalAggregation(
             nn.Sequential(
                 nn.Dropout(dropout_rate, inplace=True),
@@ -133,15 +132,15 @@ class SR_GNN_att_agg_with_onehot(nn.Module):
                 nn.Linear(hidden_dim, 1)
             )
         )
-        
+
         self.fc = nn.Linear(hidden_dim, num_items)
-        
+
     def forward(
         self, 
         data,
         device=None# python geometry object containting data.x (item indices) and data.edge_index (edges)
         ):
-        
+
         # embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand, data.product_id_remapped)
 
         item_features = torch.cat([
@@ -155,21 +154,21 @@ class SR_GNN_att_agg_with_onehot(nn.Module):
         projected_features = self.initial_linear(item_features)
         item_onehot_gnn = self.gnn_layer(projected_features, data.edge_index)
 
-        
-        
+
+
         # Get last visited product embeddings per session and add them to implement attention mechanism
         last_visited_product_indices = scatter_max(torch.arange(data.batch.size(0), device=device), data.batch)[1]
         last_visited_product_onehot = item_features[last_visited_product_indices]
         last_visited_product_onehot = self.last_visited_transform(last_visited_product_onehot)
         last_visited_product_onehot_expanded = last_visited_product_onehot[data.batch]
-        
+
         item_onehot_gnn = item_onehot_gnn + last_visited_product_onehot_expanded
 
         scores = self.attentionalAggregation(item_onehot_gnn, data.batch)
         scores = self.fc(scores)
-        
+
         return scores
-    
+
 class GRUGraphLayer(MessagePassing):
     def __init__(self, input_dim, hidden_dim, num_iterations=1):
         super(GRUGraphLayer, self).__init__(aggr="mean")  # Adapted to mean aggregation to be more aligned with the original paper

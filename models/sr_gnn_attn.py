@@ -36,6 +36,8 @@ class SR_GNN_attn(nn.Module):
         
         # The linear layer maps each session embedding (final hidden state) to score for each product (num_items). 
         self.fc = nn.Linear(hidden_dim, num_items)
+
+        self.dropout_rate = dropout_rate
         
     def forward(self, data, device):
         embedding = self.node_embedding.forward(data.category, data.sub_category, data.element, data.brand, data.product_id_remapped)
@@ -48,6 +50,7 @@ class SR_GNN_attn(nn.Module):
         
         graph_embeddings = self.attention_mechanism(item_embeddings_gnn, data.batch, device)
         
+        # Linear layer to get scores for each product
         scores = self.fc(graph_embeddings) # Shape (batch_size, num_items)
         
         return scores
@@ -66,7 +69,8 @@ class SR_GNN_attn(nn.Module):
 
         # Compute attention scores: Adding node embeddings and last session items embeddings. Applying sigmoid as in the original sr-gnn implementation
         attention_scores = self.attention_score_fc(torch.sigmoid(item_embeddings_lt + last_visited_product_embeddings_expanded))  # Shape: (num_nodes, 1)
-        #attention_scores = self.attention_score_fc(item_embeddings_lt * target_embedding_expanded)  # Shape: (num_nodes, 1)
+
+        attention_scores = F.dropout(attention_scores, p=self.dropout_rate, training=self.training)
 
         # Apply softmax to the weights per session
         attention_weights = scatter_softmax(attention_scores, batch, dim=0)  # Shape: (num_nodes, 1)
