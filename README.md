@@ -27,7 +27,7 @@ The implementation of these architectures uses pytorch (specifically, PyGraph), 
 
 # 1. Motivation
 
-Businesses need tools that help predict customer needs in order to speed up conversion, reduce friction, and increase customer value through proper suggestions. It is getting more difficult to give adequate predictions for already existing customers due to data privacy laws. Also, personal information of non-registered /new customers is sparse or non-existent.
+Businesses need tools that help predict customer needs in order to speed up conversion, reduce friction, and increase customer value through proper suggestions. It is getting more difficult to give adequate predictions for already existing customers [due to data privacy laws](https://gdpr.eu/what-is-gdpr/). Also, personal information of non-registered /new customers is sparse or non-existent.
 
 In today’s competitive e-commerce landscape, businesses strive to predict customer needs to accelerate conversions, reduce friction, and enhance customer value through relevant product recommendations. Traditional recommendation systems, such as collaborative filtering and matrix factorization, rely heavily on historical user data, including past purchases and interactions. While effective for registered and returning customers, these approaches struggle with two growing challenges:
 
@@ -35,7 +35,7 @@ In today’s competitive e-commerce landscape, businesses strive to predict cust
 - Sparse or Non-Existent Data for New Users: Non-registered and first-time visitors lack historical data, reducing the effectiveness of conventional recommendation methods.
 This calls for the need of strong algorithms that leverage implicit feedback such as navigation history, so that both non-registered and new users can benefit from a faster navigation and purchase, and receive offers of interesting products that would fulfill their needs.
 
-To address these challenges, we focus on session-based recommendation systems, which infer user preferences from short-term interactions rather than relying on past behavior. By analyzing user navigation within a single session, such as product views and clicks, we can dynamically predict and suggest relevant items without requiring long-term user data. This approach is particularly advantageous as it enables fast, personalized recommendations while adhering to evolving data privacy standards.
+To address these challenges, we focus on session-based recommendation systems, which infer user preferences from short-term interactions rather than relying on past behavior. The usage of implicit feedback is key for current recommendation systems (see [the analysis of Esmeli et al., 2023](https://link.springer.com/article/10.1007/s42979-023-01752-x)) By analyzing user navigation within a single session, such as product views and clicks, we can dynamically predict and suggest relevant items without requiring long-term user data. This approach is particularly advantageous as it enables fast, personalized recommendations while adhering to evolving data privacy standards.
 
 Inspired by the work of Wu et al. (2023) in Session-Based Recommendations for E-Commerce with Graph-Based Data Modeling, we adopt a graph-based framework to model session interactions. This method allows us to:
 
@@ -416,6 +416,14 @@ python run_optim.py --model your_model_name --task preprocess train --force_reru
 - **--resume** : Resume training. If "yes":
   - Will skip fully executed scenarios
   - Will resume started scenarios from the last checkpoint
+
+# 9. References
+
+- Delianidi, M.; Diamantaras, K.; Tektonidis, D.; Salampasis, M. Session-Based Recommendations for e-Commerce with Graph-Based Data Modeling. Appl. Sci. 2023, 13, 394. https://doi.org/10.3390/app13010394
+- Esmeli, R.; Bader-el-Den, M.; Abdullahi, H.; Henderson, D. Implicit Feedback Awareness for Session Based Recommendation in E-Commerce. Sn. Comp. Sci. 2023, 4, 320. https://doi.org/10.1007/s42979-023-01752-x
+
+- Wu, S.; Tang, Y.; Zhu, Y.; Wang, L.; Xie, X.; Tan, T. Session-based recommendation with graph neural networks. AAAI Conf. Artif.
+Intell. 2019, 33, 346–353.
 
 # License
 
