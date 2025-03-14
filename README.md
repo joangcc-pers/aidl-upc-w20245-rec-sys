@@ -225,7 +225,104 @@ Now that the network emphasizes the past interactions that are more relevant, th
 
 # 5. Preprocessing and training
 
-#TODO
+## 5.1 Preprocessing
+
+This script performs the following key operations:
+1. Creates graph representations of user sessions
+2. Stores preprocessed graphs in an LMDB database
+3. Splits the dataset into train/validation/test sets
+
+### Features
+
+- **LMDB Storage**: Uses Lightning Memory-Mapped Database (LMDB) for efficient storage and retrieval of preprocessed graphs. LMDB provides:
+  - Fast access through memory 
+  - Ability to handle large datasets
+  - Storage of graph structures
+
+- **Dataset Splitting**: Supports two splitting methods:
+  - Random splitting: Randomly assigns sessions to train/val/test sets
+  - Temporal splitting: Splits sessions based on temporal order
+
+### Parameters
+
+
+- `start_month`: Start month for data processing (format: "YYYY-MM")
+- `end_month`: End month for data processing (format: "YYYY-MM")
+- `test_sessions_first_n`: Optional limit on number of sessions (for testing)
+- `limit_to_view_event`: Whether to only include view events
+- `drop_listwise_nulls`: Whether to drop rows with null values
+- `min_products_per_session`: Minimum number of products per session
+- `train_split`: Proportion of data for training
+- `val_split`: Proportion of data for validation
+- `test_split`: Proportion of data for testing
+- `split_method`: "random" or "temporal"
+
+### Output
+
+The script generates:
+1. An LMDB database containing preprocessed graph representations
+2. Three PyTorch dataset files:
+   - `train_dataset.pth`
+   - `val_dataset.pth`
+   - `test_dataset.pth`
+
+## 5.2 Training
+### SR-GNN model
+
+Located in `scripts/train_scripts/train_sr_gnn.py`
+
+Trains the base SR-GNN model which uses graph neural networks for session-based recommendations.
+
+**Key Features:**
+- Basic graph neural network architecture
+- Node embeddings for items and their attributes (categories, sub-categories, elements, brands)
+- Support for learning rate scheduling
+- Checkpoint saving and resuming
+- TensorBoard integration for monitoring metrics
+
+### 2. SR-GNN with Attention
+Located in `scripts/train_scripts/train_sr_gnn_attn.py`
+
+Trains the SR-GNN model with attention mechanism, enhancing the model's ability to focus on relevant parts of the session graph.
+
+**Key Features:**
+- Attention mechanism on top of base SR-GNN
+- Same support for embeddings as base model
+- Enhanced feature learning through attention
+- TensorBoard monitoring and checkpoint management
+
+### 3. SR-GNN with attentional aggregation 
+Located in `scripts/train_scripts/train_sr_gnn_attn_agg.py`
+
+Trains the SR-GNN model with attentional aggregation, providing more sophisticated ways to combine node features.
+
+**Key Features:**
+- Attentional aggregation mechanism
+- Advanced feature combination strategies
+
+
+## Common Parameters
+
+All training functions accept these common parameters:
+
+- `model_params`: Dictionary containing model hyperparameters
+  - `hidden_dim`: Dimension of hidden layers
+  - `num_iterations`: Number of GNN message passing iterations
+  - `embedding_dim`: Dimension of embeddings
+  - `dropout_rate`: Dropout rate for regularization
+  - `lr`: Learning rate
+  - `weight_decay`: L2 regularization parameter
+  - `batch_size`: Training batch size
+  - `epochs`: Number of training epochs
+  - `optimizer`: Optimizer type (currently supports "Adam")
+  - `use_scheduler`: Boolean for learning rate scheduling
+
+- `train_dataset`: PyTorch dataset for training
+- `eval_dataset`: PyTorch dataset for validation
+- `output_folder_artifacts`: Path to save model artifacts
+- `top_k`: List of K values for evaluation metrics
+- `experiment_hyp_combinat_name`: Optional name for experiment tracking
+- `resume`: Flag for resuming training from checkpoint
 
 # 6. Hyperparameter tuning
 
