@@ -1,4 +1,4 @@
- # Project: Artificial Intelligence with Deep Learning
+ # Project: Session-based Recommender Systems using Graph Neural Networks
 
 This repository contains the development of a project carried out as part of the **Artificial Intelligence with Deep Learning** postgraduate program.
 
