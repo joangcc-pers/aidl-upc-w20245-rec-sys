@@ -15,11 +15,11 @@ This repository contains the development of a project carried out as part of the
 
 ## Project Description
 
-This project aims to explore and apply Deep learning architectures for Session-Based Recommender Systems. In this repository, we provide the code to:
+This project aims to explore and apply deep learning architectures for Session-Based Recommender Systems. In this repository, we provide the code to:
 
-- Implement architectures for deep learning in RecSys.
+- Implement architectures for deep learning in session-based RecSys
 - Process the needed data.
-- Training, evaluation, visualize and compare the diffrenet architectures and configurations.
+- Train, evaluate, visualize and compare the diffrenet architectures and configurations.
 
 The implementation of these architectures uses pytorch (specifically, PyGraph), and visualizes results through TensorBoard.
 
@@ -415,7 +415,7 @@ python run_optim.py --model your_model_name --task preprocess train --force_reru
     
 - **--resume** : Resume training. If "yes":
   - Will skip fully executed scenarios
-  - Will complete started scenarios from the last checkpoint
+  - Will resume started scenarios from the last checkpoint
 
 # License
 
