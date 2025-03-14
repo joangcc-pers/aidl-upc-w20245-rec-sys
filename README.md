@@ -43,7 +43,7 @@ Inspired by the work of Wu et al. (2023) in Session-Based Recommendations for E-
 - Predict the next likely action or click to optimize the customer journey.
 - Enhance user experience by providing relevant recommendations even for first-time visitors.
 - Increase business revenue by reducing decision-making time and improving product discovery.
-- 
+
 For our team, this project is more than an academic exercise; it is a practical response to the challenges of modern e-commerce personalization. As businesses move toward more privacy-conscious solutions, session-based recommendations offer a viable, future-proof strategy for engaging customers in real-time. Additionally, for many of us, this project represents an opportunity to deepen our expertise in recommendation systems and take meaningful steps in our professional development.
 
 By leveraging advanced session-based models, we aim to contribute to the evolution of personalized e-commerce experiences, ensuring that both businesses and customers benefit from seamless, privacy-compliant recommendations.
@@ -100,8 +100,8 @@ In early iterations, the team developed the code for one-hot encoding. However, 
 
 ### Gated Graph Neural Network with node embeddings and Sequential Message Propagation with GRU (saved as "graph_with_embeddings")
 
-<img width="813" alt="image" src="https://github.com/user-attachments/assets/7de6883f-d0e0-4d58-9eae-9f8ce427d884" />
 
+<img width="813" alt="image" src="https://github.com/user-attachments/assets/7de6883f-d0e0-4d58-9eae-9f8ce427d884" />
 
 
 This architecture is based on a Gated Graph Neural Network (GGNN), that relies on Graph Neural Networks (GNNs) combined with GRU cells in order to work with sequential information in-session. The main characteristics of this implementation are:
@@ -146,10 +146,11 @@ However, this architecture has a key wekness. It gives equal importance to all t
 
 ### GGNN with Implicit Self-Attention using Sigmoid (saved as "graph-with-embeddings-and-attention")
 
+
 <img width="1604" alt="image" src="https://github.com/user-attachments/assets/78e350e9-70bc-4a29-915f-a6a5e8b33b91" />
 
 
-In this architecture, we keep using GNN mean aggregation in the GRUPGraphLayer and the GRUCeel adjusting dinamically the importance of the messages. However, we introduce a self-attention mechanism on the session based on the second before last (penultimate item). Here are the details. That is, we put under the spotlight (give more importance) to the last product of the session.
+In this architecture, we keep using GNN mean aggregation in the GRUPGraphLayer and the GRUCell adjusting dinamically the importance of the messages. However, we introduce a self-attention mechanism on the session based on the second before last (penultimate item). Here are the details. That is, we put under the spotlight (give more importance) to the last product of the session.
 
 #### Explicit attention
 We adapted the architecture so it would be closer to the real world case: give more importance to the last item. However, we cannot use directly the last item (as we would have then no item to predict), so we reproduced Wu et al approach, and used the penultimate visited item. In this code and structure then, whenever we talk about using the last visited product, it always **refers to the penultimate item**.
@@ -178,7 +179,9 @@ The key limitation of this architecture though is that it prirotizes the penulti
 
 ### GGNN with Explicit Self-Attention using Attentional Aggregation (saved as "graph-with-embeddings-and-attentional-aggregation")
 
+
 <img width="1416" alt="image" src="https://github.com/user-attachments/assets/5673f5f3-33e2-4ab1-8327-7d9dda9abf3e" />
+
 
 In this architecture, we introduce Attentional Aggregation, a mechanism that refines the way information is aggregated across nodes in the session graph. While the previous self-attention model applied attention weights based on the interaction between each product and the last visited product, this architecture further improves the aggregation process by explicitly modeling the importance of each interaction during message passing.
 
