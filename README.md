@@ -100,7 +100,8 @@ In early iterations, the team developed the code for one-hot encoding. However, 
 
 ### Gated Graph Neural Network with node embeddings and Sequential Message Propagation with GRU (saved as "graph_with_embeddings")
 
-<img width="825" alt="image" src="https://github.com/user-attachments/assets/30a3831a-4603-4c3e-b010-e7af5a5ee09e" />
+<img width="813" alt="image" src="https://github.com/user-attachments/assets/7de6883f-d0e0-4d58-9eae-9f8ce427d884" />
+
 
 
 This architecture is based on a Gated Graph Neural Network (GGNN), that relies on Graph Neural Networks (GNNs) combined with GRU cells in order to work with sequential information in-session. The main characteristics of this implementation are:
