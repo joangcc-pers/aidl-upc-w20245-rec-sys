@@ -496,13 +496,20 @@ experiment_name:
       split_method: 'temporal'          # Allowed values are 'temporal' and 'random'
     evaluation:
       top_k: [1, 5, 10, 20]             # top K values to take into account for metrics calculation
+    test_params:                        
+      best_checkpoint_path: "model_checkpoint.pth" # Path to the best evaluated model checkpoint
 ```
 
 ### Execution
 
-Command to execute an experiment.
+Command to preprocess the data and run training.
 ```bash
 python run_experiment.py --config experiments/config.yaml --experiment your_experiment_name --task preprocess train
+```
+
+Command to run the testing on the `best_checkpoint_path`:
+```bash
+python run_experiment.py --config experiments/config.yaml --experiment your_experiment_name --task test
 ```
 
 ## Grid Search
