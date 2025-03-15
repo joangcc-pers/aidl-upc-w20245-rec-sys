@@ -1,93 +1,5 @@
 experiments:
-
-  experiment_1:
-    model_name: "graph_with_embeddings"
-    training_params:
-      lr: 0.0005
-      epochs: 15
-      optimizer: "sgd"
-      num_layers: 5
-      hidden_units: 256
-      dropout_rate: 0.3
-    data_params:
-      input_folder_path: "data/raw/"
-      output_folder_artifacts: "experiments/experiment_1/"
-    preprocessing:
-      shuffle: False
-      start_month: '2019-10'
-      end_month: '2019-10'
-      test_sessions_first_n: 10000
-      embedding_dim: 64
-      batch_size: 32
-
-  experiment_2:
-    model_name: "sr_gnn_test_mockup"
-    training_params:
-      lr: 0.01
-      epochs: 15
-      optimizer: "Adam"
-      num_items: 100
-      embedding_dim: 100
-      hidden_dim: 100
-      num_iterations: 1
-
-    data_params:
-      input_folder_path: "data/raw/"
-      output_folder_artifacts: "experiments/experiment_2/"
-    preprocessing:
-      shuffle: False
-
-  experiment_3:
-    model_name: "graph_with_embeddings"
-    training_params:
-      lr: 0.01
-      epochs: 15
-      optimizer: "Adam"
-      num_iterations: 1
-    data_params:
-      input_folder_path: "data/raw/"
-      output_folder_artifacts: "experiments/experiment_3/"
-    preprocessing:
-      shuffle: False
-      start_month: '2019-10'
-      end_month: '2019-10'
-      test_sessions_first_n: 10000
-      embedding_dim: 64
-      batch_size: 32
-
   experiment_4:
-    model_name: "graph_with_embeddings"
-    model_params:
-      lr: 0.01
-      epochs: 5
-      optimizer: "Adam"
-      num_iterations: 1
-      embedding_dim: 64
-      hidden_dim: 100
-      shuffle: False
-      batch_size: 50
-      weight_decay: 0.0001
-      dropout_rate: None
-    data_params:
-      input_folder_path: "data/raw/"
-      output_folder_artifacts: "experiments/experiment_4/"
-    preprocessing:
-      start_month: '2019-10'
-      end_month: '2019-10'
-      test_sessions_first_n: 10000
-      limit_to_view_event: True
-      drop_listwise_nulls: True
-      min_products_per_session: 3
-      normalization_method: 'zscore'
-      train_split: 0.8
-      val_split: 0.1
-      test_split: 0.1
-      split_method: 'temporal'
-    evaluation:
-      top_k: [1, 5, 10, 20]
-
-
-  model_graph_with_embeddings:
     model_name: "graph_with_embeddings"
     model_params:
       epochs: 5
@@ -102,7 +14,7 @@ experiments:
       dropout_rate: 0.2
     data_params:
       input_folder_path: "data/raw/"
-      output_folder_artifacts: "experiments/graph_with_embeddings/"
+      output_folder_artifacts: "experiments/experiment_4/"
     preprocessing:
       start_month: '2019-10'
       end_month: '2019-10'
@@ -118,7 +30,7 @@ experiments:
     evaluation:
       top_k: [1, 5, 10, 20]
     test_params:
-      best_checkpoint_path: "experiments/graph_with_embeddings/graph_with_embeddings_wd1e-06_dr0.2_lr0.0001/trained_model.pth"
+      best_checkpoint_path: "experiments/experiment_4/trained_model.pth"
 
   experiment_5:
     model_name: "graph_with_embeddings_and_attention"
@@ -185,7 +97,6 @@ experiments:
       top_k: [1, 5, 10, 20]
     test_params:
       best_checkpoint_path: "experiments/experiment_6/trained_model_0015.pth"
-
 
 
   experiment_7:
