@@ -132,7 +132,7 @@ experiments:
       shuffle: False
       batch_size: 50
       weight_decay: 0.0001
-      dropout_rate: None
+      dropout_rate: 0
     data_params:
       input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/experiment_5/"
@@ -150,6 +150,8 @@ experiments:
       split_method: 'random'
     evaluation:
       top_k: [1, 5, 10, 20]
+    test_params:
+      best_checkpoint_path: "experiments/experiment_5/trained_model_0008.pth"
 
   experiment_6:
     model_name: "graph_with_embeddings_and_attentional_aggregation"

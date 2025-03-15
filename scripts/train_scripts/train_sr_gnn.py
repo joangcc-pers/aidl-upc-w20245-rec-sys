@@ -5,9 +5,7 @@ import json
 import os
 from scripts.collate_fn import collate_fn
 from torch.utils.data import DataLoader
-from scripts.evaluate_scripts.evaluate_model_utils import evaluate_model_epoch
-from utils.metrics_utils import print_metrics, aggregate_metrics
-from scripts.train_scripts.train_model_utils import train_model_epoch, print_model_parameters
+from scripts.train_scripts.train_model_utils import print_model_parameters, train_epoch, eval_epoch, test_epoch
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import ReduceLROnPlateau
@@ -167,30 +165,6 @@ def train_sr_gnn(
         torch.save(model.state_dict(), output_folder_artifacts_with_exp_hyp_cmb_name+"/trained_model.pth")
         print(f"Trained model saved at {output_folder_artifacts_with_exp_hyp_cmb_name+'/trained_model.pth'}")
         writer.close()  # Cerrar TensorBoard correctamente
-
-def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20], device=None):
-    avg_loss, avg_precision, avg_recall, avg_mrr = train_model_epoch(model, dataloader, optimizer, criterion, device, top_k=top_k)
-
-    metrics = aggregate_metrics(avg_loss, avg_precision, avg_recall, avg_mrr)
-    
-    print_metrics(total_epochs, current_epoch, top_k, avg_loss, metrics, task="Training")
-    return avg_loss, metrics  # Retornar pérdida y métricas
-
-def eval_epoch(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20], device=None):
-    avg_loss, avg_precision, avg_recall, avg_mrr = evaluate_model_epoch(model, eval_dataloader, criterion, device, top_k)
-
-    metrics = aggregate_metrics(avg_loss, avg_precision, avg_recall, avg_mrr)
-    
-    print_metrics(total_epochs, current_epoch, top_k, avg_loss, metrics, task="Evaluate")
-    return avg_loss, metrics  # Retornar pérdida y métricas
-
-def test_epoch(model, eval_dataloader, criterion, top_k=[20], device=None):
-    avg_loss, avg_precision, avg_recall, avg_mrr = evaluate_model_epoch(model, eval_dataloader, criterion, device, top_k)
-
-    metrics = aggregate_metrics(avg_loss, avg_precision, avg_recall, avg_mrr)
-    
-    print_metrics(1, 0, top_k, avg_loss, metrics, task="Test")
-    return avg_loss, metrics  # Retornar pérdida y métricas
 
 #Para ver los resultados desde la teminal ir a la carpeta cd/experiments si volem fer la comparativa total, o cd/output_folder_artifacts path per un experiment en particular.
 # Si iniciar el comando con tensorboard da problemas, utiliza python3 -m tensorboard.main --logdir=experiments. Sitúate en la carpeta raíz (root) y establece logdir=experiments
