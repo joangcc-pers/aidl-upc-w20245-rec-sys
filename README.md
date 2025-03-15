@@ -227,44 +227,66 @@ Now that the network emphasizes the past interactions that are more relevant, th
 
 ## 5.1 Preprocessing
 
-This script performs the following key operations:
-1. Creates graph representations of user sessions
-2. Stores preprocessed graphs in an LMDB database
-3. Splits the dataset into train/validation/test sets
-
-### Features
-
-- **LMDB Storage**: Uses Lightning Memory-Mapped Database (LMDB) for efficient storage and retrieval of preprocessed graphs. LMDB provides:
-  - Fast access through memory 
-  - Ability to handle large datasets
-  - Storage of graph structures
-
-- **Dataset Splitting**: Supports two splitting methods:
-  - Random splitting: Randomly assigns sessions to train/val/test sets
-  - Temporal splitting: Splits sessions based on temporal order
+The preprocessing script performs the following main operations:
+1. Preprocesses CSV files to generate the train / validation and test sets.
+2. Precomputes graphs and stores the in an LMDB database.
+3. Creates the train / validation / test splits.
 
 ### Parameters
 
-
+Below are the parameters expected for data preprocessing. This parametres are defined in `experiments/config.yaml` (when running `run_experiment.py`) or in `experiments/config-hyp.yaml` (when running `run-optim.py`).
 - `start_month`: Start month for data processing (format: "YYYY-MM")
 - `end_month`: End month for data processing (format: "YYYY-MM")
 - `test_sessions_first_n`: Optional limit on number of sessions (for testing)
 - `limit_to_view_event`: Whether to only include view events
 - `drop_listwise_nulls`: Whether to drop rows with null values
 - `min_products_per_session`: Minimum number of products per session
+- `normalization_method`: Normalisation method for the price. Allows `min_max` or `zscore`. 
 - `train_split`: Proportion of data for training
 - `val_split`: Proportion of data for validation
 - `test_split`: Proportion of data for testing
 - `split_method`: "random" or "temporal"
 
-### Output
+### Features
+#### Data preprocessing
+The data preprocessing script performs the following operations:
+- Load the dataset original CSV files needed to get the data between `start_month` and `end_month`.
+- Limit data to view events, if defined in `limit_to_view_event`
+- Filters out product with null category_code, brand or price if defined in `drop_listwise_nulls`
+- Filters out sessions with less than `min_products_per_session` unique products
+- Normalises the price value using min_max or zscore 
+- Defines the train, val, and test splits with the proportions defined in `train_split`, `val_split` and `test_split`, using the split method defined in `split_method`.
+- Normalisea the product price values price using the method defined in `normalisation_method`.
+- Handled the `category_code` into the category, sub_category and element hierarchy, managing unknown values.
+- Remaps the product id to have values between 1 and the count of different product ids.
+- Label-encodes categories, sub_categories, element and brand using `sklearn.processing.LabelEncoder`.
+- Sorts the data by user session and event time. 
+- Generates a json file with the count of different products, categories, elements and brands. This information is used to initialise the embeddings when training.
 
-The script generates:
-1. An LMDB database containing preprocessed graph representations
-2. Three PyTorch dataset files:
-   - `train_dataset.pth`
-   - `val_dataset.pth`
-   - `test_dataset.pth`
+The output of the preprocessing operation is:
+- `num_values_for_node_embedding.json` with the count of products, categories, elements and brands.
+- label_embedding `.pth` files, needed to decode the label encoded values during inference.
+- `data.pth` file, with all the data that will be needed to perform inference given a product id.
+- `train_dataset.pth`, `test_dataset.pth` and `val_dataset.pth` dataset files.
+- `graphdb` folder, with the lmdb storing all the precomputed session graphs.
+
+
+#### LMDB Storage
+Uses Lightning Memory-Mapped Database ([LMDB](http://www.lmdb.tech/doc/index.html)) for efficient storage and retrieval of preprocessed graphs. LMDB provides:
+  - Fast access through memory 
+  - Ability to handle large datasets
+  - Storage of graph structures
+
+The initial implementations did not use LMDB, and computed the session graph within the `__getitem__` method of the dataset. However, this created an important bottleneck, leading to very high training times (112 hours per epoch, when limiting the training dataset to 500k unique sessions).
+
+To overcome this bottleneck, we decided precompute session graphs and store them: initially as `pth` files, and inside an lmdb database in a second iteration. We decided to keep working with the lmdb approach, as the file-based approach created ~5M files, which led to some performance issues. 
+
+AS a reference, using a training dataset limited to the first 500.000 unique sessions, the training time was reduced significantly, reducing per-epoch training times from 112 hours per epoch to 40 minutes per epoch.
+
+#### Dataset Splitting
+Supports two splitting methods:
+- Random splitting: Randomly assigns sessions to train/val/test sets
+- Temporal splitting: Splits sessions based on temporal order
 
 ## 5.2 Training
 ### SR-GNN model
@@ -323,6 +345,16 @@ All training functions accept these common parameters:
 - `top_k`: List of K values for evaluation metrics
 - `experiment_hyp_combinat_name`: Optional name for experiment tracking
 - `resume`: Flag for resuming training from checkpoint
+
+## The bottleneck
+
+As explained in the preprocessing section, we experienced a bottleneck in the `__getitem__` operation. We overcome this by preprocessing the session graphs, first as files and after a second iteration, in an lmdb database, which performed better that files, especially when dealing with millions of unique sessions. 
+
+Even after precomputing the graphs, we kept experiencing a bottleneck. This bottleneck was evident when we tried to train our model using a GPU. We saw how the GPU usage was really low, and the CPU usage close to 100%. We did some experiments, and diagnosed that the issue is still a bottleneck in __getitem__, mainly because we are loading lots of very small files at each training batch. 
+
+![gpu_usage](https://github.com/user-attachments/assets/448df9fb-1a77-45ad-949d-93a74fe79c4a)
+
+Because of this bottleneck, we experience lower training times with our local computers than with the cloud virtual machine using GPU.
 
 # 6. Hyperparameter tuning
 
