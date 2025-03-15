@@ -183,6 +183,8 @@ experiments:
       split_method: 'random'
     evaluation:
       top_k: [1, 5, 10, 20]
+    test_params:
+      best_checkpoint_path: "experiments/experiment_6/trained_model_0015.pth"
 
 
 
@@ -201,7 +203,6 @@ experiments:
       batch_size: 32
       weight_decay: 0.0001
     data_params:
-      #input_folder_path: "/Users/miguelpalospou/Desktop/Data_projects/master_project/"
       input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/experiment_7/"
     preprocessing:
@@ -218,3 +219,5 @@ experiments:
       split_method: 'random'
     evaluation:
       top_k: [1, 5, 10, 20]
+    test_params:
+      best_checkpoint_path: "experiments/experiment_7/trained_model.pth"
