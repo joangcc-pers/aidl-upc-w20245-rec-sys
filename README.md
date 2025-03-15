@@ -352,6 +352,8 @@ As explained in the preprocessing section, we experienced a bottleneck in the `_
 
 Even after precomputing the graphs, we kept experiencing a bottleneck. This bottleneck was evident when we tried to train our model using a GPU. We saw how the GPU usage was really low, and the CPU usage close to 100%. We did some experiments, and diagnosed that the issue is still a bottleneck in __getitem__, mainly because we are loading lots of very small files at each training batch. 
 
+![gpu_usage](https://github.com/user-attachments/assets/448df9fb-1a77-45ad-949d-93a74fe79c4a)
+
 Because of this bottleneck, we experience lower training times with our local computers than with the cloud virtual machine using GPU.
 
 # 6. Hyperparameter tuning
