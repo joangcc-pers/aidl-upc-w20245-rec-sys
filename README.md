@@ -402,14 +402,14 @@ The table below summarises the results benchmarking different model configuratio
 | Model | R@20 | MRR@20 |
 |-------|------|--------|
 | GRU4Rec (baseline) | 0.5293 | 0.2008 |
-| SR_GNN (own implementation) | 0.5703| 0.3200 |
+| SR_GNN (own implementation) | 0.5723| 0.3219 |
 | Graph with Embeddings and Attentional Aggregation | 0.6003 | 0.3462 |
 
 We created our own implementation of SR_GNN because the SR_GNN does not report results on the dataset we are using for the baseline and the assessment of our model.
 
 We can see how our model "Graph with Embeddings and Attentional Aggregation" represents:
-- A 5.26% of improvement in the Recall@20 
-- A 8.19% of improvement in the MRR@20
+- A 4.89% of improvement in the Recall@20 
+- A 7.55% of improvement in the MRR@20
 
 # 8. Repository structure and MLOPS features
 
