@@ -276,8 +276,6 @@ The data preprocessing script performs the following operations:
 
 The output of the preprocessing operation is:
 - `num_values_for_node_embedding.json` with the count of products, categories, elements and brands.
-- label_embedding `.pth` files, needed to decode the label encoded values during inference.
-- `data.pth` file, with all the data that will be needed to perform inference given a product id.
 - `train_dataset.pth`, `test_dataset.pth` and `val_dataset.pth` dataset files.
 - `graphdb` folder, with the lmdb storing all the precomputed session graphs.
 
