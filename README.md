@@ -27,11 +27,10 @@ The implementation of these architectures uses pytorch (specifically, PyGraph), 
 
 # 1. Motivation
 
-Businesses need tools that help predict customer needs in order to speed up conversion, reduce friction, and increase customer value through proper suggestions. It is getting more difficult to give adequate predictions for already existing customers [due to data privacy laws](https://gdpr.eu/what-is-gdpr/). Also, personal information of non-registered /new customers is sparse or non-existent.
+Businesses need tools that help predict customer needs in order to speed up conversion, reduce friction, and increase customer value through proper suggestions (Salesforce, 2021).
 
-In today’s competitive e-commerce landscape, businesses strive to predict customer needs to accelerate conversions, reduce friction, and enhance customer value through relevant product recommendations. Traditional recommendation systems, such as collaborative filtering and matrix factorization, rely heavily on historical user data, including past purchases and interactions. While effective for registered and returning customers, these approaches struggle with two growing challenges:
-
-- Data Privacy and Regulations: Stricter data privacy laws limit access to user information, making it difficult to rely on long-term customer profiles for personalized recommendations.
+In today’s competitive e-commerce landscape, businesses strive to predict customer needs to accelerate conversions, reduce friction, and enhance customer value through relevant product recommendations. Traditional recommendation systems, such as collaborative filtering and matrix factorization, rely heavily on historical user data, including past purchases and interactions. While effective for registered and returning customers, these approaches struggle with two growing challenges
+- Data Privacy and Regulations: Stricter [data privacy laws](https://gdpr.eu/what-is-gdpr/) limit access to user information, making it difficult to rely on long-term customer profiles for personalized recommendations.
 - Sparse or Non-Existent Data for New Users: Non-registered and first-time visitors lack historical data, reducing the effectiveness of conventional recommendation methods.
 This calls for the need of strong algorithms that leverage implicit feedback such as navigation history, so that both non-registered and new users can benefit from a faster navigation and purchase, and receive offers of interesting products that would fulfill their needs.
 
@@ -561,6 +560,7 @@ python run_optim.py --model your_model_name --task preprocess train --force_reru
 
 - Delianidi, M.; Diamantaras, K.; Tektonidis, D.; Salampasis, M. Session-Based Recommendations for e-Commerce with Graph-Based Data Modeling. Appl. Sci. 2023, 13, 394. https://doi.org/10.3390/app13010394
 - Esmeli, R.; Bader-el-Den, M.; Abdullahi, H.; Henderson, D. Implicit Feedback Awareness for Session Based Recommendation in E-Commerce. Sn. Comp. Sci. 2023, 4, 320. https://doi.org/10.1007/s42979-023-01752-x
+- Salesforce (2021). Personalization in Shopping. https://www.salesforce.com/content/dam/web/en_us/www/documents/commerce-cloud/Personalization_in_Shopping.pdf
 - Wu, S.; Tang, Y.; Zhu, Y.; Wang, L.; Xie, X.; Tan, T. Session-based recommendation with graph neural networks. AAAI Conf. Artif.
 Intell. 2019, 33, 346–353.
 
