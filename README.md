@@ -225,8 +225,6 @@ Now that the network emphasizes the past interactions that are more relevant, th
 
 # 5. Preprocessing and training
 
-Generates:
-
 ## 5.1 Preprocessing
 
 The preprocessing script performs the following main operations:
@@ -234,7 +232,7 @@ The preprocessing script performs the following main operations:
 2. Precomputes graphs and stores the in an LMDB database.
 3. Creates the train / validation / test splits.
 
-### Parameters
+### Parameters
 
 Below are the parameters expected for data preprocessing. This parametres are defined in `experiments/config.yaml` (when running `run_experiment.py`) or in `experiments/config-hyp.yaml` (when running `run-optim.py`).
 - `start_month`: Start month for data processing (format: "YYYY-MM")
@@ -267,14 +265,14 @@ The data preprocessing script performs the following operations:
 
 The output of the preprocessing operation is:
 - `num_values_for_node_embedding.json` with the count of products, categories, elements and brands.
-- **TODO** label_embedding `.pth` files, needed to decode the label encoded values during inference.
-- **TODO** `data.pth` file, with all the data that will be needed to perform inference given a product id.
+- label_embedding `.pth` files, needed to decode the label encoded values during inference.
+- `data.pth` file, with all the data that will be needed to perform inference given a product id.
 - `train_dataset.pth`, `test_dataset.pth` and `val_dataset.pth` dataset files.
 - `graphdb` folder, with the lmdb storing all the precomputed session graphs.
 
 
 #### LMDB Storage
-Uses Lightning Memory-Mapped Database (LMDB) for efficient storage and retrieval of preprocessed graphs. LMDB provides:
+Uses Lightning Memory-Mapped Database ([LMDB](http://www.lmdb.tech/doc/index.html)) for efficient storage and retrieval of preprocessed graphs. LMDB provides:
   - Fast access through memory 
   - Ability to handle large datasets
   - Storage of graph structures
