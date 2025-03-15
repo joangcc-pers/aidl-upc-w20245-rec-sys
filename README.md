@@ -181,9 +181,9 @@ The embeddings of the products are then weighted by the attention weights ```(at
 
 #### Key highlight
 
-The introduction of self-attention let us model the fact that certain nodes or products within a session may have more importance in thef inal representaiton of the session, instead of giving them equal importance. This is an improvement, as it allows to capture more complex relationships between products.
+The introduction of self-attention let us model the fact that certain nodes or products within a session may have more importance in the final representation of the session, instead of giving them equal importance. This is an improvement, as it allows to capture more complex relationships between products.
 
-The key limitation of this architecture though is that it prirotizes the penultimat eitem, but it might be that there are other browsed items or events of the session that should have more weight in the session representation. That's what we did in our third and last iteration: add Attentional Aggregation mechanism.
+The key limitation of this architecture though is that it prioritizes the penultimate item, but it might be that there are other browsed items or events of the session that should have more weight in the session representation. That's what we did in our third and last iteration: add Attentional Aggregation mechanism.
 
 ### GGNN with Explicit Self-Attention using Attentional Aggregation (saved as "graph-with-embeddings-and-attentional-aggregation")
 <br>
