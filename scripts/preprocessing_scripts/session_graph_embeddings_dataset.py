@@ -200,6 +200,7 @@ class SessionGraphEmbeddingsDataset(Dataset):
         print("[INFO] Data sorted.")
 
         # Step 12: Calculate number of unique occurrences for each column
+        # Future work: Use a different label encoder for each column. Persist them as .pth files so they can be used in the inference service.
         num_categories = self.data['category'].nunique()
         num_sub_categories = self.data['sub_category'].nunique()
         num_elements = self.data['element'].nunique()
@@ -243,6 +244,8 @@ class SessionGraphEmbeddingsDataset(Dataset):
         self.data['element'] = le.fit_transform(self.data['element'])
         self.data['brand'] = le.fit_transform(self.data['brand'])
         print("[INFO] Categorical columns encoded.")
+
+        # Future work: Persist self.data as a .pth file so it can be used in the inference service.
 
         # Step 15: Extract unique sessions
         print("[INFO] Extracting unique sessions...")
