@@ -579,6 +579,10 @@ This will require creating another flow, that we can call inference, that will r
 
 ## Hybrid models
 
+This proposal has focused on scenarios where the information of the user is non-existant. However, in a real setting, the company can have access to previous purchass of the same user, as well as be able to asses the similarity of users through collaborative filtering and clustering techniques. Therefore, an interesting additiong would be to expand the set of algorithms we would use, to incorporate pre-computed recommended products using collaborative filtering techniques whenever possible, or most popular products, so that the user sees those whenever they enter the e-commerce page, and then update those scores dynamically as we have more information of the session with the architecture we have developed here.
+
+Such combination of models is well-known in the industry (Burke, 2002; Chiang, 2021 for a digest). Amongst the approaches described in the paper, one approach we could explore would be the weighted approach. We could have pre-computed scores using a collaborative filtering approach and most popular items, and then weight those scores on-line with the session-based recommender system. 
+
 ## Model interpretability
 
 Since we are using attention mechanisms, we should be able to further understand how the model works by looking at the attention weights. 
@@ -598,7 +602,8 @@ self.attentionalAggregation = torch_geometric.nn.AttentionalAggregation(
 
 
 # 10. References
-
+- Burke, R. Hybrid Recommender Systems: Survey and Experiments. User Model User-Adap Inter 2002, 12, 331–370. doi: 10.1023/A:1021240730564
+- Chiang, J. 7 types of Hybrid Recommendation Systems. Medium. Retreived from https://medium.com/analytics-vidhya/7-types-of-hybrid-recommendation-system-3e4f78266ad8
 - Delianidi, M.; Diamantaras, K.; Tektonidis, D.; Salampasis, M. Session-Based Recommendations for e-Commerce with Graph-Based Data Modeling. Appl. Sci. 2023, 13, 394. https://doi.org/10.3390/app13010394
 - Esmeli, R.; Bader-el-Den, M.; Abdullahi, H.; Henderson, D. Implicit Feedback Awareness for Session Based Recommendation in E-Commerce. Sn. Comp. Sci. 2023, 4, 320. https://doi.org/10.1007/s42979-023-01752-x
 - Salesforce (2021). Personalization in Shopping. https://www.salesforce.com/content/dam/web/en_us/www/documents/commerce-cloud/Personalization_in_Shopping.pdf
