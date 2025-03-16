@@ -25,7 +25,7 @@ def main():
     '''
     
     # Ensure tasks are in the correct order
-    valid_order = ["preprocess", "train"]
+    valid_order = ["preprocess", "train", "test"]
     provided_order = args.task
 
     if len(provided_order) > 1:
