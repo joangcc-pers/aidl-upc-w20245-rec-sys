@@ -102,7 +102,7 @@ In early iterations, the team developed the code for one-hot encoding. However, 
 </br>
 <figure>
   <img width="813" alt="image" src="https://github.com/user-attachments/assets/7de6883f-d0e0-4d58-9eae-9f8ce427d884" />
-  <figcaption><em>Figure 1. GGNN with node embeddings </em></figcaption>
+  <figcaption><em><br></br> Figure 1. GGNN with node embeddings </em></figcaption>
 </figure>
 <br>
 </br>
