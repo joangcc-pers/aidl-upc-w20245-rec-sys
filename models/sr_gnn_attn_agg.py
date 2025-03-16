@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import MessagePassing, AttentionalAggregation
-from torch_scatter import scatter_softmax, scatter_sum, scatter_max
+from torch_scatter import scatter_max
 from scripts.preprocessing_scripts.node_embedding import NodeEmbedding
 
 

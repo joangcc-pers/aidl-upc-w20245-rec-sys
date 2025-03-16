@@ -565,9 +565,37 @@ We identified 3 areas of future work for this project:
 
 ## Inference Service
 
-## Hybrid models
+When we envision this model in production-ready setup, we think about a service that gets the different events that happen in a website, and is able to propose recommendations. 
+
+To some extent, we think of a service collecting click events that contain the `session_id`, and the visited `product_id`. With this information, the inference service will:
+- Enrich the data with category, sub_category, element, brand and price of the product (in case this information is not provided in the event).
+- Generate the session graph representation.
+- Forward the graph representation through the trained model to get the list of recommendations for that session.
+- Expose the results so they can be used in the ecommerce site.
+
+This will require creating another flow, that we can call inference, that will require:
+- Access to data to generate the graph: product database, label encoders, min-max price values.
+- The model and the parametres used to train the model.
+
+## Hybrid models
 
 ## Model interpretability
+
+Since we are using attention mechanisms, we should be able to further understand how the model works by looking at the attention weights. 
+
+In the case of our best-performing model (graph with embeddings and attentional aggregation), that would likely mean forward data to the model and extract the attention weights of the `gate_nn` network from the attentional aggregation layer in our model (see layer definition below).
+
+```python
+self.attentionalAggregation = torch_geometric.nn.AttentionalAggregation(
+  gate_nn = nn.Sequential(
+    nn.Dropout(dropout_rate, inplace=True),
+    nn.Linear(hidden_dim, hidden_dim),
+    nn.ReLU(),
+    nn.Linear(hidden_dim, 1)
+  )
+)
+```
+
 
 # 10. References
 
