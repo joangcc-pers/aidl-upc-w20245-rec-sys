@@ -85,6 +85,10 @@ def preprocess_graph_with_embeddings(input_folder_path, output_folder_artifacts,
         val_indices = indices[train_size:train_size + val_size]
         test_indices = indices[train_size + val_size:]
 
+        # Future work: Change the approach we generate the train/val/test datasets by:
+        # - Having a preprocess script decoupled from the dataset class that does all the data filtering and preprocessing. That script generates 3 csv files (train.csv, val.csv, test.csv) with the processed data.
+        # - Test / Val / Train datasets are initialised by using the 3 csv files.
+        # - This will ensure data preprocessings is done using only the data that is needed for each dataset.
         train_dataset = Subset(dataset, train_indices)
         val_dataset = Subset(dataset, val_indices)
         test_dataset = Subset(dataset, test_indices)

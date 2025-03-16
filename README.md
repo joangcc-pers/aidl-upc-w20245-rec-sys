@@ -558,8 +558,54 @@ python run_optim.py --model your_model_name --task preprocess train --force_reru
   - Will skip fully executed scenarios
   - Will resume started scenarios from the last checkpoint
 
-# 9. References
+# 9. Future work
 
+We identified 3 areas of future work for this project:
+- Inference service
+- Hybrid models
+- Model interpretability
+
+## Inference Service
+
+When we envision this model in production-ready setup, we think about a service that gets the different events that happen in a website, and is able to propose recommendations. 
+
+To some extent, we think of a service collecting click events that contain the `session_id`, and the visited `product_id`. With this information, the inference service will:
+- Enrich the data with category, sub_category, element, brand and price of the product (in case this information is not provided in the event).
+- Generate the session graph representation.
+- Forward the graph representation through the trained model to get the list of recommendations for that session.
+- Expose the results so they can be used in the ecommerce site.
+
+This will require creating another flow, that we can call inference, that will require:
+- Access to data to generate the graph: product database, label encoders, min-max price values.
+- The model and the parametres used to train the model.
+
+## Hybrid models
+
+This proposal has focused on scenarios where the information of the user is non-existant. However, in a real setting, the company can have access to previous purchass of the same user, as well as be able to asses the similarity of users through collaborative filtering and clustering techniques. Therefore, an interesting additiong would be to expand the set of algorithms we would use, to incorporate pre-computed recommended products using collaborative filtering techniques whenever possible, or most popular products, so that the user sees those whenever they enter the e-commerce page, and then update those scores dynamically as we have more information of the session with the architecture we have developed here.
+
+Such combination of models is well-known in the industry (Burke, 2002; Chiang, 2021 for a digest). Amongst the approaches described in the paper, one approach we could explore would be the weighted approach. We could have pre-computed scores using a collaborative filtering approach and most popular items, and then weight those scores on-line with the session-based recommender system. 
+
+## Model interpretability
+
+Since we are using attention mechanisms, we should be able to further understand how the model works by looking at the attention weights. 
+
+In the case of our best-performing model (graph with embeddings and attentional aggregation), that would likely mean forward data to the model and extract the attention weights of the `gate_nn` network from the attentional aggregation layer in our model (see layer definition below).
+
+```python
+self.attentionalAggregation = torch_geometric.nn.AttentionalAggregation(
+  gate_nn = nn.Sequential(
+    nn.Dropout(dropout_rate, inplace=True),
+    nn.Linear(hidden_dim, hidden_dim),
+    nn.ReLU(),
+    nn.Linear(hidden_dim, 1)
+  )
+)
+```
+
+
+# 10. References
+- Burke, R. Hybrid Recommender Systems: Survey and Experiments. User Model User-Adap Inter 2002, 12, 331–370. doi: 10.1023/A:1021240730564
+- Chiang, J. 7 types of Hybrid Recommendation Systems. Medium. Retreived from https://medium.com/analytics-vidhya/7-types-of-hybrid-recommendation-system-3e4f78266ad8
 - Delianidi, M.; Diamantaras, K.; Tektonidis, D.; Salampasis, M. Session-Based Recommendations for e-Commerce with Graph-Based Data Modeling. Appl. Sci. 2023, 13, 394. https://doi.org/10.3390/app13010394
 - Esmeli, R.; Bader-el-Den, M.; Abdullahi, H.; Henderson, D. Implicit Feedback Awareness for Session Based Recommendation in E-Commerce. Sn. Comp. Sci. 2023, 4, 320. https://doi.org/10.1007/s42979-023-01752-x
 - Salesforce (2021). Personalization in Shopping. https://www.salesforce.com/content/dam/web/en_us/www/documents/commerce-cloud/Personalization_in_Shopping.pdf
