@@ -404,7 +404,9 @@ The table below summarises the results benchmarking different model configuratio
 |-------|------|--------|
 | GRU4Rec (baseline) | 0.5293 | 0.2008 |
 | SR_GNN (own implementation) | 0.5703| 0.3200 |
+# TODO: change values based ont est partition long running
 | Graph with Embeddings and Attentional Aggregation | 0.6003 | 0.3462 |
+# TODO: also add new architectures
 
 We created our own implementation of SR_GNN because the SR_GNN does not report results on the dataset we are using for the baseline and the assessment of our model.
 
