@@ -398,7 +398,7 @@ Because of that, we selected the 3 best configurations of the best model and tra
 
 # 7. Models benchmarking
 
-The table below summarises the results benchmarking different model configurations using the same dataset (Oct 2019 and Nov 2019; "long-run").
+The table below summarises the results benchmarking different model configurations using the same dataset (Oct 2019 and Nov 2019; "long-run"; test partition).
 
 | Model | R@20 | MRR@20 |
 |-------|------|--------|
