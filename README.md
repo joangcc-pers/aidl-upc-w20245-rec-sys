@@ -556,7 +556,20 @@ python run_optim.py --model your_model_name --task preprocess train --force_reru
   - Will skip fully executed scenarios
   - Will resume started scenarios from the last checkpoint
 
-# 9. References
+# 9. Future work
+
+We identified 3 areas of future work for this project:
+- Inference service
+- Hybrid models
+- Model interpretability
+
+## Inference Service
+
+## Hybrid models
+
+## Model interpretability
+
+# 10. References
 
 - Delianidi, M.; Diamantaras, K.; Tektonidis, D.; Salampasis, M. Session-Based Recommendations for e-Commerce with Graph-Based Data Modeling. Appl. Sci. 2023, 13, 394. https://doi.org/10.3390/app13010394
 - Esmeli, R.; Bader-el-Den, M.; Abdullahi, H.; Henderson, D. Implicit Feedback Awareness for Session Based Recommendation in E-Commerce. Sn. Comp. Sci. 2023, 4, 320. https://doi.org/10.1007/s42979-023-01752-x
