@@ -5,38 +5,47 @@ import json
 import os
 from scripts.collate_fn import collate_fn
 from torch.utils.data import DataLoader
-from scripts.evaluate_scripts.evaluate_model_utils import evaluate_model_epoch
-from utils.metrics_utils import print_metrics, aggregate_metrics
-from scripts.train_scripts.train_model_utils import train_model_epoch, print_model_parameters
+from scripts.train_scripts.train_model_utils import print_model_parameters, train_epoch, eval_epoch, test_epoch
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-#import multiprocessing
 
 def train_sr_gnn(
         model_params,
         train_dataset,
         eval_dataset,
+        test_dataset = None,
         output_folder_artifacts=None,
         top_k=[20],
         experiment_hyp_combinat_name=None,
-        resume=None
+        task="train",
+        resume=None,
+        best_checkpoint_path=None
 ):
     if model_params is None:
         raise ValueError("model_params cannot be None")
-    if train_dataset is None:
+    if task == "train" and train_dataset is None:
         raise ValueError("Train dataset cannot be None")
-    if eval_dataset is None: 
+    if task == "train" and eval_dataset is None: 
         raise ValueError("Eval dataset cannot be None")
-    
-    #multiprocessing.set_start_method('spawn')
+    if task == "test" and test_dataset is None:
+        raise ValueError("Test dataset cannot be None if task is 'test'")
+    if task == "test" and best_checkpoint_path is None:
+        raise ValueError("Best checkpoint path cannot be None if task is 'test'")
+    if task == "test" and resume is not None:
+        raise ValueError("Resume not available if task is 'test'")
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
+
     if experiment_hyp_combinat_name is not None:
         output_folder_artifacts_with_exp_hyp_cmb_name = os.path.join(output_folder_artifacts, experiment_hyp_combinat_name)
     else :
         output_folder_artifacts_with_exp_hyp_cmb_name = output_folder_artifacts
+
+    if task == "test":
+        output_folder_artifacts_with_exp_hyp_cmb_name = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "test")
+    
     # Crear carpeta de logs para TensorBoard
     log_dir = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "logs") #GUARDAR LOS DATOS PARA  TENSOR AQUÍ: output_folder_artifacts/logs/
     os.makedirs(log_dir, exist_ok=True)
@@ -45,25 +54,32 @@ def train_sr_gnn(
 
     # Read JSON file with training parameters at experiments/sr_gnn_mockup/model_params.json
     # Combine the directory and the file name
-    file_path = os.path.join(output_folder_artifacts, "num_values_for_node_embedding.json")
-    
-    train_dataloader = DataLoader(dataset=train_dataset,
-                            batch_size=model_params.get("batch_size"),
-                            shuffle=model_params.get("shuffle"),
-                            collate_fn=collate_fn,
-                            pin_memory=(device.type=="cuda")
-                            )
-    
-    eval_dataloader = DataLoader(dataset=eval_dataset,
-                            batch_size=model_params.get("batch_size"),
-                            shuffle=False,
-                            collate_fn=collate_fn
-                            )
-
-    # Open and load the JSON file
-    with open(file_path, "r") as f:
+    emmbedding_values_file_path = os.path.join(output_folder_artifacts, "num_values_for_node_embedding.json")
+   
+    with open(emmbedding_values_file_path, "r") as f:
         num_values_for_node_embedding = json.load(f)
 
+
+    if task == "train":
+        train_dataloader = DataLoader(dataset=train_dataset,
+                                batch_size=model_params.get("batch_size"),
+                                shuffle=model_params.get("shuffle"),
+                                collate_fn=collate_fn,
+                                pin_memory=(device.type=="cuda")
+                                )
+        
+        eval_dataloader = DataLoader(dataset=eval_dataset,
+                                batch_size=model_params.get("batch_size"),
+                                shuffle=False,
+                                collate_fn=collate_fn
+                                )
+    elif task == "test":
+        test_dataloader = DataLoader(dataset=test_dataset,
+                                batch_size=model_params.get("batch_size"),
+                                shuffle=False,
+                                collate_fn=collate_fn
+                                )
+    
     # Initialize the model, optimizer and loss function
 
     model = SR_GNN(hidden_dim=model_params["hidden_dim"],
@@ -90,7 +106,7 @@ def train_sr_gnn(
     epochs = model_params["epochs"]
 
     scheduler = None
-    if model_params.get("use_scheduler", False):
+    if model_params.get("use_scheduler", False) and task == "train":
         print("Using scheduler")
         scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=2, verbose=True)
     else:
@@ -99,7 +115,6 @@ def train_sr_gnn(
     last_checkpoint_epoch = 0
 
     if resume is not None:
-
         # Get into output_folder_artifacts_with_exp_hyp_cmb_name, check if there is a trained_model file with the epoch number, and get the maximum epoch number
         for file in os.listdir(output_folder_artifacts_with_exp_hyp_cmb_name):
             # Check if file is a trained_model file and get the max epoch number
@@ -112,53 +127,44 @@ def train_sr_gnn(
             model.load_state_dict(torch.load(output_folder_artifacts_with_exp_hyp_cmb_name + f"/trained_model_{str(last_checkpoint_epoch).zfill(4)}.pth", weights_only=False))
             print(f"Model checkpoint loaded from {output_folder_artifacts_with_exp_hyp_cmb_name + f'/trained_model_{str(last_checkpoint_epoch).zfill(4)}.pth'}")
 
-    # For loop to train the model from first epoch to the last epoch
-    for epoch in range(last_checkpoint_epoch, epochs):
-        print("----------------------------------")
-        if scheduler:
-            print(f"Current scheduler-managed lr: {scheduler.get_last_lr()}")   
+    if task == "test":
+        print("Loading best checkpoint...")
+        model.load_state_dict(torch.load(best_checkpoint_path, weights_only=False))
+        print(f"Model checkpoint loaded from {best_checkpoint_path}")
 
-        train_loss, train_metrics = train_epoch(model, train_dataloader, optimizer, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
-        eval_loss, eval_metrics = eval_epoch(model, eval_dataloader, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
+        eval_loss, eval_metrics = test_epoch(model, test_dataloader, criterion, top_k=top_k, device=device)
+    else:
+        # For loop to train the model from first epoch to the last epoch
+        for epoch in range(last_checkpoint_epoch, epochs):
+            print("----------------------------------")
+            if scheduler:
+                print(f"Current scheduler-managed lr: {scheduler.get_last_lr()}")   
 
-        if scheduler: 
-            scheduler.step(eval_loss)
+            train_loss, train_metrics = train_epoch(model, train_dataloader, optimizer, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
+            eval_loss, eval_metrics = eval_epoch(model, eval_dataloader, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
 
-        # Registrar pérdidas y métricas en TensorBoard
-        writer.add_scalar("Loss/Train", train_loss, epoch)
-        writer.add_scalar("Loss/Validation", eval_loss, epoch)
+            if scheduler: 
+                scheduler.step(eval_loss)
 
-        for k, v in train_metrics.items():
-            writer.add_scalar(f"Train/{k}", v, epoch)
+            # Registrar pérdidas y métricas en TensorBoard
+            writer.add_scalar("Loss/Train", train_loss, epoch)
+            writer.add_scalar("Loss/Validation", eval_loss, epoch)
 
-        for k, v in eval_metrics.items():
-            writer.add_scalar(f"Validation/{k}", v, epoch)
+            for k, v in train_metrics.items():
+                writer.add_scalar(f"Train/{k}", v, epoch)
 
-        # Save the model state_dict for the epoch
-        intermediate_model_path = f"trained_model_{str(epoch+1).zfill(4)}.pth"
-        torch.save(model.state_dict(), output_folder_artifacts_with_exp_hyp_cmb_name + f"/{intermediate_model_path}")
-        print(f"Model for epoch {epoch+1} saved at {intermediate_model_path}")
+            for k, v in eval_metrics.items():
+                writer.add_scalar(f"Validation/{k}", v, epoch)
 
-    #Save the final model implementation
-    torch.save(model.state_dict(), output_folder_artifacts_with_exp_hyp_cmb_name+"/trained_model.pth")
-    print(f"Trained model saved at {output_folder_artifacts_with_exp_hyp_cmb_name+'/trained_model.pth'}")
-    writer.close()  # Cerrar TensorBoard correctamente
+            # Save the model state_dict for the epoch
+            intermediate_model_path = f"trained_model_{str(epoch+1).zfill(4)}.pth"
+            torch.save(model.state_dict(), output_folder_artifacts_with_exp_hyp_cmb_name + f"/{intermediate_model_path}")
+            print(f"Model for epoch {epoch+1} saved at {intermediate_model_path}")
 
-def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20], device=None):
-    avg_loss, avg_precision, avg_recall, avg_mrr = train_model_epoch(model, dataloader, optimizer, criterion, device, top_k=top_k)
-
-    metrics = aggregate_metrics(avg_loss, avg_precision, avg_recall, avg_mrr)
-    
-    print_metrics(total_epochs, current_epoch, top_k, avg_loss, metrics, task="Training")
-    return avg_loss, metrics  # Retornar pérdida y métricas
-
-def eval_epoch(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20], device=None):
-    avg_loss, avg_precision, avg_recall, avg_mrr = evaluate_model_epoch(model, eval_dataloader, criterion, device, top_k)
-
-    metrics = aggregate_metrics(avg_loss, avg_precision, avg_recall, avg_mrr)
-    
-    print_metrics(total_epochs, current_epoch, top_k, avg_loss, metrics, task="Evaluate")
-    return avg_loss, metrics  # Retornar pérdida y métricas
+        #Save the final model implementation
+        torch.save(model.state_dict(), output_folder_artifacts_with_exp_hyp_cmb_name+"/trained_model.pth")
+        print(f"Trained model saved at {output_folder_artifacts_with_exp_hyp_cmb_name+'/trained_model.pth'}")
+        writer.close()  # Cerrar TensorBoard correctamente
 
 #Para ver los resultados desde la teminal ir a la carpeta cd/experiments si volem fer la comparativa total, o cd/output_folder_artifacts path per un experiment en particular.
 # Si iniciar el comando con tensorboard da problemas, utiliza python3 -m tensorboard.main --logdir=experiments. Sitúate en la carpeta raíz (root) y establece logdir=experiments

@@ -275,8 +275,6 @@ The data preprocessing script performs the following operations:
 
 The output of the preprocessing operation is:
 - `num_values_for_node_embedding.json` with the count of products, categories, elements and brands.
-- label_embedding `.pth` files, needed to decode the label encoded values during inference.
-- `data.pth` file, with all the data that will be needed to perform inference given a product id.
 - `train_dataset.pth`, `test_dataset.pth` and `val_dataset.pth` dataset files.
 - `graphdb` folder, with the lmdb storing all the precomputed session graphs.
 
@@ -405,14 +403,15 @@ The table below summarises the results benchmarking different model configuratio
 | GRU4Rec (baseline) | 0.5293 | 0.2008 |
 | SR_GNN (own implementation) | 0.5703| 0.3200 |
 # TODO: change values based ont est partition long running
+
 | Graph with Embeddings and Attentional Aggregation | 0.6003 | 0.3462 |
 # TODO: also add new architectures
 
 We created our own implementation of SR_GNN because the SR_GNN does not report results on the dataset we are using for the baseline and the assessment of our model.
 
 We can see how our model "Graph with Embeddings and Attentional Aggregation" represents:
-- A 5.26% of improvement in the Recall@20 
-- A 8.19% of improvement in the MRR@20
+- A 4.89% of improvement in the Recall@20 
+- A 7.55% of improvement in the MRR@20
 
 # 8. Repository structure and MLOPS features
 
@@ -499,13 +498,20 @@ experiment_name:
       split_method: 'temporal'          # Allowed values are 'temporal' and 'random'
     evaluation:
       top_k: [1, 5, 10, 20]             # top K values to take into account for metrics calculation
+    test_params:                        
+      best_checkpoint_path: "model_checkpoint.pth" # Path to the best evaluated model checkpoint
 ```
 
 ### Execution
 
-Command to execute an experiment.
+Command to preprocess the data and run training.
 ```bash
 python run_experiment.py --config experiments/config.yaml --experiment your_experiment_name --task preprocess train
+```
+
+Command to run the testing on the `best_checkpoint_path`:
+```bash
+python run_experiment.py --config experiments/config.yaml --experiment your_experiment_name --task test
 ```
 
 ## Grid Search

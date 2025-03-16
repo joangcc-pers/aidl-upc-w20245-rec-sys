@@ -1,64 +1,7 @@
 experiments:
-
-  experiment_1:
-    model_name: "graph_with_embeddings"
-    training_params:
-      lr: 0.0005
-      epochs: 15
-      optimizer: "sgd"
-      num_layers: 5
-      hidden_units: 256
-      dropout_rate: 0.3
-    data_params:
-      input_folder_path: "data/raw/"
-      output_folder_artifacts: "experiments/experiment_1/"
-    preprocessing:
-      shuffle: False
-      start_month: '2019-10'
-      end_month: '2019-10'
-      test_sessions_first_n: 10000
-      embedding_dim: 64
-      batch_size: 32
-
-  experiment_2:
-    model_name: "sr_gnn_test_mockup"
-    training_params:
-      lr: 0.01
-      epochs: 15
-      optimizer: "Adam"
-      num_items: 100
-      embedding_dim: 100
-      hidden_dim: 100
-      num_iterations: 1
-
-    data_params:
-      input_folder_path: "data/raw/"
-      output_folder_artifacts: "experiments/experiment_2/"
-    preprocessing:
-      shuffle: False
-
-  experiment_3:
-    model_name: "graph_with_embeddings"
-    training_params:
-      lr: 0.01
-      epochs: 15
-      optimizer: "Adam"
-      num_iterations: 1
-    data_params:
-      input_folder_path: "data/raw/"
-      output_folder_artifacts: "experiments/experiment_3/"
-    preprocessing:
-      shuffle: False
-      start_month: '2019-10'
-      end_month: '2019-10'
-      test_sessions_first_n: 10000
-      embedding_dim: 64
-      batch_size: 32
-
   experiment_4:
     model_name: "graph_with_embeddings"
     model_params:
-      lr: 0.01
       epochs: 5
       optimizer: "Adam"
       num_iterations: 1
@@ -66,15 +9,16 @@ experiments:
       hidden_dim: 100
       shuffle: False
       batch_size: 50
-      weight_decay: 0.0001
-      dropout_rate: None
+      lr: 0.0001
+      weight_decay: 0.000001
+      dropout_rate: 0.2
     data_params:
       input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/experiment_4/"
     preprocessing:
       start_month: '2019-10'
       end_month: '2019-10'
-      test_sessions_first_n: 10000
+      test_sessions_first_n: 500000
       limit_to_view_event: True
       drop_listwise_nulls: True
       min_products_per_session: 3
@@ -85,7 +29,8 @@ experiments:
       split_method: 'temporal'
     evaluation:
       top_k: [1, 5, 10, 20]
-
+    test_params:
+      best_checkpoint_path: "experiments/experiment_4/trained_model.pth"
 
   experiment_5:
     model_name: "graph_with_embeddings_and_attention"
@@ -99,7 +44,7 @@ experiments:
       shuffle: False
       batch_size: 50
       weight_decay: 0.0001
-      dropout_rate: None
+      dropout_rate: 0
     data_params:
       input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/experiment_5/"
@@ -117,6 +62,8 @@ experiments:
       split_method: 'random'
     evaluation:
       top_k: [1, 5, 10, 20]
+    test_params:
+      best_checkpoint_path: "experiments/experiment_5/trained_model_0008.pth"
 
   experiment_6:
     model_name: "graph_with_embeddings_and_attentional_aggregation"
@@ -148,7 +95,8 @@ experiments:
       split_method: 'random'
     evaluation:
       top_k: [1, 5, 10, 20]
-
+    test_params:
+      best_checkpoint_path: "experiments/experiment_6/trained_model_0015.pth"
 
 
   experiment_7:
@@ -166,7 +114,6 @@ experiments:
       batch_size: 32
       weight_decay: 0.0001
     data_params:
-      #input_folder_path: "/Users/miguelpalospou/Desktop/Data_projects/master_project/"
       input_folder_path: "data/raw/"
       output_folder_artifacts: "experiments/experiment_7/"
     preprocessing:
@@ -183,18 +130,20 @@ experiments:
       split_method: 'random'
     evaluation:
       top_k: [1, 5, 10, 20]
+    test_params:
+      best_checkpoint_path: "experiments/experiment_7/trained_model.pth"
 
   experiment_8:
-    model_name: "simple_sr_gnn"
+    model_name: "simple_sr_gnn_attn"
     model_params:
-      lr: 0.001
       epochs: 50
       optimizer: "Adam"
       num_iterations: 1
       embedding_dim: 64
       hidden_dim: 100
-      batch_size: 50
       shuffle: False
+      batch_size: 50
+      lr: 0.001
       weight_decay: 0.00001
       dropout_rate: 0.5
     data_params:
@@ -202,7 +151,8 @@ experiments:
       output_folder_artifacts: "experiments/experiment_8/"
     preprocessing:
       start_month: '2019-10'
-      end_month: '2019-10'
+      end_month: '2019-11'
+      #test_sessions_first_n: 10000
       limit_to_view_event: True
       drop_listwise_nulls: True
       min_products_per_session: 3
@@ -210,6 +160,8 @@ experiments:
       train_split: 0.8
       val_split: 0.1
       test_split: 0.1
-      split_method: 'temporal'
+      split_method: 'random'
     evaluation:
       top_k: [1, 5, 10, 20]
+    test_params:
+      best_checkpoint_path: "experiments/experiment_8/trained_model.pth"
