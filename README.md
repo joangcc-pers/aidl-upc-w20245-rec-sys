@@ -466,7 +466,7 @@ All the details of the grid search result are available in the [detailed report]
 
 All the details of the grid search result are available in the [detailed report](experiments/experiments_results/experiments_report.md#graph-with-embeddings-and-attentional-aggregation).
 
-## Best model selection and long execution with schedulers
+## Best model selection and long execution with schedulers
 
 After the grid search, we identified our model "graph with embeddings and attentional aggregation" as the most promising model. 
 
