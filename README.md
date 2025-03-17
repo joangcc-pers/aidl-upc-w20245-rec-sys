@@ -406,7 +406,39 @@ In order to do a more accurate hyperparameter training, weare aware we would nee
 
 After the grid search, we selected the three best configurations of the overall best model, and execute them for longer, with a scheduler to adapt the learning rate.
 
+<br>
+</br>
+<figure>
+  <img width="819" alt="image" src="https://github.com/user-attachments/assets/800bfa89-2bde-499d-af12-19219d226cf2" />
+  <figcaption><em><br></br>Figure 4. Graph with embeddings: MRR@20 and R@20</em></figcaption>
+</figure>
+<br>
+</br>
+
+<br>
+</br>
+<figure>
+  <img width="819" alt="image" src="https://github.com/user-attachments/assets/521370cf-04cf-4962-ad90-dc87a9f4f1a3" />
+  <figcaption><em><br></br>Figure 5. Graph with embeddings and attention: MRR@20 and R@20</em></figcaption>
+</figure>
+<br>
+</br>
+
+
+
+<br>
+</br>
+<figure>
+  <img width="819" alt="image" src="https://github.com/user-attachments/assets/15758e97-7396-4426-b3d7-2c5068de5eae" />
+  <figcaption><em><br></br>Figure 6. Graph with embeddings and attentional aggregation: MRR@20 and R@20</em></figcaption>
+</figure>
+<br>
+</br>
+
+
 <!--TODO: Add curves for loss, mrr@20, r@20 for best and worse execution of each model during grid search.-->
+
+
 
 | Result | Weight Decay | Dropout Rate | Learning Rate  | R@20 | MRR@20  |
 |-------|-------------|--------------|---------------|-------|-----------|
