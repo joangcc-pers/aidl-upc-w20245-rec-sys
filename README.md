@@ -394,6 +394,38 @@ An early conclusion we got from this grid search is that the loss can keep going
 
 Because of that, we selected the 3 best configurations of the best model and trained them for the whole dataset, during 30 epochs, with a `ReduceLROnPlateau` scheduler. The results of this extended training are the ones taken into account for the models benchmarking summary.
 
+## Hyperparameter tuning results: Graph with embeddings
+
+| Result | Weight Decay | Dropout Rate | Learning Rate  | R@20 | MRR@20  |
+|-------|-------------|--------------|---------------|-------|-----------|
+| Best setup  | 1e-06 | 0.2 | 0.001 | 0.5052400231361389 | 0.19707946479320526 |
+| Worst setup | 0.0001 | 0.5 | 1e-05 | 0.22910000383853912 | 0.06784408539533615 |
+
+
+All the details of the grid search result are available in the [detailed report](experiments/experiments_results/experiments_report.md).
+
+## Hyperparameter tuning results: Graph with embeddings and attention
+
+| Result | Weight Decay | Dropout Rate | Learning Rate  | R@20 | MRR@20  |
+|-------|-------------|--------------|---------------|-------|-----------|
+| Best setup - R@20 | 1e-05 | 0.2 | 0.001 | 0.5530200004577637 | 0.2538684904575348 |
+| Best setup - MRR@20 |  1e-05 | 0.0 | 0.001 | 0.5494800209999084 | 0.2606692910194397  |
+| Worst setup | 0.0001 | 0.5 | 1e-05  | 0.24661999940872192 | 0.07098620384931564 |
+
+
+All the details of the grid search result are available in the [detailed report](experiments/experiments_results/experiments_report.md).
+
+## Hyperparameter tuning results: Graph with embeddings and attentional aggregation
+
+| Result | Weight Decay | Dropout Rate | Learning Rate  | R@20 | MRR@20  |
+|-------|-------------|--------------|---------------|-------|-----------|
+| Best setup | 1e-05 | 0.5 | 0.001 | 0.5530200004577637 | 0.2538684904575348 |
+| Worst setup | 0.0001 | 0.5 | 1e-05  | 0.5768399834632874 | 0.2954697012901306 |
+
+
+All the details of the grid search result are available in the [detailed report](experiments/experiments_results/experiments_report.md).
+
+
 # 7. Models benchmarking
 
 The table below summarises the results benchmarking different model configurations using the same dataset (Oct 2019 and Nov 2019).
