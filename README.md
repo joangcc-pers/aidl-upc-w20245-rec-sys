@@ -79,25 +79,26 @@ We have learned that we need to attend to each of these items, but we evolved or
 
 We want to underscore that, while developing the architectures, we made important additions to the reference paper (Wu et al., 2019), by incorporating into our architectures the product information (product category and brand) and more sophisticated attentional mechanisms. Here we give a brief definition of both GRU and the attention mechanisms, and later on how we implemented the product information.
 
-### GRU: modelling the temporal context of the session
+## 4.1 Key considerations
+### 4.1.1 GRU: modelling the temporal context of the session
 
 In a session-based recommender, managing the context and the sequential information properly is key for making good predictions and capturing the nature of the customer journey. GRU stands for Gated Recurrent Unit. It is a variant from Recurrent Neural Networks (RNN), adding gates, which allows it to assess the pieces of information that GRU has to remember and forget about the past interactions (in our case, views). The information flows through the sequence of steps, updating the elements of each node (i.e., of each product), based on the messages that come from the previous element sof the custoemr journey sequence. As a result, the network ends up having **temporal memory** of the past, building the context properly.
 
-### Attention: implicit or explicit
+### 4.1.2 Attention: implicit or explicit
 
 In a customer journey, when the client is shopping, the past itneractions of the item may have different weights as to what they view next. Modelling which steps of the interaction should be attended to is a key factor in the prediction of the next viewed item. However, such mechanisms have increased computational costs and added complexity.
 
 One could opt for implicit attention. That is, the network gives uniform weights to each of the product nodes. This is less computationally demanding, whilst hindering the ability to prioritize more relevant products. The alternative is to use explicit attention: add mechanisms to set weights for each interaction differently. In the next description of our architectures, you will see the different alternatives we used: AttentionalAggregation and self-attention based on session products.
 
-### Modelling product information: embedding vs one-hot enconding followed by a fully-connected layer
+### 4.1.3 Modelling product information: embedding vs one-hot enconding followed by a fully-connected layer
 
 Product category and brand info are a crucial part for users to navigate and choose products of categories they are attracted to and brands the know of. There are two main ways to manage categorical information such as this: embeddings or one-hot encodings with a fully connected layer.
 In early iterations, the team developed the code for one-hot encoding. However, the usage of one-hot encodings with afully conencted layer was causibgn many RAM problems, as there are multiple categories within each layer of the product taxonomy, as well as brands. Therefore, this implmentation was discarded, and continued with embeddings.
 
 
-## Architecture iterations tested
+## 4.2 Architectures tested
 
-### Gated Graph Neural Network with node embeddings and Sequential Message Propagation with GRU (saved as "graph_with_embeddings")
+### 4.2.1 Gated Graph Neural Network with node embeddings and Sequential Message Propagation with GRU (saved as "graph_with_embeddings")
 <br>
 </br>
 <figure>
@@ -114,7 +115,7 @@ This architecture is based on a Gated Graph Neural Network (GGNN), that relies o
 - Global pooling (global_mean_pool): Node embeddings are group at a session level to consolidate the information.
 - Fully connected layer: it is used to map the final representation of the session into a score for each of the products.
 
-#### Key highlights of this architecture
+#### 4.2.1 Key highlights of this architecture
 GRUGraphLayer inherits from Message Passing and it works through these steps:
 
 1. Linear transformation of node features
@@ -147,7 +148,7 @@ In addition, the GRUCell also adds implicit attention. Based on the previous sta
 
 However, this architecture has a key weakness. It gives equal importance to all the viewed products. Some actions may be more telling than others, but this is something that an equally distributed importance cannot tackle. Therefore, we updated this architecture by adding a self-attention mechanism that would bring closer our model to how the shopping behavior occurs.
 
-### GGNN with Implicit Self-Attention using Sigmoid (saved as "graph-with-embeddings-and-attention")
+### 4.2.2 GGNN with Implicit Self-Attention using Sigmoid (saved as "graph-with-embeddings-and-attention")
 <br>
 </br>
 <figure>
@@ -184,7 +185,7 @@ The introduction of self-attention let us model the fact that certain nodes or p
 
 The key limitation of this architecture though is that it prioritizes the penultimate item, but it might be that there are other browsed items or events of the session that should have more weight in the session representation. That's what we did in our third and last iteration: add Attentional Aggregation mechanism.
 
-### GGNN with Explicit Self-Attention using Attentional Aggregation (saved as "graph-with-embeddings-and-attentional-aggregation")
+### 4.2.3 GGNN with Explicit Self-Attention using Attentional Aggregation (saved as "graph-with-embeddings-and-attentional-aggregation")
 <br>
 </br>
 <figure>
@@ -203,15 +204,15 @@ The main difference between this approach and the previous explicit self-attenti
 The attention mechanism focused on the interaction between each product and the last visited product.
 It computed attention scores for all nodes in the session relative to the last visited item, using a sigmoid activation and normalization.
 The weighted sum of product embeddings created a session representation.
-Attentional Aggregation (This Architecture):
+##### Attentional Aggregation (This Architecture):
 
 Instead of applying attention only at the session level, this approach incorporates attention directly into the message-passing phase of the GNN.
 Each node in the session graph dynamically attends to its neighbors using an attention mechanism that weighs incoming messages differently.
 This allows the model to capture node-level contextual importance, ensuring that more relevant interactions contribute more effectively to the session representation.
-##### How Attentional Aggregation Works
+How does Attentional Aggregation work? Here are the key elements.
 - Neighborhood Interaction: During message propagation, instead of simply taking the mean of neighbor embeddings (implicit attention in the first architecture), we compute attention scores dynamically based on pairwise interactions between nodes.
 
- - Learned Attention Weights: The importance of each neighbor is determined via a trainable attention function. This function scores interactions between nodes, allowing the model to prioritize the most relevant information during aggregation.
+- Learned Attention Weights: The importance of each neighbor is determined via a trainable attention function. This function scores interactions between nodes, allowing the model to prioritize the most relevant information during aggregation.
 
 - Weighted Message Passing: Instead of treating all neighbors equally, the aggregation function applies attention weights to prioritize relevant past interactions.
 
@@ -242,7 +243,7 @@ The preprocessing script performs the following main operations:
 2. Precomputes graphs and stores the in an LMDB database.
 3. Creates the train / validation / test splits.
 
-### Parameters
+### 5.1.1 Parameters
 
 Below are the parameters expected for data preprocessing. This parametres are defined in `experiments/config.yaml` (when running `run_experiment.py`) or in `experiments/config-hyp.yaml` (when running `run-optim.py`).
 - `start_month`: Start month for data processing (format: "YYYY-MM")
@@ -257,7 +258,7 @@ Below are the parameters expected for data preprocessing. This parametres are de
 - `test_split`: Proportion of data for testing
 - `split_method`: "random" or "temporal"
 
-### Features
+### 5.1.2 Features
 #### Data preprocessing
 The data preprocessing script performs the following operations:
 - Load the dataset original CSV files needed to get the data between `start_month` and `end_month`.
@@ -297,7 +298,7 @@ Supports two splitting methods:
 - Temporal splitting: Splits sessions based on temporal order
 
 ## 5.2 Training
-### SR-GNN model
+### 5.2.1 SR-GNN model
 
 Located in `scripts/train_scripts/train_sr_gnn.py`
 
@@ -310,7 +311,7 @@ Trains the base SR-GNN model which uses graph neural networks for session-based 
 - Checkpoint saving and resuming
 - TensorBoard integration for monitoring metrics
 
-### 2. SR-GNN with Attention
+### 5.2.2 SR-GNN with Attention
 Located in `scripts/train_scripts/train_sr_gnn_attn.py`
 
 Trains the SR-GNN model with attention mechanism, enhancing the model's ability to focus on relevant parts of the session graph.
@@ -321,7 +322,7 @@ Trains the SR-GNN model with attention mechanism, enhancing the model's ability 
 - Enhanced feature learning through attention
 - TensorBoard monitoring and checkpoint management
 
-### 3. SR-GNN with attentional aggregation 
+### 5.2.3 SR-GNN with attentional aggregation 
 Located in `scripts/train_scripts/train_sr_gnn_attn_agg.py`
 
 Trains the SR-GNN model with attentional aggregation, providing more sophisticated ways to combine node features.
@@ -331,7 +332,7 @@ Trains the SR-GNN model with attentional aggregation, providing more sophisticat
 - Advanced feature combination strategies
 
 
-## Common Parameters
+## 5.3 Common Parameters
 
 All training functions accept these common parameters:
 
@@ -354,7 +355,7 @@ All training functions accept these common parameters:
 - `experiment_hyp_combinat_name`: Optional name for experiment tracking
 - `resume`: Flag for resuming training from checkpoint
 
-## The bottleneck
+## 5.4 The bottleneck
 
 As explained in the preprocessing section, we experienced a bottleneck in the `__getitem__` operation. We overcome this by preprocessing the session graphs, first as files and after a second iteration, in an lmdb database, which performed better that files, especially when dealing with millions of unique sessions. 
 
@@ -365,6 +366,7 @@ Even after precomputing the graphs, we kept experiencing a bottleneck. This bott
 Because of this bottleneck, we experience lower training times with our local computers than with the cloud virtual machine using GPU. In order to be able to meet the deadlines and get results, we followded a fail-fast approach: we started with the aforementioned 500K unique visits, and then trained the best three candidates with the two months dataset.Also, we used our own computers to run the models on. This way, we were able to deliver key insights, iterate fast, and produce a first view on whether and by how much each architecture outperforms the others.
 
 # 6. Hyperparameter tuning
+## 6.1 Process
 
 `run_optim.py` allows to perform grid search and random search hyperparameter exploration. 
 
@@ -394,7 +396,7 @@ An early conclusion we got from this grid search is that the loss can keep going
 
 Because of that, we selected the 3 best configurations of the best model and trained them for the whole dataset, during 30 epochs, with a `ReduceLROnPlateau` scheduler. The results of this extended training are the ones taken into account for the models benchmarking summary.
 
-## Hyperparameter tuning results: Graph with embeddings
+## 6.2 Hyperparameter tuning results: Graph with embeddings
 
 This section shows the best and worse configurations for each model hyperparameter grid search.
 
@@ -404,7 +406,7 @@ This grid search execution is limited to 5 epochs. Having 3 models to assess, wi
 
 In order to do a more accurate hyperparameter training, weare aware we would need to execute the grid search with more epochs, especially on the configurations with lower learning rate.
 
-After the grid search, we selected the three best configurations of the overall best model, and execute them for longer, with a scheduler to adapt the learning rate.
+After the grid search, we selected the three best configurations of the overall best model, and execute them for longer, with a scheduler to adapt the learning rate. See below the plots for MRR and R20 values for the best and worst configurations of each model. We plot the best and the worst so that the comparison is easier than plotting the 27 tested combinations.
 
 <br>
 </br>
@@ -424,8 +426,6 @@ After the grid search, we selected the three best configurations of the overall 
 <br>
 </br>
 
-
-
 <br>
 </br>
 <figure>
@@ -434,11 +434,6 @@ After the grid search, we selected the three best configurations of the overall 
 </figure>
 <br>
 </br>
-
-
-<!--TODO: Add curves for loss, mrr@20, r@20 for best and worse execution of each model during grid search.-->
-
-
 
 | Result | Weight Decay | Dropout Rate | Learning Rate  | R@20 | MRR@20  |
 |-------|-------------|--------------|---------------|-------|-----------|
@@ -488,8 +483,6 @@ The table below summarises the results benchmarking different model configuratio
 |-------|------|--------|
 | GRU4Rec (baseline) | 0.5293 | 0.2008 |
 | SR_GNN (own implementation) | 0.5703| 0.3200 |
-# TODO: change values based ont est partition long running
-
 | Graph with Embeddings and Attentional Aggregation: wd=1e-06, dropout_rate=0 | 0.6048 | 0.3544 |
 
 # TODO: add new long-runs as they finish
