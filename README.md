@@ -406,11 +406,7 @@ In order to do a more accurate hyperparameter training, weare aware we would nee
 
 After the grid search, we selected the three best configurations of the overall best model, and execute them for longer, with a scheduler to adapt the learning rate.
 
-<!--
-TODO: 
-- Add curves for loss, mrr@20, r@20 for best and worse execution of each model during grid search.
-- Add curves for the best model execution. 
--->
+<!--TODO: Add curves for loss, mrr@20, r@20 for best and worse execution of each model during grid search.-->
 
 | Result | Weight Decay | Dropout Rate | Learning Rate  | R@20 | MRR@20  |
 |-------|-------------|--------------|---------------|-------|-----------|
@@ -448,6 +444,8 @@ Scheduler definition:
 ```python
 scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=2)
 ```
+
+<!-- TODO Add curves for models execution-->
 
 # 7. Models benchmarking
 
