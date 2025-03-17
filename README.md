@@ -468,6 +468,8 @@ After the grid search, we identified our model "graph with embeddings and attent
 
 We decided to pick the best 3 configurations and execute them up to 30 epochs, and against assess them against the test partition of our data. In this case, we started the execution with a learning rate of 0.001 and adapted it with a scheduler.
 
+**Note**. The initial pick of the models was made using metrics on train partition by mistake. We report some of those odels nonetheless as they are amongst the top 10 performers in the validaiton partition.
+
 Scheduler definition:
 ```python
 scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=2)
@@ -486,7 +488,7 @@ The table below summarises the results benchmarking different model configuratio
 | SR_GNN (own implementation) | 0.5703| 0.3200 |
 | Graph with Embeddings and Attentional Aggregation: wd=1e-06, dropout_rate=0 | 0.6048 | 0.3544 |
 
-# TODO: add new long-runs as they finish
+<!--TODO: add new long-runs as they finish-->
 
 We created our own implementation of SR_GNN because the SR_GNN does not report results on the dataset we are using for the baseline and the assessment of our model.
 We can see how our model "Graph with Embeddings and Attentional Aggregation" represents:
