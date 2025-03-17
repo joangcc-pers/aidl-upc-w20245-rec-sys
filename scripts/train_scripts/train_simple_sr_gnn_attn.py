@@ -101,7 +101,7 @@ def train_simple_sr_gnn_attn(
     epochs = model_params["epochs"]
 
     scheduler = None
-    if model_params.get("use_scheduler", False) and task == "train":
+    if model_params.get("use_scheduler", True) and task == "train":
         print("Using scheduler")
         scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=2, verbose=True)
     else:
