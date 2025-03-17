@@ -1,7 +1,7 @@
 # Experiments report
 
-
 ## Graph With Embeddings
+[Back to report](../../README.md#hyperparameter-tuning-results-graph-with-embeddings)
 
 Sorted by Recall@20 (highest to lowest ):
 
@@ -89,6 +89,8 @@ The top configurations are very close in performance, with the main difference b
 
 ## Graph With Embeddings and Attention
 
+[Back to report](../../README.md#hyperparameter-tuning-results-graph-with-embeddings-and-attention)
+
 Sorted by Recall@20 (highest to lowest ):
 
 | weight_decay | dropout_rate | learning_rate | epoch | R@20 | MRR@20 | Loss |
@@ -175,6 +177,8 @@ Sorted by MRR@20 (highest to lowest ):
 * Dropout rate impact is less significant when other parameters are optimal
 
 ## Graph With Embeddings and Attentional Aggregation
+
+[Back to report](../../README.md#hyperparameter-tuning-results-graph-with-embeddings-and-attentional-aggregation)
 
 Sorted by Recall@20 (highest to lowest ):
 

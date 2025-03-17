@@ -402,7 +402,7 @@ Because of that, we selected the 3 best configurations of the best model and tra
 | Worst setup | 0.0001 | 0.5 | 1e-05 | 0.22910000383853912 | 0.06784408539533615 |
 
 
-All the details of the grid search result are available in the [detailed report](experiments/experiments_results/experiments_report.md).
+All the details of the grid search result are available in the [detailed report](experiments/experiments_results/experiments_report.md#graph-with-embeddings).
 
 ## Hyperparameter tuning results: Graph with embeddings and attention
 
@@ -413,7 +413,7 @@ All the details of the grid search result are available in the [detailed report]
 | Worst setup | 0.0001 | 0.5 | 1e-05  | 0.24661999940872192 | 0.07098620384931564 |
 
 
-All the details of the grid search result are available in the [detailed report](experiments/experiments_results/experiments_report.md).
+All the details of the grid search result are available in the [detailed report](experiments/experiments_results/experiments_report.md#graph-with-embeddings-and-attention).
 
 ## Hyperparameter tuning results: Graph with embeddings and attentional aggregation
 
@@ -423,7 +423,7 @@ All the details of the grid search result are available in the [detailed report]
 | Worst setup | 0.0001 | 0.5 | 1e-05  | 0.5768399834632874 | 0.2954697012901306 |
 
 
-All the details of the grid search result are available in the [detailed report](experiments/experiments_results/experiments_report.md).
+All the details of the grid search result are available in the [detailed report](experiments/experiments_results/experiments_report.md#graph-with-embeddings-and-attentional-aggregation).
 
 
 # 7. Models benchmarking
