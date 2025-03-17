@@ -396,11 +396,26 @@ Because of that, we selected the 3 best configurations of the best model and tra
 
 ## Hyperparameter tuning results: Graph with embeddings
 
+This section shows the best and worse configurations for each model hyperparameter grid search.
+
+The metrics displayed in the tables are always the metrics against the validation dataset.
+
+This grid search execution is limited to 5 epochs. Having 3 models to assess, with 27 configurations each, we needed to limit the dataset length to 500.000 sessions and the train epochs to 5. 
+
+In order to do a more accurate hyperparameter training, weare aware we would need to execute the grid search with more epochs, especially on the configurations with lower learning rate.
+
+After the grid search, we selected the three best configurations of the overall best model, and execute them for longer, with a scheduler to adapt the learning rate.
+
+<!--
+TODO: 
+- Add curves for loss, mrr@20, r@20 for best and worse execution of each model during grid search.
+- Add curves for the best model execution. 
+-->
+
 | Result | Weight Decay | Dropout Rate | Learning Rate  | R@20 | MRR@20  |
 |-------|-------------|--------------|---------------|-------|-----------|
 | Best setup  | 1e-06 | 0.2 | 0.001 | 0.5052400231361389 | 0.19707946479320526 |
 | Worst setup | 0.0001 | 0.5 | 1e-05 | 0.22910000383853912 | 0.06784408539533615 |
-
 
 All the details of the grid search result are available in the [detailed report](experiments/experiments_results/experiments_report.md#graph-with-embeddings).
 
@@ -412,7 +427,6 @@ All the details of the grid search result are available in the [detailed report]
 | Best setup - MRR@20 |  1e-05 | 0.0 | 0.001 | 0.5494800209999084 | 0.2606692910194397  |
 | Worst setup | 0.0001 | 0.5 | 1e-05  | 0.24661999940872192 | 0.07098620384931564 |
 
-
 All the details of the grid search result are available in the [detailed report](experiments/experiments_results/experiments_report.md#graph-with-embeddings-and-attention).
 
 ## Hyperparameter tuning results: Graph with embeddings and attentional aggregation
@@ -422,9 +436,18 @@ All the details of the grid search result are available in the [detailed report]
 | Best setup | 1e-05 | 0.5 | 0.001 | 0.5530200004577637 | 0.2538684904575348 |
 | Worst setup | 0.0001 | 0.5 | 1e-05  | 0.5768399834632874 | 0.2954697012901306 |
 
-
 All the details of the grid search result are available in the [detailed report](experiments/experiments_results/experiments_report.md#graph-with-embeddings-and-attentional-aggregation).
 
+## Best model selection and long execution with schedulers
+
+After the grid search, we identified our model "graph with embeddings and attentional aggregation" as the most promising model. 
+
+We decided to pick the best 3 configurations and execute them up to 30 epochs, and against assess them against the test partition of our data. In this case, we started the execution with a learning rate of 0.001 and adapted it with a scheduler.
+
+Scheduler definition:
+```python
+scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=2)
+```
 
 # 7. Models benchmarking
 
