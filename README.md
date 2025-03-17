@@ -456,8 +456,9 @@ All the details of the grid search result are available in the [detailed report]
 
 | Result | Weight Decay | Dropout Rate | Learning Rate  | R@20 | MRR@20  |
 |-------|-------------|--------------|---------------|-------|-----------|
-| Best setup | 1e-05 | 0.5 | 0.001 | 0.5530200004577637 | 0.2538684904575348 |
-| Worst setup | 0.0001 | 0.5 | 1e-05  | 0.5768399834632874 | 0.2954697012901306 |
+| Best setup - R@20 | 1e-05 | 0.5 | 0.001 | 0.5768399834632874 | 0.2954697012901306 |
+| Best setup - MRR@20 | 1e-06 | 0.5 | 0.001 | 0.5744199752807617 | 0.29744043946266174 |
+| Worst setup | 0.0001 | 0.5 | 1e-05  | 0.31856000423431396 | 0.12075486779212952 |
 
 All the details of the grid search result are available in the [detailed report](experiments/experiments_results/experiments_report.md#graph-with-embeddings-and-attentional-aggregation).
 
