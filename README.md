@@ -488,12 +488,14 @@ The table below summarises the results benchmarking different model configuratio
 | SR_GNN (own implementation) | 0.5703| 0.3200 |
 | Graph with Embeddings and Attentional Aggregation: wd=1e-06, dropout_rate=0 | 0.6048 | 0.3544 |
 
-<!--TODO: add new long-runs as they finish-->
+<!-- TODO: add new long-runs as they finish-->
 
 We created our own implementation of SR_GNN because the SR_GNN does not report results on the dataset we are using for the baseline and the assessment of our model.
-We can see how our model "Graph with Embeddings and Attentional Aggregation" represents:
+We can see how our model "Graph with Embeddings and Attentional Aggregation (wd=1e-06, dropout_rate=0)" represents:
 - A 6.04% of improvement in the Recall@20 over SR-GNN and a 14.26% over the Baseline.
 - A 10.75% of improvement in the MRR@20 over SR-GNN and a 76.49% over the Baseline.
+
+<!-- TODO: Add plots for long runs-->
 
 # 8. Repository structure and MLOPS features
 
