@@ -19,8 +19,6 @@ class SR_GNN(nn.Module):
         ):
         super(SR_GNN, self).__init__()
         
-        #TODO: Iniciar la classe node_embedding i passar-li els paràmetres necessaris
-
         self.node_embedding = NodeEmbedding(num_categories, num_sub_categories, num_elements, num_brands, num_items, embedding_dim)
 
         self.hidden_dim=hidden_dim
@@ -28,7 +26,7 @@ class SR_GNN(nn.Module):
         self.num_iterations=num_iterations 
         
         # GGNN Layer
-        #NOTA: 5 ja que passem 5 embeddings (category, sub_category, elements, brand i product_id). S'ha canviat a 5 ja que passarem el product id a embedding i no el passarem com a tensor, de 2 a 1 perque nomes passarem preu com a tensor, i no preu I product_id
+        #5 embeddings (category, sub_category, elements, brand i product_id). Product id as embedding and not as a tensor, only price as tensor
         self.gnn_layer = GRUGraphLayer(5 * embedding_dim + 1, hidden_dim, num_iterations)
         
         # The linear layer maps each session embedding (final hidden state) to score for each product (num_items). We would do nn.Linear(hidden_dim, hidden_dim in case we want to use the embedding of the graph as an input to other steps, such as an attention mechanism or an explicit calculus of similuted with the items)
@@ -54,12 +52,12 @@ class SR_GNN(nn.Module):
         item_embeddings_gnn = self.gnn_layer(item_embeddings, data.edge_index) # Shape: (num_items, hidden_dim)
         # print(f"item_embeddings_gnn shape: {item_embeddings_gnn.shape}")
 
-        # print(f"item_embeddings_gnn.shape: {item_embeddings_gnn.shape}")  # Esperado: (N, hidden_dim)
+        # print(f"item_embeddings_gnn.shape: {item_embeddings_gnn.shape}")  # (N, hidden_dim)
         # print(f"data.batch.shape: {data.batch.shape}")  # Esperado: (N,)
-        # print(f"data.batch unique values: {data.batch.unique()}")  # Debería ser el número de sesiones
+        # print(f"data.batch unique values: {data.batch.unique()}")  
         # print(f"Edge index shape: {data.edge_index.shape}")  # Ver si hay nodos desconectados
 
-        # connected_nodes = torch.unique(data.edge_index)  # Nodos que aparecen en los edges
+        # connected_nodes = torch.unique(data.edge_index)  # Nodes in the edges
         # all_nodes = torch.arange(item_embeddings_gnn.shape[0], device=item_embeddings_gnn.device)
         # isolated_nodes = torch.tensor([n for n in all_nodes if n not in connected_nodes])
 
@@ -71,7 +69,7 @@ class SR_GNN(nn.Module):
 
         del item_embeddings
 
-        graph_embeddings = global_mean_pool(item_embeddings_gnn, data.batch)  # Shape: (batch_size, hidden_dim) # El data.batch passa quin node pertany a quina sessió
+        graph_embeddings = global_mean_pool(item_embeddings_gnn, data.batch)  # Shape: (batch_size, hidden_dim) 
         
         graph_embeddings = self.dropout(graph_embeddings)
 
