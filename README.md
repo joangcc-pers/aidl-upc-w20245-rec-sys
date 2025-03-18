@@ -564,8 +564,8 @@ When running this trained model against the test set, we are getting the followi
 ### Long execution 4
 Execution parametres:
 ```python
-weight_decay=1e-05
-dropout_rate=0
+weight_decay=1e-06
+dropout_rate=0.5
 epochs=7
 ```
 In this case, the model was trained for 7 epochs due to time constraints
@@ -601,6 +601,7 @@ The table below summarises the results benchmarking different model configuratio
 | Graph with Embeddings and Attentional Aggregation (stopped at epoch 30): wd=1e-06, dropout_rate=0 | 0.6048 | 0.3544 |
 | Graph with Embeddings and Attentional Aggregation (stopped at epoch 30): wd=1e-05, dropout_rate=0 | 0.5841 | 0.325 |
 | Graph with Embeddings and Attentional Aggregation (stopped at epoch 7): wd=1e-06, dropout_rate=0.5 | 0.5881 | 0.3312 |
+| Graph with Embeddings and Attentional Aggregation (stopped at epoch 7): wd=1e-05, dropout_rate=0.5 | 0.5702 | 0.311 |
 
 <!-- TODO: add new long-runs as they finish-->
 
