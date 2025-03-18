@@ -46,11 +46,10 @@ def train_sr_gnn(
     if task == "test":
         output_folder_artifacts_with_exp_hyp_cmb_name = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "test")
     
-    # Crear carpeta de logs para TensorBoard
-    log_dir = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "logs") #GUARDAR LOS DATOS PARA  TENSOR AQUÍ: output_folder_artifacts/logs/
-    os.makedirs(log_dir, exist_ok=True)
-    writer = SummaryWriter(log_dir)  # Inicializar TensorBoard (guarda los valores de pérdida y métricas en archivos de log. Luego, TensorBoard lee estos archivos y genera las gráficas automáticamente)
     
+    log_dir = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    writer = SummaryWriter(log_dir)  
 
     # Read JSON file with training parameters at experiments/sr_gnn_mockup/model_params.json
     # Combine the directory and the file name
@@ -146,7 +145,6 @@ def train_sr_gnn(
             if scheduler: 
                 scheduler.step(eval_loss)
 
-            # Registrar pérdidas y métricas en TensorBoard
             writer.add_scalar("Loss/Train", train_loss, epoch)
             writer.add_scalar("Loss/Validation", eval_loss, epoch)
 
