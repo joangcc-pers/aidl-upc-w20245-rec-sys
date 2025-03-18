@@ -621,6 +621,7 @@ When increasing the dropout rate (wd=1e-06, dropout_rate=0.5), and early stoppin
 ## Repository structure
 
 The repository is organized as follows:
+- **baseline/GRU4Rec**: Contains all the materials to run and execute the baseline, validating the results they report in the GRU4Rec official repository.
 - **data**: Contains the data used in the project.
     - **raw**: Stores the original, unprocessed dataset downloaded from Kaggle.
     - **processed**: Stores the data after preprocessing and feature engineering. This data is ready to be used for training and evaluation.
