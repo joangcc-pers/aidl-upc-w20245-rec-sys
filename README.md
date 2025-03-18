@@ -406,31 +406,15 @@ This grid search execution is limited to 5 epochs. Having 3 models to assess, wi
 
 In order to do a more accurate hyperparameter training, weare aware we would need to execute the grid search with more epochs, especially on the configurations with lower learning rate.
 
-After the grid search, we selected the three best configurations of the overall best model, and execute them for longer, with a scheduler to adapt the learning rate. See below the plots for MRR and R20 values for the best and worst configurations of each model. We plot the best and the worst so that the comparison is easier than plotting the 27 tested combinations.
+After the grid search, we selected the three best configurations of the overall best model, and execute them for longer, with a scheduler to adapt the learning rate. 
+
+See below the plots for MRR20 and R20 values for the best and worst configurations for this model. We plot the best and the worst so that the comparison is easier than plotting the 27 tested combinations.
 
 <br>
 </br>
 <figure>
   <img width="819" alt="image" src="https://github.com/user-attachments/assets/800bfa89-2bde-499d-af12-19219d226cf2" />
   <figcaption><em><br></br>Figure 4. Graph with embeddings: MRR@20 and R@20</em></figcaption>
-</figure>
-<br>
-</br>
-
-<br>
-</br>
-<figure>
-  <img width="819" alt="image" src="https://github.com/user-attachments/assets/521370cf-04cf-4962-ad90-dc87a9f4f1a3" />
-  <figcaption><em><br></br>Figure 5. Graph with embeddings and attention: MRR@20 and R@20</em></figcaption>
-</figure>
-<br>
-</br>
-
-<br>
-</br>
-<figure>
-  <img width="819" alt="image" src="https://github.com/user-attachments/assets/15758e97-7396-4426-b3d7-2c5068de5eae" />
-  <figcaption><em><br></br>Figure 6. Graph with embeddings and attentional aggregation: MRR@20 and R@20</em></figcaption>
 </figure>
 <br>
 </br>
@@ -444,6 +428,17 @@ All the details of the grid search result are available in the [detailed report]
 
 ## Hyperparameter tuning results: Graph with embeddings and attention
 
+See below the plots for MRR20 and R20 values for the best and worst configurations for this model. We plot the best and the worst so that the comparison is easier than plotting the 27 tested combinations.
+
+<br>
+</br>
+<figure>
+  <img width="819" alt="image" src="https://github.com/user-attachments/assets/521370cf-04cf-4962-ad90-dc87a9f4f1a3" />
+  <figcaption><em><br></br>Figure 5. Graph with embeddings and attention: MRR@20 and R@20</em></figcaption>
+</figure>
+<br>
+</br>
+
 | Result | Weight Decay | Dropout Rate | Learning Rate  | R@20 | MRR@20  |
 |-------|-------------|--------------|---------------|-------|-----------|
 | Best setup - R@20 | 1e-05 | 0.2 | 0.001 | 0.5530200004577637 | 0.2538684904575348 |
@@ -453,6 +448,17 @@ All the details of the grid search result are available in the [detailed report]
 All the details of the grid search result are available in the [detailed report](experiments/experiments_results/experiments_report.md#graph-with-embeddings-and-attention).
 
 ## Hyperparameter tuning results: Graph with embeddings and attentional aggregation
+
+See below the plots for MRR20 and R20 values for the best and worst configurations for this model. We plot the best and the worst so that the comparison is easier than plotting the 27 tested combinations.
+
+<br>
+</br>
+<figure>
+  <img width="819" alt="image" src="https://github.com/user-attachments/assets/15758e97-7396-4426-b3d7-2c5068de5eae" />
+  <figcaption><em><br></br>Figure 6. Graph with embeddings and attentional aggregation: MRR@20 and R@20</em></figcaption>
+</figure>
+<br>
+</br>
 
 | Result | Weight Decay | Dropout Rate | Learning Rate  | R@20 | MRR@20  |
 |-------|-------------|--------------|---------------|-------|-----------|
@@ -475,8 +481,6 @@ Scheduler definition:
 scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=2)
 ```
 
-<!-- TODO Add curves for models execution-->
-
 # 7. Models benchmarking
 
 The table below summarises the results benchmarking different model configurations using the same dataset (Oct 2019 and Nov 2019).
@@ -485,7 +489,7 @@ The table below summarises the results benchmarking different model configuratio
 | Model | R@20 | MRR@20 |
 |-------|------|--------|
 | GRU4Rec (baseline) | 0.5293 | 0.2008 |
-| SR_GNN (own implementation) | 0.5703| 0.3200 |
+| SR_GNN (own implementation) | 0.5703 | 0.3200 |
 | Graph with Embeddings and Attentional Aggregation: wd=1e-06, dropout_rate=0 | 0.6048 | 0.3544 |
 
 <!-- TODO: add new long-runs as they finish-->
@@ -495,7 +499,56 @@ We can see how our model "Graph with Embeddings and Attentional Aggregation (wd=
 - A 6.04% of improvement in the Recall@20 over SR-GNN and a 14.26% over the Baseline.
 - A 10.75% of improvement in the MRR@20 over SR-GNN and a 76.49% over the Baseline.
 
-<!-- TODO: Add plots for long runs-->
+# Long execution 1
+Execution parametres:
+```python
+weight_decay=1e-06
+dropout_rate=0
+epochs=30
+```
+MRR@20 evolution
+
+<img width="882" alt="wd_1e-06__dr_0_mrr" src="https://github.com/user-attachments/assets/92b08ec1-0a52-48da-80d8-d2125bf42958" />
+
+R@20 evolution
+
+<img width="882" alt="wd_1e-06__dr_0_r" src="https://github.com/user-attachments/assets/c5ed6c70-e554-44d1-be5c-45553a289946" />
+
+Training loss vs Validation loss evolution
+
+<img width="675" alt="wd_1e-06__dr_0_losses" src="https://github.com/user-attachments/assets/ec90e41f-5c7c-416c-9db1-6fd667bf0936" />
+
+In this case, we can see how the model seems to overfit from epoch 10. The MRR@20 and the R@20 keep growing epoch after epoch. 
+
+When running this trained model against the test set, we are getting the following metrics:.
+- **R@20**: 0.6048
+- **MRR@20**: 0.3544
+
+# Long execution 2
+Execution parametres:
+```python
+weight_decay=1e-05
+dropout_rate=0
+epochs=30
+```
+MRR@20 evolution
+
+<img width="633" alt="le2_mrr" src="https://github.com/user-attachments/assets/035b1f47-4aaa-4f91-91ad-64d86a03c728" />
+
+
+R@20 evolution
+
+<img width="635" alt="le2_r" src="https://github.com/user-attachments/assets/592bdef7-ce9a-44d6-909b-8b2e41acc6da" />
+
+Training loss vs Validation loss evolution
+
+<img width="682" alt="le2_losses" src="https://github.com/user-attachments/assets/bb923126-7c86-4e77-ac0f-e72909f3fef1" />
+
+In this case, we can see how a higher weight decay effectively helps preventing the model from overfitting. 
+
+When running this trained model against the test set, we are getting the following metrics:.
+- **R@20**: TODO
+- **MRR@20**: TODO
 
 # 8. Repository structure and MLOPS features
 
