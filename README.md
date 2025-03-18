@@ -552,6 +552,9 @@ We created our own implementation of SR_GNN because the SR_GNN does not report r
 We can see how our model "Graph with Embeddings and Attentional Aggregation (wd=1e-06, dropout_rate=0)" represents:
 - A 6.04% of improvement in the Recall@20 over SR-GNN and a 14.26% over the Baseline.
 - A 10.75% of improvement in the MRR@20 over SR-GNN and a 76.49% over the Baseline.
+When increasing the weight decay (wd=1e-05, dropout_rate=0), we can see a slightly smaller increment on performance metrics:
+- A 2.42% improvement in the Recall@20 over SR-GNN and a 10.35% over the baseline.
+- A 1.56% improvement in the MRR@20 over SR-GNN and a 61.85% over the baseline.
 
 # 8. Repository structure and MLOPS features
 
