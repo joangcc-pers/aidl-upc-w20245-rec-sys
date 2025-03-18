@@ -48,9 +48,9 @@ def train_sr_gnn_att_agg(
         output_folder_artifacts_with_exp_hyp_cmb_name = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "test")
 
     # Crear carpeta de logs para TensorBoard
-    log_dir = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "logs")  # Guardar los datos para TensorBoard aquí
+    log_dir = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "logs")  
     os.makedirs(log_dir, exist_ok=True)
-    writer = SummaryWriter(log_dir)  # Inicializar TensorBoard (guarda los valores de pérdida y métricas en archivos de log)
+    writer = SummaryWriter(log_dir)  
 
     # Read JSON file with training parameters at experiments/sr_gnn_mockup/model_params.json
     # Combine the directory and the file name
@@ -135,14 +135,12 @@ def train_sr_gnn_att_agg(
             if scheduler:
                 print(f"Current scheduler-managed lr: {scheduler.get_last_lr()}")
             
-            # Entrenamiento y evaluación por época
             train_loss, train_metrics = train_epoch(model, train_dataloader, optimizer, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
             eval_loss, eval_metrics = eval_epoch(model, eval_dataloader, criterion, total_epochs=epochs, current_epoch=epoch, top_k=top_k, device=device)
 
             if scheduler: 
                 scheduler.step(eval_loss)
 
-            # Registrar pérdidas y métricas en TensorBoard
             writer.add_scalar("Loss/Train", train_loss, epoch)
             writer.add_scalar("Loss/Validation", eval_loss, epoch)
 
@@ -152,16 +150,14 @@ def train_sr_gnn_att_agg(
             for k, v in eval_metrics.items():
                 writer.add_scalar(f"Validation/{k}", v, epoch)
 
-            # Guardar modelo
             intermediate_model_path = f"trained_model_{str(epoch+1).zfill(4)}.pth"
             torch.save(model.state_dict(), output_folder_artifacts_with_exp_hyp_cmb_name + f"/{intermediate_model_path}")
             print(f"Model for epoch {epoch+1} saved at {intermediate_model_path}")
 
-        # Guardar el modelo final
         torch.save(model.state_dict(), output_folder_artifacts_with_exp_hyp_cmb_name+"/trained_model.pth")
         print(f"Trained model saved at {output_folder_artifacts_with_exp_hyp_cmb_name+'/trained_model.pth'}")
 
-        writer.close()  # Cerrar TensorBoard correctamente
+        writer.close()  
 
 def train_sr_gnn_att_agg_with_onehot(
         model_params,
@@ -199,10 +195,9 @@ def train_sr_gnn_att_agg_with_onehot(
     if task == "test":
         output_folder_artifacts_with_exp_hyp_cmb_name = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "test")
 
-    # Crear carpeta de logs para TensorBoard
-    log_dir = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "logs")  # Guardar los datos para TensorBoard aquí
+    log_dir = os.path.join(output_folder_artifacts_with_exp_hyp_cmb_name, "logs") 
     os.makedirs(log_dir, exist_ok=True)
-    writer = SummaryWriter(log_dir)  # Inicializar TensorBoard (guarda los valores de pérdida y métricas en archivos de log)
+    writer = SummaryWriter(log_dir) 
 
     # Read JSON file with training parameters at data/processed/sr_gnn_mockup/training_params.json
     # Combine the directory and the file name
@@ -294,7 +289,6 @@ def train_sr_gnn_att_agg_with_onehot(
             if scheduler: 
                 scheduler.step(eval_loss)
 
-            # Registrar pérdidas y métricas en TensorBoard
             writer.add_scalar("Loss/Train", train_loss, epoch)
             writer.add_scalar("Loss/Validation", eval_loss, epoch)
 
@@ -304,15 +298,13 @@ def train_sr_gnn_att_agg_with_onehot(
             for k, v in eval_metrics.items():
                 writer.add_scalar(f"Validation/{k}", v, epoch)
 
-            # Guardar modelo
             intermediate_model_path = f"trained_model_{str(epoch+1).zfill(4)}.pth"
             torch.save(model.state_dict(), output_folder_artifacts_with_exp_hyp_cmb_name + f"/{intermediate_model_path}")
             print(f"Model for epoch {epoch+1} saved at {intermediate_model_path}")
 
-        # Guardar el modelo final
         torch.save(model.state_dict(), output_folder_artifacts_with_exp_hyp_cmb_name+"/trained_model.pth")
         print(f"Trained model saved at {output_folder_artifacts_with_exp_hyp_cmb_name+'/trained_model.pth'}")
 
-        writer.close()  # Cerrar TensorBoard correctamente
+        writer.close()  
 
 
