@@ -480,26 +480,7 @@ Scheduler definition:
 ```python
 scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=2)
 ```
-
-# 7. Models benchmarking
-
-The table below summarises the results benchmarking different model configurations using the same dataset (Oct 2019 and Nov 2019).
-
-
-| Model | R@20 | MRR@20 |
-|-------|------|--------|
-| GRU4Rec (baseline) | 0.5293 | 0.2008 |
-| SR_GNN (own implementation) | 0.5703 | 0.3200 |
-| Graph with Embeddings and Attentional Aggregation: wd=1e-06, dropout_rate=0 | 0.6048 | 0.3544 |
-
-<!-- TODO: add new long-runs as they finish-->
-
-We created our own implementation of SR_GNN because the SR_GNN does not report results on the dataset we are using for the baseline and the assessment of our model.
-We can see how our model "Graph with Embeddings and Attentional Aggregation (wd=1e-06, dropout_rate=0)" represents:
-- A 6.04% of improvement in the Recall@20 over SR-GNN and a 14.26% over the Baseline.
-- A 10.75% of improvement in the MRR@20 over SR-GNN and a 76.49% over the Baseline.
-
-# Long execution 1
+### Long execution 1
 Execution parametres:
 ```python
 weight_decay=1e-06
@@ -524,7 +505,7 @@ When running this trained model against the test set, we are getting the followi
 - **R@20**: 0.6048
 - **MRR@20**: 0.3544
 
-# Long execution 2
+### Long execution 2
 Execution parametres:
 ```python
 weight_decay=1e-05
@@ -549,6 +530,24 @@ In this case, we can see how a higher weight decay effectively helps preventing 
 When running this trained model against the test set, we are getting the following metrics:.
 - **R@20**: TODO
 - **MRR@20**: TODO
+
+# 7. Models benchmarking
+
+The table below summarises the results benchmarking different model configurations using the same dataset (Oct 2019 and Nov 2019).
+
+
+| Model | R@20 | MRR@20 |
+|-------|------|--------|
+| GRU4Rec (baseline) | 0.5293 | 0.2008 |
+| SR_GNN (own implementation) | 0.5703 | 0.3200 |
+| Graph with Embeddings and Attentional Aggregation: wd=1e-06, dropout_rate=0 | 0.6048 | 0.3544 |
+
+<!-- TODO: add new long-runs as they finish-->
+
+We created our own implementation of SR_GNN because the SR_GNN does not report results on the dataset we are using for the baseline and the assessment of our model.
+We can see how our model "Graph with Embeddings and Attentional Aggregation (wd=1e-06, dropout_rate=0)" represents:
+- A 6.04% of improvement in the Recall@20 over SR-GNN and a 14.26% over the Baseline.
+- A 10.75% of improvement in the MRR@20 over SR-GNN and a 76.49% over the Baseline.
 
 # 8. Repository structure and MLOPS features
 
