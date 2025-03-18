@@ -102,11 +102,12 @@ In early iterations, the team developed the code for one-hot encoding. However, 
 <br>
 </br>
 <figure>
-  <img width="813" alt="image" src="https://github.com/user-attachments/assets/7de6883f-d0e0-4d58-9eae-9f8ce427d884" />
+  <img width="824" alt="image" src="https://github.com/user-attachments/assets/882315a8-146b-416e-a342-4990d826b253" />
   <figcaption><em>Figure 1. GGNN with node embeddings </em></figcaption>
 </figure>
 <br>
 </br>
+
 
 This architecture is based on a Gated Graph Neural Network (GGNN), that relies on Graph Neural Networks (GNNs) combined with GRU cells in order to work with sequential information in-session. The main characteristics of this implementation are:
 
@@ -152,11 +153,12 @@ However, this architecture has a key weakness. It gives equal importance to all 
 <br>
 </br>
 <figure>
-  <img width="1604" alt="image" src="https://github.com/user-attachments/assets/78e350e9-70bc-4a29-915f-a6a5e8b33b91" />
+  <img width="1604" alt="image" src="https://github.com/user-attachments/assets/b28fb010-7f01-44de-aa24-3644fd436e5e" />
   <figcaption><em>Figure 2. GGNN with Implicit Self-Attention using Sigmoid</em></figcaption>
 </figure>
 <br>
 </br>
+
 
 In this architecture, we keep using GNN mean aggregation in the GRUPGraphLayer and the GRUCell adjusting dinamically the importance of the messages. However, we introduce a self-attention mechanism on the session, based on the second before last (penultimate) item. That is, we put under the spotlight (give more importance to) the last product of the session. Here are the details. 
 
@@ -189,11 +191,12 @@ The key limitation of this architecture though is that it prioritizes the penult
 <br>
 </br>
 <figure>
-  <img width="1416" alt="image" src="https://github.com/user-attachments/assets/5673f5f3-33e2-4ab1-8327-7d9dda9abf3e" />
+  <img width="1416" alt="image" src="https://github.com/user-attachments/assets/ce860fdf-92b2-44e0-931f-48e6fcf2575e" />
   <figcaption><em>Figure 3. Graph with embeddings and attentional aggregation</em></figcaption>
 </figure>
 <br>
 </br>
+
 In this architecture, we introduce Attentional Aggregation, a mechanism that refines the way information is aggregated across nodes in the session graph. While the previous self-attention model applied attention weights based on the interaction between each product and the last visited product, this architecture further improves the aggregation process by explicitly modeling the importance of each interaction during message passing.
 
 #### Key Differences between Attentional Aggregation and Self-Attention
@@ -528,8 +531,8 @@ Training loss vs Validation loss evolution
 In this case, we can see how a higher weight decay effectively helps preventing the model from overfitting. 
 
 When running this trained model against the test set, we are getting the following metrics:.
-- **R@20**: TODO
-- **MRR@20**: TODO
+- **R@20**: 0.5841
+- **MRR@20**: 0.325
 
 # 7. Models benchmarking
 
@@ -541,6 +544,7 @@ The table below summarises the results benchmarking different model configuratio
 | GRU4Rec (baseline) | 0.5293 | 0.2008 |
 | SR_GNN (own implementation) | 0.5703 | 0.3200 |
 | Graph with Embeddings and Attentional Aggregation: wd=1e-06, dropout_rate=0 | 0.6048 | 0.3544 |
+| Graph with Embeddings and Attentional Aggregation: wd=1e-05, dropout_rate=0 | 0.5841 | 0.325 |
 
 <!-- TODO: add new long-runs as they finish-->
 
