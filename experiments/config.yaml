@@ -133,35 +133,4 @@ experiments:
     test_params:
       best_checkpoint_path: "experiments/experiment_7/trained_model.pth"
 
-  experiment_8:
-    model_name: "simple_sr_gnn_attn"
-    model_params:
-      epochs: 50
-      optimizer: "Adam"
-      num_iterations: 1
-      embedding_dim: 64
-      hidden_dim: 100
-      shuffle: False
-      batch_size: 50
-      lr: 0.001
-      weight_decay: 0.00001
-      dropout_rate: 0.5
-    data_params:
-      input_folder_path: "data/raw/"
-      output_folder_artifacts: "experiments/experiment_8/"
-    preprocessing:
-      start_month: '2019-10'
-      end_month: '2019-11'
-      #test_sessions_first_n: 10000
-      limit_to_view_event: True
-      drop_listwise_nulls: True
-      min_products_per_session: 3
-      normalization_method: 'zscore'
-      train_split: 0.8
-      val_split: 0.1
-      test_split: 0.1
-      split_method: 'random'
-    evaluation:
-      top_k: [1, 5, 10, 20]
-    test_params:
-      best_checkpoint_path: "experiments/experiment_8/trained_model.pth"
+  
