@@ -88,9 +88,9 @@ In a session-based recommender, managing the context and the sequential informat
 
 In a customer journey, when the client is shopping, the past itneractions of the item may have different weights as to what they view next. Modelling which steps of the interaction should be attended to is a key factor in the prediction of the next viewed item. However, such mechanisms have increased computational costs and added complexity.
 
-One could opt for implicit attention. That is, the network gives uniform weights to each of the product nodes. This is less computationally demanding, whilst hindering the ability to prioritize more relevant products. The alternative is to use explicit attention: add mechanisms to set weights for each interaction differently. In the next description of our architectures, you will see the different alternatives we used: AttentionalAggregation and self-attention based on session products.
+One could opt for implicit attention. That is, the network gives uniform weights to each of the product nodes. This is less computationally demanding, whilst hindering the ability to prioritize more relevant products. The alternative is to use explicit attention: add mechanisms to set weights for each interaction differently. In the next description of our architectures, you will see the different alternatives we used.
 
-### 4.1.3 Modelling product information: embedding vs one-hot enconding followed by a fully-connected layer
+### 4.1.3 Modelling product information: embedding vs one-hot encoding followed by a fully-connected layer
 
 Product category and brand info are a crucial part for users to navigate and choose products of categories they are attracted to and brands the know of. There are two main ways to manage categorical information such as this: embeddings or one-hot encodings with a fully connected layer.
 In early iterations, the team developed the code for one-hot encoding. However, the usage of one-hot encodings with afully conencted layer was causibgn many RAM problems, as there are multiple categories within each layer of the product taxonomy, as well as brands. Therefore, this implmentation was discarded, and continued with embeddings.
@@ -149,21 +149,21 @@ In addition, the GRUCell also adds implicit attention. Based on the previous sta
 
 However, this architecture has a key weakness. It gives equal importance to all the viewed products. Some actions may be more telling than others, but this is something that an equally distributed importance cannot tackle. Therefore, we updated this architecture by adding a self-attention mechanism that would bring closer our model to how the shopping behavior occurs.
 
-### 4.2.2 GGNN with Implicit Self-Attention using Sigmoid (saved as "graph-with-embeddings-and-attention")
+### 4.2.2 GGNN with Explicit Self-Attention using Sigmoid (saved as "graph-with-embeddings-and-attention")
 <br>
 </br>
 <figure>
   <img width="1604" alt="image" src="https://github.com/user-attachments/assets/b28fb010-7f01-44de-aa24-3644fd436e5e" />
-  <figcaption><em>Figure 2. GGNN with Implicit Self-Attention using Sigmoid</em></figcaption>
+  <figcaption><em>Figure 2. GGNN with Explicit Self-Attention using Sigmoid</em></figcaption>
 </figure>
 <br>
 </br>
 
 
-In this architecture, we keep using GNN mean aggregation in the GRUPGraphLayer and the GRUCell adjusting dinamically the importance of the messages. However, we introduce a self-attention mechanism on the session, based on the second before last (penultimate) item. That is, we put under the spotlight (give more importance to) the last product of the session. Here are the details. 
+In this architecture, we keep using GNN mean aggregation in the GRUPGraphLayer and the GRUCell adjusting dinamically the importance of the messages. However, we introduce an attention mechanism on the session, based on the second before last (penultimate) item. That is, we put under the spotlight (give more importance to) the last product of the session. Here are the details. 
 
 #### Explicit attention
-We adapted the architecture so it would be closer to the real world case: give more importance to the last item. However, we cannot use directly the last item, as we would have, then, no item to predict. Therefore, we reproduced Wu et al approach, and used the penultimate visited item. This means that, in this code and iscussion of architecture and results, whenever we talk about using the last visited product, we will **always refer to the penultimate item**.
+We adapted the architecture so it would be closer to the real world case: give more importance to the last item. However, we cannot use directly the last item, as we would have, then, no item to predict. Therefore, we reproduced Wu et al approach, and used the penultimate visited item. This means that, in this code and discussion of architecture and results, whenever we talk about using the last visited product, we will **always refer to the penultimate item**.
 
 The architecture for such improvement consisted of these key aspects:
 - Transformed embedding calculations
