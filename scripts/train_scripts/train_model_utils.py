@@ -63,7 +63,7 @@ def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_e
     metrics = aggregate_metrics(avg_loss, avg_precision, avg_recall, avg_mrr)
         
     print_metrics(total_epochs, current_epoch, top_k, avg_loss, metrics, task="Training")
-    return avg_loss, metrics  # Retornar pérdida y métricas
+    return avg_loss, metrics  
 
 def eval_epoch(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20], device=None):
     avg_loss, avg_precision, avg_recall, avg_mrr = evaluate_model_epoch(model, eval_dataloader, criterion, device, top_k)
@@ -71,7 +71,7 @@ def eval_epoch(model, eval_dataloader, criterion, total_epochs, current_epoch, t
     metrics = aggregate_metrics(avg_loss, avg_precision, avg_recall, avg_mrr)
         
     print_metrics(total_epochs, current_epoch, top_k, avg_loss, metrics, task="Evaluate")
-    return avg_loss, metrics  # Retornar pérdida y métricas
+    return avg_loss, metrics  
 
 def test_epoch(model, eval_dataloader, criterion, top_k=[20], device=None):
     avg_loss, avg_precision, avg_recall, avg_mrr = evaluate_model_epoch(model, eval_dataloader, criterion, device, top_k)
@@ -79,4 +79,4 @@ def test_epoch(model, eval_dataloader, criterion, top_k=[20], device=None):
     metrics = aggregate_metrics(avg_loss, avg_precision, avg_recall, avg_mrr)
     
     print_metrics(1, 0, top_k, avg_loss, metrics, task="Test")
-    return avg_loss, metrics  # Retornar pérdida y métricas
+    return avg_loss, metrics  
