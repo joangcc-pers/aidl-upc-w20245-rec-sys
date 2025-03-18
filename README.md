@@ -543,8 +543,9 @@ The table below summarises the results benchmarking different model configuratio
 |-------|------|--------|
 | GRU4Rec (baseline) | 0.5293 | 0.2008 |
 | SR_GNN (own implementation) | 0.5703 | 0.3200 |
-| Graph with Embeddings and Attentional Aggregation: wd=1e-06, dropout_rate=0 | 0.6048 | 0.3544 |
-| Graph with Embeddings and Attentional Aggregation: wd=1e-05, dropout_rate=0 | 0.5841 | 0.325 |
+| Graph with Embeddings and Attentional Aggregation (stopped at epoch 30): wd=1e-06, dropout_rate=0 | 0.6048 | 0.3544 |
+| Graph with Embeddings and Attentional Aggregation (stopped at epoch 30): wd=1e-05, dropout_rate=0 | 0.5841 | 0.325 |
+| Graph with Embeddings and Attentional Aggregation (stopped at epoch 7): wd=1e-06, dropout_rate=0.5 | 0.5881 | 0.3312 |
 
 <!-- TODO: add new long-runs as they finish-->
 
@@ -555,6 +556,9 @@ We can see how our model "Graph with Embeddings and Attentional Aggregation (wd=
 When increasing the weight decay (wd=1e-05, dropout_rate=0), we can see a slightly smaller increment on performance metrics:
 - A 2.42% improvement in the Recall@20 over SR-GNN and a 10.35% over the baseline.
 - A 1.56% improvement in the MRR@20 over SR-GNN and a 61.85% over the baseline.
+When increasing the dropout rate (wd=1e-06, dropout_rate=0.5), and early stopping, we see also slightly smaller increment, mostly due to stopping the training early on:
+- A 3.12% improvement in the Recall@20 over SR_GNN and a 11.10% over the baseline.
+- A 3.5% improvement in the MRR@20 over SR-GNN and a 64% over the baseline.
 
 # 8. Repository structure and MLOPS features
 
