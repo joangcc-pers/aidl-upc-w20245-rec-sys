@@ -533,6 +533,61 @@ In this case, we can see how a higher weight decay effectively helps preventing 
 When running this trained model against the test set, we are getting the following metrics:.
 - **R@20**: 0.5841
 - **MRR@20**: 0.325
+  
+### Long execution 3
+Execution parametres:
+```python
+weight_decay=1e-05
+dropout_rate=0.5
+epochs=7
+```
+In this case, the model was trained for 7 epochs due to time constraints
+
+MRR@20 evolution
+
+<img width="716" alt="execution3_mrr" src="https://github.com/user-attachments/assets/be2c5155-807d-4da6-98bd-e2c22fe5d60a" />
+
+R@20 evolution
+
+<img width="722" alt="execution3_recall" src="https://github.com/user-attachments/assets/77b2a107-2504-41b5-ba0a-75aa6fda4907" />
+
+Training loss vs Validation loss evolution
+
+<img width="721" alt="execution3_loss" src="https://github.com/user-attachments/assets/0e74da74-da17-4e18-9dab-e10676c52f7e" />
+
+In this case, we can see how a higher weight decay effectively helps preventing the model from overfitting. 
+
+When running this trained model against the test set, we are getting the following metrics:.
+- **R@20**: 0.5702
+- **MRR@20**: 0.311
+
+### Long execution 4
+Execution parametres:
+```python
+weight_decay=1e-05
+dropout_rate=0
+epochs=7
+```
+In this case, the model was trained for 7 epochs due to time constraints
+
+MRR@20 evolution
+
+<img width="721" alt="mrr4" src="https://github.com/user-attachments/assets/4cc2e11f-8564-4154-8322-c9e6c243c72b" />
+
+R@20 evolution
+
+<img width="721" alt="r4" src="https://github.com/user-attachments/assets/2ca5ed9f-b58b-4296-8694-e778bfce832b" />
+
+Training loss vs Validation loss evolution
+
+<img width="718" alt="loss4" src="https://github.com/user-attachments/assets/e997151d-715c-41fa-bb3f-8ea993535ff5" />
+
+
+In this case, we can see how a higher weight decay effectively helps preventing the model from overfitting. 
+
+When running this trained model against the test set, we are getting the following metrics:.
+- **R@20**: 0.5862
+- **MRR@20**: 0.394
 
 # 7. Models benchmarking
 
