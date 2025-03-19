@@ -638,7 +638,7 @@ The repository is organized as follows:
 - **models**: Contains the different deep leanning models implementations.
 - **notebooks**: Folder to store Jupyter notebooks that can be useful to explore different parts of this project. 
 - **scripts**: The scripts folder contains all the logic needed to implement the whole lifecycle of this machine learning project. Contains `preprocessing_scripts`, `train_scripts`, `evaluate_scripts` and `test_scripts`.
-- **utils**: Helper classes and methods used in by other classes in the repository.
+- **utils**: Helper classes and methods used in by other classes in the repository. It also incldues teh scripts to produce the architecture plots using PlotNeuralNet.
 **run_experiment.py**: Entry point for running experiments defined in `experiments/config.yaml` file.
 **run_optim.py**: Entry point for running grid search defined in `experiments/config-hyp.yaml` file.
 
@@ -776,6 +776,14 @@ In order to visualise the tensorboard graph, run tensorboard, setting the `logdi
 
 ```bash
 tensorboard --logdir=experiments/<experiment_name>/
+```
+
+## Produce Architecture plots
+
+You can produce the same architecture plots running the scripts at utils/plotneuralnet. They rely on [PlotNeuralNet](https://github.com/HarisIqbal88/PlotNeuralNet) Python package.
+
+```bash
+python -m red1_graph_with_embeddings.py
 ```
 
 # 9. Future work
