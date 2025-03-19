@@ -36,7 +36,7 @@ This calls for the need of strong algorithms that leverage implicit feedback suc
 
 To address these challenges, we focus on session-based recommendation systems, which infer user preferences from short-term interactions rather than relying on past behavior. The usage of implicit feedback is key for current recommendation systems (see [the analysis of Esmeli et al., 2023](https://link.springer.com/article/10.1007/s42979-023-01752-x)) By analyzing user navigation within a single session, such as product views and clicks, we can dynamically predict and suggest relevant items without requiring long-term user data. This approach is particularly advantageous as it enables fast, personalized recommendations while adhering to evolving data privacy standards.
 
-Inspired by the work of Wu et al. (2023) in Session-Based Recommendations for E-Commerce with Graph-Based Data Modeling, we adopt a graph-based framework to model session interactions. This method allows us to:
+Inspired by the work of Wu et al. (2019) in Session-Based Recommendations for E-Commerce with Graph-Based Data Modeling, we adopt a graph-based framework to model session interactions. This method allows us to:
 
 - Capture implicit relationships between products through user browsing behavior.
 - Predict the next likely action or click to optimize the customer journey.
