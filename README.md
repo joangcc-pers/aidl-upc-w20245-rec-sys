@@ -768,6 +768,16 @@ python run_optim.py --model your_model_name --task preprocess train --force_reru
   - Will skip fully executed scenarios
   - Will resume started scenarios from the last checkpoint
 
+## Visualize results
+
+Both `run_experiment.py` and `run_optim.py` automatically generates tensorboard files in `{data_params/output_folder_artifacts}/logs`.
+
+In order to visualise the tensorboard graph, run tensorboard, setting the `logdir` parametre to the experiment `output_folder_artifacts`.
+
+```bash
+tensorboard --logdir=experiments/<experiment_name>/
+```
+
 # 9. Future work
 
 We identified 3 areas of future work for this project:
