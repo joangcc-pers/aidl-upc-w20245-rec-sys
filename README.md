@@ -600,7 +600,6 @@ The table below summarises the results benchmarking different model configuratio
 |-------|------|--------|
 | GRU4Rec (baseline) | 0.5293 | 0.2008 |
 | SR_GNN (own implementation) | 0.5703 | 0.3200 |
-
 | Graph with Embeddings and Attentional Aggregation (stopped at epoch 30): wd=1e-06, dropout_rate=0 | 0.6048 | 0.3544 |
 | Graph with Embeddings and Attentional Aggregation (stopped at epoch 30): wd=1e-05, dropout_rate=0 | 0.5841 | 0.325 |
 | Graph with Embeddings and Attentional Aggregation (stopped at epoch 7): wd=1e-06, dropout_rate=0.5 | 0.5881 | 0.3312 |
@@ -610,13 +609,13 @@ We created our own implementation of SR_GNN because the SR_GNN does not report r
 We can see how our model "Graph with Embeddings and Attentional Aggregation (wd=1e-06, dropout_rate=0)" represents:
 - A 6.04% of improvement in the Recall@20 over SR-GNN and a 14.26% over the Baseline.
 - A 10.75% of improvement in the MRR@20 over SR-GNN and a 76.49% over the Baseline.
-When increasing the weight decay (wd=1e-05, dropout_rate=0), we can see a slightly smaller increment on performance metrics:
+<br></br>When increasing the weight decay (wd=1e-05, dropout_rate=0), we can see a slightly smaller increment on performance metrics:
 - A 2.42% improvement in the Recall@20 over SR-GNN and a 10.35% over the baseline.
 - A 1.56% improvement in the MRR@20 over SR-GNN and a 61.85% over the baseline.
-When increasing the dropout rate (wd=1e-06, dropout_rate=0.5), and early stopping, we see also slightly smaller increment, mostly due to stopping the training early on:
+<br></br>When increasing the dropout rate (wd=1e-06, dropout_rate=0.5), and early stopping, we see also slightly smaller increment, mostly due to stopping the training early on:
 - A 3.12% improvement in the Recall@20 over SR_GNN and a 11.10% over the baseline.
 - A 3.5% improvement in the MRR@20 over SR-GNN and a 64% over the baseline.
-The last long-run (stopped at epoch 7) produced slightly inferior results compared to SR-GNN, but still superior to the baseline.
+<br></br>The last long-run (stopped at epoch 7) produced slightly inferior results compared to SR-GNN, but still superior to the baseline.
 - A 0.02% decrease in Recall@20 over SR_GNN and a 7.72% increase over the baseline.
 - A 2.81% decrease in MRR@20 over SR_GNN and a 54.48% increase over the baseline.
 
