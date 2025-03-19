@@ -93,7 +93,7 @@ One could opt for implicit attention. That is, the network gives uniform weights
 ### 4.1.3 Modelling product information: embedding vs one-hot encoding followed by a fully-connected layer
 
 Product category and brand info are a crucial part for users to navigate and choose products of categories they are attracted to and brands the know of. There are two main ways to manage categorical information such as this: embeddings or one-hot encodings with a fully connected layer.
-In early iterations, the team developed the code for one-hot encoding. However, the usage of one-hot encodings with afully conencted layer was causibgn many RAM problems, as there are multiple categories within each layer of the product taxonomy, as well as brands. Therefore, this implmentation was discarded, and continued with embeddings.
+In early iterations, the team developed the code for one-hot encoding. However, the usage of one-hot encodings with a fully connected layer was causing many RAM problems, as there are multiple categories within each layer of the product taxonomy, as well as brands. Therefore, this implementation was discarded, and continued with embeddings.
 
 
 ## 4.2 Architectures tested
