@@ -1,7 +1,6 @@
-import torch
 import gc
-
-from utils.metrics_utils import compute_precision_and_recall, compute_mrr
+from utils.metrics_utils import compute_precision_and_recall, compute_mrr, aggregate_metrics, print_metrics
+from scripts.evaluate_scripts.evaluate_model_utils import evaluate_model_epoch
 from tqdm import tqdm
 
 def train_model_epoch(model, dataloader, optimizer, criterion, device, top_k=[10,20]):
@@ -56,3 +55,28 @@ def print_model_parameters(model):
 
     print(f"Total parameters: {total_params}")
     print(f"Learnable parameters: {learnable_params}")
+
+
+def train_epoch(model, dataloader, optimizer, criterion, total_epochs, current_epoch, top_k=[20], device=None):
+    avg_loss, avg_precision, avg_recall, avg_mrr = train_model_epoch(model, dataloader, optimizer, criterion, device, top_k=top_k)
+
+    metrics = aggregate_metrics(avg_loss, avg_precision, avg_recall, avg_mrr)
+        
+    print_metrics(total_epochs, current_epoch, top_k, avg_loss, metrics, task="Training")
+    return avg_loss, metrics  
+
+def eval_epoch(model, eval_dataloader, criterion, total_epochs, current_epoch, top_k=[20], device=None):
+    avg_loss, avg_precision, avg_recall, avg_mrr = evaluate_model_epoch(model, eval_dataloader, criterion, device, top_k)
+
+    metrics = aggregate_metrics(avg_loss, avg_precision, avg_recall, avg_mrr)
+        
+    print_metrics(total_epochs, current_epoch, top_k, avg_loss, metrics, task="Evaluate")
+    return avg_loss, metrics  
+
+def test_epoch(model, eval_dataloader, criterion, top_k=[20], device=None):
+    avg_loss, avg_precision, avg_recall, avg_mrr = evaluate_model_epoch(model, eval_dataloader, criterion, device, top_k)
+
+    metrics = aggregate_metrics(avg_loss, avg_precision, avg_recall, avg_mrr)
+    
+    print_metrics(1, 0, top_k, avg_loss, metrics, task="Test")
+    return avg_loss, metrics  

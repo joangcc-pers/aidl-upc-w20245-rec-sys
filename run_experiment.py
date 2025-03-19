@@ -25,7 +25,7 @@ def main():
     '''
     
     # Ensure tasks are in the correct order
-    valid_order = ["preprocess", "train"]
+    valid_order = ["preprocess", "train", "test"]
     provided_order = args.task
 
     if len(provided_order) > 1:
@@ -75,6 +75,22 @@ def main():
                 top_k=experiment_config["evaluation"]["top_k"],
                 resume = None
                 )
+        elif task == "test":
+            print(f"Testing model '{experiment_config['model_name']}'...")
+            print("Testing parameters:")
+            for key, value in experiment_config["test_params"].items():
+                print(f"  {key}: {value}")
+            train_model(
+                model_name=experiment_config["model_name"],
+                model_params=experiment_config.get("model_params", {}),
+                output_folder_artifacts=experiment_config["data_params"]["output_folder_artifacts"],
+                top_k=experiment_config["evaluation"]["top_k"],
+                task = task,
+                resume = None,
+                best_checkpoint_path = experiment_config["test_params"]["best_checkpoint_path"]
+            )
+
+        
 
 if __name__ == "__main__":
     main()

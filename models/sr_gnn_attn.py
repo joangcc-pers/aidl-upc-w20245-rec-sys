@@ -87,7 +87,6 @@ class SR_GNN_attn(nn.Module):
 class GRUGraphLayer(MessagePassing):
     def __init__(self, input_dim, hidden_dim, num_iterations=1):
         super(GRUGraphLayer, self).__init__(aggr="mean")  # Adapted to mean aggregation to be more aligned with the original paper
-        #TODO: consultar amb l'oscar si hidden_dim té sentit que sigui embedding dim * nombre embeddings + els 2 tensors (preu i producte)
         self.gru = nn.GRUCell(hidden_dim, hidden_dim)
         self.num_iterations = num_iterations
 

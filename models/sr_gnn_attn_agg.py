@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import MessagePassing, AttentionalAggregation
-from torch_scatter import scatter_softmax, scatter_sum, scatter_max
+from torch_scatter import scatter_max
 from scripts.preprocessing_scripts.node_embedding import NodeEmbedding
 
 
@@ -21,7 +21,6 @@ class SR_GNN_att_agg(nn.Module):
         ):
         super(SR_GNN_att_agg, self).__init__()
         
-        #TODO: Iniciar la classe node_embedding i passar-li els paràmetres necessaris
 
         self.node_embedding = NodeEmbedding(num_categories, num_sub_categories, num_elements, num_brands, num_items, embedding_dim)
 
@@ -71,7 +70,6 @@ class SR_GNN_att_agg(nn.Module):
 class GRUGraphLayer(MessagePassing):
     def __init__(self, input_dim, hidden_dim, num_iterations=1):
         super(GRUGraphLayer, self).__init__(aggr="mean")  # Adapted to mean aggregation to be more aligned with the original paper
-        #TODO: consultar amb l'oscar si hidden_dim té sentit que sigui embedding dim * nombre embeddings + els 2 tensors (preu i producte)
         self.gru = nn.GRUCell(hidden_dim, hidden_dim)
         self.num_iterations = num_iterations
 
@@ -106,7 +104,6 @@ class SR_GNN_att_agg_with_onehot(nn.Module):
         ):
         super(SR_GNN_att_agg_with_onehot, self).__init__()
 
-        #TODO: Iniciar la classe node_embedding i passar-li els paràmetres necessaris
 
         self.input_dim = num_categories + num_sub_categories + num_elements + num_brands + 1
 
@@ -172,7 +169,6 @@ class SR_GNN_att_agg_with_onehot(nn.Module):
 class GRUGraphLayer(MessagePassing):
     def __init__(self, input_dim, hidden_dim, num_iterations=1):
         super(GRUGraphLayer, self).__init__(aggr="mean")  # Adapted to mean aggregation to be more aligned with the original paper
-        #TODO: consultar amb l'oscar si hidden_dim té sentit que sigui embedding dim * nombre embeddings + els 2 tensors (preu i producte)
         self.gru = nn.GRUCell(hidden_dim, hidden_dim)
         self.num_iterations = num_iterations
 

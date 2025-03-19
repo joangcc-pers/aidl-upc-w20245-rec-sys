@@ -137,7 +137,7 @@ class SessionGraphOneHotDataset(Dataset):
             print(f"[INFO:TEST_MODE] Data limited to {len(self.data)} rows from the first {str(test_sessions_first_n)} sessions.")
 
 
-        # Agrupar por user_session y contar el número de productos únicos en cada sesión con al menos 3 eventos "view"
+        # Group by user_session and count the number of unique products in every session with at least 3 events "view"
         
         product_counts_per_session = self.data.groupby('user_session')['product_id'].nunique()
 
@@ -204,8 +204,6 @@ class SessionGraphOneHotDataset(Dataset):
         export_json_path = os.path.join(output_folder_artifacts, 'num_values_for_node_embedding.json')
         with open(export_json_path, 'w') as f:
             json.dump(num_values_for_node_encoding, f)
-
-        #TODO: retornar els valors únics de cada columna per a passar-els al NodeEmbedding
 
         # Debugging information
         print(f"[DEBUG] Unique categories count: {num_categories}")
@@ -342,7 +340,6 @@ class SessionGraphOneHotDataset(Dataset):
             edges.append([0, 0])
 
         edge_index = torch.tensor(edges, dtype=torch.long).t().contiguous()
-            # Quitar el último evento de la sesión de `price`
         price_tensor = torch.tensor(
             session_data['price'][:-1].values, dtype=torch.float
         ).unsqueeze(1)
